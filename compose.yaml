@@ -1,0 +1,47 @@
+# Compose the full stack: Qdrant (storage) + backend (Akgentic team) + web (nginx).
+# Build context is the parent dir so the local akgentic-tool / akgentic-llm are in scope.
+#
+#   docker compose up --build
+#
+name: knowledge-akgents
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  backend:
+    build:
+      context: ..
+      dockerfile: knowledge-akgents/docker/backend.Dockerfile
+    restart: unless-stopped
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      AKGENTIC_QDRANT_URL: http://qdrant:6333
+      AKGENTIC_QDRANT_API_KEY: ${AKGENTIC_QDRANT_API_KEY:-}
+    depends_on:
+      - qdrant
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+
+  web:
+    build:
+      context: ..
+      dockerfile: knowledge-akgents/docker/web.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  qdrant_data:

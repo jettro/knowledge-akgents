@@ -1,0 +1,12 @@
+# Patterns are relative to the build context root (the parent akgents/ dir).
+# Keep the sibling repos' heavy/irrelevant dirs out of the backend image.
+**/.venv
+**/.git
+**/.github
+**/__pycache__
+**/.mypy_cache
+**/.ruff_cache
+**/.pytest_cache
+**/.idea
+**/node_modules
+knowledge-akgents/data

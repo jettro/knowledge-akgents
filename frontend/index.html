@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Knowledge Akgents</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Knowledge Akgents</h1>
+      <div id="status" class="status offline">connecting…</div>
+    </header>
+
+    <main>
+      <section id="log" class="log" aria-live="polite"></section>
+    </main>
+
+    <footer>
+      <div class="ingest">
+        <input id="url" type="url" placeholder="https://example.com/page-to-ingest" />
+        <button id="ingest">Ingest URL</button>
+      </div>
+      <form id="composer" class="composer">
+        <input
+          id="text"
+          type="text"
+          autocomplete="off"
+          placeholder="Ask a question, or @WebIngest / @Knowledge to route directly…"
+        />
+        <button type="submit">Send</button>
+      </form>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

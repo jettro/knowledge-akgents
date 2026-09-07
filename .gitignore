@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+data/
+*.egg-info/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+uv.lock
+
+# Jetbrains files
+.idea

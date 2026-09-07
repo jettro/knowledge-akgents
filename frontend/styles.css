@@ -1,0 +1,92 @@
+:root {
+  --bg: #0f1420;
+  --panel: #171e2e;
+  --panel-2: #1f2940;
+  --text: #e6ebf5;
+  --muted: #8b97ad;
+  --accent: #5b8cff;
+  --human: #2b6cff;
+  --tool: #3a2f5c;
+  --error: #5c2330;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--panel);
+  border-bottom: 1px solid #26304a;
+}
+
+header h1 { font-size: 18px; margin: 0; }
+
+.status { font-size: 12px; padding: 4px 10px; border-radius: 999px; }
+.status.online { background: #16351f; color: #7ee2a0; }
+.status.offline { background: #3a1f26; color: #ff9db0; }
+
+main { flex: 1; overflow: hidden; display: flex; }
+
+.log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.msg {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--panel-2);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+.msg .who { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.msg.human { align-self: flex-end; background: var(--human); }
+.msg.tool { background: var(--tool); font-family: ui-monospace, monospace; font-size: 13px; }
+.msg.system { align-self: center; background: transparent; color: var(--muted); font-size: 12px; }
+.msg.error { background: var(--error); color: #ffc2cd; }
+
+footer { background: var(--panel); border-top: 1px solid #26304a; padding: 12px 20px; }
+
+.ingest { display: flex; gap: 8px; margin-bottom: 10px; }
+.composer { display: flex; gap: 8px; }
+
+input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #2b3550;
+  background: #0d1220;
+  color: var(--text);
+  font-size: 14px;
+}
+
+button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+button:hover { filter: brightness(1.1); }
+#ingest { background: #3a466b; }
