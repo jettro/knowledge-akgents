@@ -2,7 +2,14 @@
 
 from __future__ import annotations
 
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Load ``.env`` into the process environment so the underlying clients (OpenAI,
+# Tavily, Qdrant) — which read ``os.environ`` directly — see the credentials.
+# ``pydantic-settings`` only populates this ``Settings`` object, not ``os.environ``,
+# and ``uv run``/``uvicorn`` do not export ``.env`` on their own.
+load_dotenv()
 
 
 class Settings(BaseSettings):
