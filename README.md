@@ -60,6 +60,18 @@ make web                                     # static UI on :8080
 - Paste a URL in the **Ingest URL** box → routed to `@WebIngest` to fetch, extract, and store.
 - Route directly by prefixing a message with `@Knowledge` or `@WebIngest`.
 
+### Imported URLs
+
+Every URL sent to `@WebIngest` is recorded in a small local cache — `data/urls.json` —
+separate from the knowledge graph itself. This is *only* an input history (url, first/last
+imported timestamps, how many times it was submitted); it doesn't affect ingestion or
+retrieval. The frontend shows it in the **Imported URLs** panel (fetched from
+`GET /api/urls`), so you can see at a glance what has already been fed into the system.
+
+To start over, delete the `data/` directory (or just `data/urls.json`) and restart the
+backend — this only clears the URL history, not the knowledge base itself (that lives in
+Qdrant, or in memory if `AKGENTIC_QDRANT_URL` isn't set).
+
 ## Development
 
 ```bash
@@ -73,9 +85,11 @@ make test        # pytest (team-boot + input parsing; no network/LLM required)
 
 ```
 src/knowledge_akgents/   settings, tools, agents, events bridge, team wiring, FastAPI app
+                         (repository.py tracks imported URLs in data/urls.json)
 frontend/                static Human-Proxy UI + nginx config
 docker/                  backend & web Dockerfiles
 compose.yaml             qdrant + backend + web
+data/                    local cache (imported-URL history); gitignored, safe to delete
 ```
 
 ## License

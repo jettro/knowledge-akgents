@@ -28,6 +28,8 @@ services:
       AKGENTIC_QDRANT_API_KEY: ${AKGENTIC_QDRANT_API_KEY:-}
     depends_on:
       - qdrant
+    volumes:
+      - backend_data:/workspace/app/data
     expose:
       - "8000"
     ports:
@@ -45,3 +47,4 @@ services:
 
 volumes:
   qdrant_data:
+  backend_data:

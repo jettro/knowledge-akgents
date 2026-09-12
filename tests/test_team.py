@@ -7,14 +7,14 @@ key is injected before the team boots.
 
 from __future__ import annotations
 
-import os
-
 import pytest
 
 
 @pytest.fixture()
-def dummy_openai_key() -> None:
-    os.environ.setdefault("OPENAI_API_KEY", "sk-dummy-for-tests")
+def dummy_openai_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-dummy-for-tests")
+    monkeypatch.setenv("AKGENTIC_QDRANT_URL", "")
+    monkeypatch.setenv("TAVILY_API_KEY", "")
 
 
 def test_cards_have_expected_tools() -> None:

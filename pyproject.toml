@@ -27,7 +27,7 @@ dev = [
 ]
 
 [tool.uv.sources]
-akgentic-tool = { path = "../akgentic-tool", editable = true }
+#akgentic-tool = { path = "../akgentic-tool", editable = true }
 akgentic-llm = { path = "../akgentic-llm", editable = true }
 
 [build-system]

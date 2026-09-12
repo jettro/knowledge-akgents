@@ -6,12 +6,18 @@ import asyncio
 import contextlib
 import json
 import logging
+import re
 from collections.abc import AsyncIterator
+from dataclasses import asdict
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
+from knowledge_akgents.repository import UrlRecord, UrlRepository
 from knowledge_akgents.settings import settings
 from knowledge_akgents.team import KnowledgeTeam
 
@@ -51,6 +57,9 @@ class ConnectionManager:
 
 manager = ConnectionManager()
 team = KnowledgeTeam()
+url_repository = UrlRepository(settings.urls_file)
+
+_URL_RE = re.compile(r"https?://[^\s<>\"'\[\]{}]+")
 
 
 @contextlib.asynccontextmanager
@@ -67,9 +76,18 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(title="Knowledge Akgents", lifespan=lifespan)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/")
-async def root() -> JSONResponse:
+
+@app.get("/api/info")
+@app.get("/api/status")
+async def api_info() -> JSONResponse:
     return JSONResponse(
         {
             "service": "knowledge-akgents",
@@ -83,6 +101,12 @@ async def root() -> JSONResponse:
 @app.get("/api/team")
 async def get_team() -> JSONResponse:
     return JSONResponse({"members": team.roster()})
+
+
+@app.get("/api/urls")
+async def get_urls() -> JSONResponse:
+    """URLs previously submitted for ingestion, most recent first."""
+    return JSONResponse({"urls": [asdict(record) for record in url_repository.list()]})
 
 
 @app.websocket("/ws/chat")
@@ -103,6 +127,8 @@ async def ws_chat(ws: WebSocket) -> None:
             text, target = _parse_input(raw)
             if not text:
                 continue
+            if (target and target.lstrip("@").lower() == "webingest") or _extract_urls(text):
+                _track_urls(text)
             try:
                 team.send(text, target)
             except Exception as exc:  # surface routing/user errors to the client
@@ -136,6 +162,36 @@ def _parse_input(raw: str) -> tuple[str, str | None]:
     return raw, None
 
 
+def _extract_urls(text: str) -> list[str]:
+    """Pull out unique http(s) URLs from a chat message, in order of appearance."""
+    seen: dict[str, None] = {}
+    for match in _URL_RE.finditer(text):
+        url = match.group(0).rstrip(").,;!?\"'")
+        seen.setdefault(url, None)
+    return list(seen.keys())
+
+
+def _track_url_single(url: str) -> UrlRecord | None:
+    """Record a single URL and broadcast its import to connected web clients."""
+    try:
+        record = url_repository.add(url)
+        manager.publish_threadsafe({"kind": "url_imported", "record": asdict(record)})
+        return record
+    except Exception:  # pragma: no cover - defensive, must never break ingestion
+        logger.exception("Failed to record ingested URL: %s", url)
+        return None
+
+
+def _track_urls(text: str) -> list[UrlRecord]:
+    """Record any URL(s) so they show up in the imported-URLs list."""
+    records: list[UrlRecord] = []
+    for url in _extract_urls(text):
+        rec = _track_url_single(url)
+        if rec is not None:
+            records.append(rec)
+    return records
+
+
 def _warn_missing_config() -> None:
     if not settings.openai_api_key:
         logger.warning("OPENAI_API_KEY is not set — agents cannot call the LLM.")
@@ -145,4 +201,21 @@ def _warn_missing_config() -> None:
         logger.warning(
             "AKGENTIC_QDRANT_URL is not set — knowledge base uses the in-memory backend "
             "(non-persistent)."
+        )
+
+
+# Mount static files for the frontend if the directory exists
+frontend_dir = Path(__file__).resolve().parent.parent.parent / "frontend"
+if frontend_dir.exists() and (frontend_dir / "index.html").exists():
+    app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
+else:
+    @app.get("/")
+    async def root() -> JSONResponse:
+        return JSONResponse(
+            {
+                "service": "knowledge-akgents",
+                "model": settings.llm_model,
+                "qdrant": settings.qdrant_enabled,
+                "roster": team.roster(),
+            }
         )

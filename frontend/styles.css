@@ -48,6 +48,56 @@ main { flex: 1; overflow: hidden; display: flex; }
   gap: 10px;
 }
 
+.urls-panel {
+  width: 280px;
+  flex-shrink: 0;
+  border-left: 1px solid #26304a;
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.urls-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #26304a;
+}
+
+.urls-panel-header h2 { font-size: 14px; margin: 0; color: var(--muted); }
+
+#urls-refresh {
+  background: transparent;
+  padding: 2px 8px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.url-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.url-item {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--panel-2);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.url-item a { color: var(--accent); text-decoration: none; }
+.url-item a:hover { text-decoration: underline; }
+.url-item .url-meta { margin-top: 4px; font-size: 11px; color: var(--muted); }
+.url-item.empty, .url-item.error { color: var(--muted); background: transparent; }
+
 .msg {
   max-width: 80%;
   padding: 10px 14px;

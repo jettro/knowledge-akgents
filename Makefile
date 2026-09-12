@@ -1,11 +1,15 @@
 .DEFAULT_GOAL := help
-.PHONY: help sync run web lint format typecheck test up down logs build clean
+.PHONY: help sync upgrade run web lint format typecheck test up down logs build clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
 sync: ## Install/resolve dependencies (incl. local akgentic-tool & akgentic-llm)
+	uv sync
+
+upgrade: ## Check for and install updates to all dependencies
+	uv lock --upgrade
 	uv sync
 
 run: ## Run the backend API locally (reload)

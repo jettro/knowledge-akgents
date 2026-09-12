@@ -58,25 +58,28 @@ class WebEventBridge(EventSubscriber):
         if not hasattr(msg, "content"):
             return
         recipient = getattr(getattr(message, "recipient", None), "name", None)
+        content = getattr(msg, "content", "")
         self._publish(
             {
                 "kind": "message",
                 "sender": sender,
                 "recipient": recipient,
                 "type": getattr(msg, "type", ""),
-                "content": getattr(msg, "content", ""),
+                "content": content,
             }
         )
 
     def _handle_event(self, message: EventMessage, sender: str | None) -> None:
         event = getattr(message, "event", None)
         if ToolCallEvent is not None and isinstance(event, ToolCallEvent):
+            tool_name = getattr(event, "tool_name", "")
+            args_str = _stringify(getattr(event, "arguments", ""))
             self._publish(
                 {
                     "kind": "tool_call",
                     "sender": sender,
-                    "tool": getattr(event, "tool_name", ""),
-                    "arguments": _stringify(getattr(event, "arguments", "")),
+                    "tool": tool_name,
+                    "arguments": args_str,
                 }
             )
 
