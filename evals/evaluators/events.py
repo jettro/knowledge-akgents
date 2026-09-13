@@ -13,7 +13,7 @@ from pydantic_evals.evaluators import (
     EvaluatorOutput,
 )
 
-from evals.models import TeamCaseInput, TeamCaseOutput
+from evals.harness.models import TeamCaseInput, TeamCaseOutput
 
 Metadata = dict[str, Any]
 

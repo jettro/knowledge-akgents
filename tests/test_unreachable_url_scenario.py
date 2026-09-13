@@ -7,7 +7,7 @@ from evals.datasets.unreachable_url_scenario import (
     UNREACHABLE_URL,
     build_unreachable_url_scenario_dataset,
 )
-from evals.event_evaluators import ToolCallCount, ToolEvidenceContainsTerms
+from evals.evaluators.events import ToolCallCount, ToolEvidenceContainsTerms
 
 
 def test_unreachable_url_scenario_configures_fixture_failure() -> None:

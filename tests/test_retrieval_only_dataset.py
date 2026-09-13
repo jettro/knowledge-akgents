@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from evals.datasets.retrieval_only import (
-    FIXTURE_DATASET_PATH,
+    DATASET_PATH,
     MISSING_KNOWLEDGE_TERMS,
     build_retrieval_only_dataset,
 )
-from evals.event_evaluators import (
+from evals.evaluators.events import (
     DidNotCallTools,
     HumanResponseContainsAnyTerm,
     HumanResponseContainsTerms,
@@ -37,7 +37,7 @@ def test_retrieval_only_dataset_defines_canonical_and_paraphrased_cases() -> Non
     conflict_case = next(
         case for case in dataset.cases if case.name == "synthetic-conflicting-database-preference"
     )
-    assert FIXTURE_DATASET_PATH.name == "retrieval_only.json"
+    assert DATASET_PATH.name == "retrieval_only.json"
     assert all(len(case.inputs.knowledge_fixture.records) == 8 for case in standard_cases)
     assert len(conflict_case.inputs.knowledge_fixture.records) == 2
     assert conflict_case.metadata["fixture"] == "conflicting-database"

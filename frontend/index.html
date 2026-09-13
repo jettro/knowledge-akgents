@@ -4,12 +4,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Knowledge Akgents</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=3" />
   </head>
-  <body>
-    <header>
-      <h1>Knowledge Akgents</h1>
-      <div id="status" class="status offline">connecting…</div>
+  <body class="chat-page">
+    <header class="app-header">
+      <div class="app-header-inner">
+        <a data-backend-link class="product-brand" href="/">
+          <span class="brand-mark" aria-hidden="true">K</span>
+          <span class="brand-name">Knowledge <strong>Akgents</strong></span>
+        </a>
+        <nav class="app-tabs" aria-label="Primary navigation">
+          <a data-backend-link class="active" href="/">
+            <span class="tab-icon" aria-hidden="true">◫</span>
+            Chat
+          </a>
+          <a data-backend-link href="settings.html">
+            <span class="tab-icon" aria-hidden="true">⌁</span>
+            Settings
+          </a>
+        </nav>
+        <div id="status" class="status offline">connecting…</div>
+      </div>
     </header>
 
     <main>
@@ -39,6 +54,6 @@
       </form>
     </footer>
 
-    <script src="app.js"></script>
+    <script type="module" src="app.js?v=2"></script>
   </body>
 </html>

@@ -20,6 +20,7 @@ from fastapi.staticfiles import StaticFiles
 from knowledge_akgents.catalog import load_production_team_card
 from knowledge_akgents.repository import UrlRecord, UrlRepository
 from knowledge_akgents.settings import settings
+from knowledge_akgents.storage_status import storage_status
 from knowledge_akgents.team import KnowledgeTeam
 
 logging.basicConfig(level=logging.INFO, format="%(name)s - %(levelname)s - %(message)s")
@@ -102,6 +103,27 @@ async def api_info() -> JSONResponse:
 @app.get("/api/team")
 async def get_team() -> JSONResponse:
     return JSONResponse({"members": team.roster()})
+
+
+@app.get("/api/system/status")
+async def get_system_status() -> JSONResponse:
+    storage = await asyncio.to_thread(storage_status, settings, url_repository)
+    return JSONResponse(
+        {
+            "service": "knowledge-akgents",
+            "model": {
+                "provider": settings.llm_provider,
+                "name": settings.llm_model,
+                "configured": bool(settings.openai_api_key),
+            },
+            "web_search": {
+                "provider": "tavily",
+                "configured": bool(settings.tavily_api_key),
+            },
+            "storage": storage,
+            "roster": team.roster(),
+        }
+    )
 
 
 @app.get("/api/urls")

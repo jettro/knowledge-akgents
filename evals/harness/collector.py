@@ -12,7 +12,7 @@ from akgentic.core.messages.orchestrator import ErrorMessage, EventMessage, Sent
 from akgentic.llm import LlmMessageEvent, LlmUsageEvent, ToolCallEvent, ToolReturnEvent
 from pydantic_ai.messages import ModelRequest, ToolReturnPart
 
-from evals.models import (
+from evals.harness.models import (
     LlmUsageRecord,
     MessageRecord,
     TeamCaseOutput,

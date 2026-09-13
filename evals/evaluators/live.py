@@ -17,7 +17,7 @@ from evals.datasets.judge_calibration import (
     ANSWER_RELEVANCE_RUBRIC,
     GROUNDEDNESS_RUBRIC,
 )
-from evals.models import TeamCaseInput, TeamCaseOutput
+from evals.harness.models import TeamCaseInput, TeamCaseOutput
 
 
 class LiveJudgeInput(BaseModel):

@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
-from evals.fixture_knowledge import KnowledgeFixture
+from evals.harness.fixture_knowledge import KnowledgeFixture
 
 
 class TeamTurn(BaseModel):

@@ -44,7 +44,7 @@ The resolved catalog remains configuration, not live application state.
 catalog namespaces, runtime profiles, or evaluation fixtures. Production
 startup loads `knowledge-akgents-production` before constructing the runtime.
 
-`evals/catalog.py` owns evaluation composition. It loads
+`evals/harness/catalog.py` owns evaluation composition. It loads
 `knowledge-akgents-evaluation` and replaces only the case-specific web or
 read-only knowledge tool when a deterministic fixture is requested. No
 evaluation-specific tool arguments flow through `src/`.

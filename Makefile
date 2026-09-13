@@ -4,13 +4,13 @@
 	eval-judge-stability eval-prompt-injection eval-no-useful-content \
 	eval-unreachable-url eval-routing eval-change-aware-ingestion \
 	eval-production-ingestion eval-production-jettro eval-production-yuma \
-	eval-production-e2e eval-fixture \
-	up down logs build clean
+	eval-production-e2e eval-dataset \
+	status reset-storage reset-and-up up down logs build clean
 
 EVAL_TIMEOUT ?= 180
 EVAL_FLAGS ?=
 EVAL_REPORT ?= eval-reports/production-e2e.json
-FIXTURE_DATASET ?= evals/fixtures/retrieval_only.json
+DATASET ?= evals/datasets/retrieval_only.json
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -47,83 +47,83 @@ test: ## Run the test suite
 test-evals: ## Run deterministic evaluation harness tests (no network/LLM)
 	uv run pytest tests/test_eval_*.py tests/test_fixture_*.py tests/test_jettro_*.py \
 		tests/test_yuma_*.py tests/test_live_*.py tests/test_retrieval_only_dataset.py \
-		tests/test_observability_spike.py tests/test_judge_calibration.py \
+		tests/test_judge_calibration.py \
 		tests/test_prompt_injection_scenario.py tests/test_no_useful_content_scenario.py \
 		tests/test_unreachable_url_scenario.py tests/test_routing_dataset.py \
 		tests/test_change_aware_web.py tests/test_change_aware_ingestion_dataset.py \
 		tests/test_trace_context.py
 
 eval-ingestion: ## Run the paid fixed-fixture Jettro ingestion evaluation
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
 		--scenario ingestion --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-jettro: ## Run the paid Jettro ingestion-and-query scenario
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
 		--scenario jettro-multi-turn --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-yuma: ## Run the paid Yuma ingestion-and-query scenario
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
 		--scenario yuma-multi-turn --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-prompt-injection: ## Run the paid fixed-fixture ingestion safety scenario
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
 		--scenario prompt-injection --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-no-useful-content: ## Run the paid boilerplate-only ingestion scenario
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
 		--scenario no-useful-content --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-unreachable-url: ## Run the paid controlled web-fetch failure scenario
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
 		--scenario unreachable-url --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-routing: ## Run the paid manager and direct-specialist routing cases
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
 		--scenario routing --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-change-aware-ingestion: ## Run paid unchanged, forced, and changed ingestion cases
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
 		--scenario change-aware-ingestion --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-production-ingestion: ## Run live ingestion with the exact production catalog team
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
 		--catalog-team production --scenario ingestion --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-production-jettro: ## Run live Jettro E2E with the production catalog team
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
 		--catalog-team production --scenario jettro-multi-turn \
 		--timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-production-yuma: ## Run live Yuma E2E with the production catalog team
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
 		--catalog-team production --scenario yuma-multi-turn \
 		--timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-production-e2e: ## Run Jettro + Yuma production E2E and save one report
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
 		--catalog-team production --scenario production-e2e \
 		--timeout $(EVAL_TIMEOUT) --verbose-output \
 		--save-report $(EVAL_REPORT) $(EVAL_FLAGS)
 
-eval-fixture: ## Run any self-contained JSON fixture dataset
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
-		--fixture-dataset $(FIXTURE_DATASET) --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+eval-dataset: ## Run any self-contained project JSON dataset
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
+		--dataset $(DATASET) --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-retrieval: ## Run the paid retrieval and missing-knowledge cases once
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
-		--fixture-dataset evals/fixtures/retrieval_only.json \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
+		--dataset evals/datasets/retrieval_only.json \
 		--timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-variance: ## Run the paid retrieval variance sample (three repetitions)
-	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
-		--fixture-dataset evals/fixtures/retrieval_only.json \
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
+		--dataset evals/datasets/retrieval_only.json \
 		--repeat 3 --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-judge: ## Run the paid static LLM-judge calibration once
-	uv run python -m evals.judge_calibration $(EVAL_FLAGS)
+	uv run python -m evals.runners.judge_calibration $(EVAL_FLAGS)
 
 eval-judge-stability: ## Run the paid LLM-judge calibration three times
-	uv run python -m evals.judge_calibration --repeat 3 $(EVAL_FLAGS)
+	uv run python -m evals.runners.judge_calibration --repeat 3 $(EVAL_FLAGS)
 
 build: ## Build the Docker images
 	docker compose build
@@ -136,6 +136,15 @@ down: ## Stop the stack
 
 logs: ## Tail backend logs
 	docker compose logs -f backend
+
+status: ## Show backend, Qdrant, and URL synchronization status
+	curl --fail --silent http://localhost:8000/api/system/status | uv run python -m json.tool
+
+reset-storage: ## Stop the stack and delete Qdrant plus imported-URL volumes
+	docker compose down --volumes --remove-orphans
+
+reset-and-up: reset-storage ## Delete all persisted app data and start a clean stack
+	docker compose up -d --build
 
 clean: ## Remove caches and the virtualenv
 	rm -rf .venv .ruff_cache .mypy_cache .pytest_cache

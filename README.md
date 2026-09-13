@@ -71,6 +71,11 @@ update succeeds, so a failed refresh does not replace the last known successful 
 The frontend shows the submitted URLs in the **Imported URLs** panel (fetched from
 `GET /api/urls`).
 
+The **Settings** page reports whether the runtime uses persistent Qdrant or the
+in-memory backend, whether the configured Qdrant endpoint is reachable, the
+`knowledge_graph` collection state and point count, URL-ingestion counts, and an
+operational synchronization assessment. It never returns credential values.
+
 Each successful commit also records the entity names and relation triples attributed to
 that URL. When changed content is ingested, `@WebIngest` updates retained facts, creates
 new facts, and deletes stale facts owned exclusively by the previous version of that
@@ -80,9 +85,19 @@ This is a hash of Tavily's query-filtered extracted text, not of the origin page
 The Tavily request still happens, and a materially different extraction query or result
 may cause reprocessing even when the underlying page did not change.
 
-To start over, delete the `data/` directory (or just `data/urls.json`) and restart the
-backend — this only clears the URL history, not the knowledge base itself (that lives in
-Qdrant, or in memory if `AKGENTIC_QDRANT_URL` isn't set).
+Do not reset only `data/urls.json` or only Qdrant: that leaves ingestion history and
+stored knowledge inconsistent. For the Docker stack, clear both named volumes together:
+
+```bash
+make status        # inspect backend, Qdrant, URL counts, and synchronization
+make reset-storage # stop the stack and delete both persistent data volumes
+make reset-and-up  # reset both stores, then rebuild and start the stack
+```
+
+These reset commands are intentionally explicit and destructive. They remove all locally
+persisted Qdrant graph data and imported-URL history for this Compose project. The
+synchronization assessment is conservative: URL count and graph point count cannot be
+equaled because one source may produce many entities and relations.
 
 ## Development
 
@@ -124,10 +139,10 @@ make eval-judge            # static two-dimensional judge calibration
 make eval-judge-stability  # judge calibration repeated three times
 ```
 
-Run any self-contained retrieval fixture dataset without adding Python:
+Run any self-contained retrieval dataset definition without adding Python:
 
 ```bash
-make eval-fixture FIXTURE_DATASET=evals/fixtures/retrieval_only.json
+make eval-dataset DATASET=evals/datasets/retrieval_only.json
 ```
 
 Three additional targets load the exact production catalog team. They keep
@@ -209,7 +224,11 @@ scheduled, not run on every pull request.
 src/knowledge_akgents/   settings, catalog loading, events bridge, team runtime, FastAPI app
                          (repository.py tracks imported URLs in data/urls.json)
 config/catalog/          production and evaluation akgentic-catalog namespaces
-evals/                   Pydantic Evals JSON fixture datasets, evaluators, and runners
+evals/harness/           reusable application-to-Pydantic-Evals execution plumbing
+evals/evaluators/        Knowledge Akgents correctness and quality checks
+evals/datasets/          JSON definitions and Python scenarios to evaluate
+evals/fixtures/          controlled web-page content for specialized scenarios
+evals/runners/           command-line experiment entry points
 eval-viewer/             local static viewer for saved evaluation reports
 docs/                    contributor help organized by topic
 frontend/                static Human-Proxy UI + nginx config

@@ -1,8 +1,4 @@
-"""One-case spike for inspecting Akgentic events and Pydantic AI spans.
-
-This intentionally exercises only the Jettro about-page ingestion path. It is a
-diagnostic stepping stone, not the final evaluation harness.
-"""
+"""Run Knowledge Akgents evaluation datasets and save native reports."""
 
 from __future__ import annotations
 
@@ -16,10 +12,10 @@ import logfire
 from pydantic_evals import Dataset
 from pydantic_evals.evaluators import Evaluator, EvaluatorContext, EvaluatorOutput
 
-from evals.cli import positive_int
 from evals.datasets.change_aware_ingestion import build_change_aware_ingestion_dataset
 from evals.datasets.jettro_ingestion import build_jettro_ingestion_dataset
 from evals.datasets.jettro_scenario import build_jettro_scenario_dataset
+from evals.datasets.json_loader import build_json_dataset
 from evals.datasets.no_useful_content_scenario import (
     build_no_useful_content_scenario_dataset,
 )
@@ -33,11 +29,11 @@ from evals.datasets.unreachable_url_scenario import (
     build_unreachable_url_scenario_dataset,
 )
 from evals.datasets.yuma_scenario import build_yuma_scenario_dataset
-from evals.fixture_datasets import build_fixture_dataset
-from evals.live_judges import LiveRetrievalJudges
-from evals.models import TeamCaseInput, TeamCaseOutput
-from evals.reporting import load_report, save_report
-from evals.tasks import run_team_case
+from evals.evaluators.live import LiveRetrievalJudges
+from evals.harness.cli import positive_int
+from evals.harness.models import TeamCaseInput, TeamCaseOutput
+from evals.harness.reporting import load_report, save_report
+from evals.harness.tasks import run_team_case
 from knowledge_akgents.settings import settings
 
 
@@ -148,11 +144,11 @@ def _parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
-        "--fixture-dataset",
+        "--dataset",
         type=Path,
         help=(
-            "Load a self-contained retrieval dataset from one validated JSON "
-            "fixture file instead of a registered scenario."
+            "Load a self-contained retrieval Dataset from one validated project "
+            "JSON file instead of a registered scenario."
         ),
     )
     parser.add_argument(
@@ -212,8 +208,8 @@ def main() -> None:
             "jettro-multi-turn, and yuma-multi-turn. Other scenarios depend on "
             "synthetic fixture failures or preloaded fixture knowledge."
         )
-    if args.fixture_dataset is not None and args.catalog_team == "production":
-        raise SystemExit("Fixture datasets require --catalog-team evaluation.")
+    if args.dataset is not None and args.catalog_team == "production":
+        raise SystemExit("JSON datasets require --catalog-team evaluation.")
     if args.scenario == "production-e2e" and args.catalog_team != "production":
         raise SystemExit("The production-e2e scenario requires --catalog-team production.")
 
@@ -225,8 +221,8 @@ def main() -> None:
     )
     logfire.instrument_pydantic_ai()
 
-    if args.fixture_dataset is not None:
-        dataset = build_fixture_dataset(args.fixture_dataset, args.timeout)
+    if args.dataset is not None:
+        dataset = build_json_dataset(args.dataset, args.timeout)
     elif args.scenario == "jettro-multi-turn":
         dataset = build_jettro_scenario_dataset(args.timeout)
     elif args.scenario == "yuma-multi-turn":
@@ -249,7 +245,7 @@ def main() -> None:
         dataset = build_jettro_ingestion_dataset(args.timeout)
     _select_case(dataset, args.case)
     if args.with_judges:
-        if args.scenario != "retrieval-only" and args.fixture_dataset is None:
+        if args.scenario != "retrieval-only" and args.dataset is None:
             raise SystemExit(
                 "--with-judges currently supports only retrieval fixture datasets"
             )
@@ -261,7 +257,7 @@ def main() -> None:
     dataset.add_evaluator(EventInventory())
     dataset.add_evaluator(SpanInventory())
     run_name = (
-        args.fixture_dataset.stem if args.fixture_dataset is not None else args.scenario
+        args.dataset.stem if args.dataset is not None else args.scenario
     )
     report = dataset.evaluate_sync(
         partial(run_team_case, catalog_team=args.catalog_team),
@@ -275,9 +271,7 @@ def main() -> None:
             "repeat": args.repeat,
             "live_judges": args.with_judges,
             "catalog_team": args.catalog_team,
-            "fixture_dataset": (
-                str(args.fixture_dataset) if args.fixture_dataset is not None else None
-            ),
+            "dataset_path": str(args.dataset) if args.dataset is not None else None,
         },
     )
     baseline = load_report(args.baseline) if args.baseline else None

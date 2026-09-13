@@ -81,6 +81,33 @@ def test_api_urls_endpoint(tmp_path: Any, monkeypatch: Any) -> None:
     assert data["urls"][0]["url"] == "https://test.com/sample"
 
 
+def test_system_status_endpoint(monkeypatch: Any) -> None:
+    from fastapi.testclient import TestClient
+
+    from knowledge_akgents import app as app_module
+
+    monkeypatch.setattr(
+        app_module,
+        "storage_status",
+        lambda settings, repository: {
+            "mode": "in_memory",
+            "persistent": False,
+            "qdrant": {"configured": False},
+            "imported_urls": {"tracked": 0},
+            "synchronization": {"state": "not_verifiable"},
+        },
+    )
+
+    client = TestClient(app_module.app, raise_server_exceptions=False)
+    response = client.get("/api/system/status")
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["storage"]["mode"] == "in_memory"
+    assert data["model"]["name"]
+    assert "configured" in data["web_search"]
+
+
 def test_cors_headers_present() -> None:
     from fastapi.testclient import TestClient
 

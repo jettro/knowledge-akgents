@@ -1025,13 +1025,13 @@ Hosted Logfire datasets can be considered later if collaborative curation or
 promotion of production traces becomes more important than code review of every
 case.
 
-### Dataset authoring direction: self-contained JSON fixtures
+### Dataset authoring direction: self-contained JSON datasets
 
 The initial pilot defined most cases in Python under `evals/datasets/`, then
 moved ordinary retrieval cases into YAML with external fixture paths. The
-current format goes one step further: an ordinary retrieval dataset is one
-version-controlled JSON file containing named knowledge fixtures, questions,
-metadata, vocabularies, and expected behavior.
+current format goes one step further: an ordinary retrieval dataset definition
+is one version-controlled JSON file under `evals/datasets/` containing named
+knowledge fixtures, questions, metadata, vocabularies, and expected behavior.
 
 The migration should preserve a strict separation:
 
@@ -1047,7 +1047,7 @@ The migration should preserve a strict separation:
 This is explicitly a contributor-experience goal: a focused pull request should
 be able to add a reviewed fixture and one or more cases without changing the
 evaluation engine. A new retrieval dataset can be run directly with
-`make eval-fixture FIXTURE_DATASET=evals/fixtures/<name>.json`; it does not need
+`make eval-dataset DATASET=evals/datasets/<name>.json`; it does not need
 a Python dataset module or a new runner branch.
 
 This evaluation JSON is separate from the Akgentic catalog. The
@@ -1178,7 +1178,7 @@ The native report was saved locally as
 The Phase 1 implementation now provides:
 
 - an explicit `pydantic-evals[logfire]` evaluation dependency group;
-- `evals/observability_spike.py` with one Jettro ingestion case;
+- `evals/runners/evaluate.py` with one Jettro ingestion case;
 - opt-in Logfire export;
 - a guard against accidental writes to persistent Qdrant;
 - structured capture of actor messages, raw parsed tool arguments, correlated
@@ -2000,18 +2000,18 @@ remain deferred unless reprioritized.
 
 The first priority is now complete for the ordinary retrieval dataset. All 13
 retrieval cases and both knowledge variants live in the self-contained
-`evals/fixtures/retrieval_only.json` bundle. A strict Pydantic schema validates
+`evals/datasets/retrieval_only.json` definition. A strict Pydantic schema validates
 dataset version and task type, unique case names, named fixtures, knowledge
 records, metadata, vocabularies, and an allow-list of evaluator
 configurations. Unknown fields, evaluator types, fixture references, and
 vocabulary references are rejected.
 
-The generic fixture loader owns shared retrieval policy: completion, routing,
+The generic JSON dataset loader owns shared retrieval policy: completion, routing,
 required/forbidden tools, search-call success, and conversion into Pydantic
 Evals cases. `evals/datasets/retrieval_only.py` is now only a compatibility
-wrapper selecting the built-in bundle. Adding another retrieval dataset
+wrapper selecting the built-in definition. Adding another retrieval dataset
 requires only one JSON file and
-`make eval-fixture FIXTURE_DATASET=evals/fixtures/<name>.json`.
+`make eval-dataset DATASET=evals/datasets/<name>.json`.
 
 The second priority is also complete, with a correction after reviewing the
 separate `akgentic-catalog` package. The initial investigation considered only
@@ -2038,7 +2038,7 @@ application widens the catalog model-type allowlist only for the specific
 `Catalog.validate_namespace()` before loading so direct edits to the
 version-controlled YAML repository receive the catalog's strict validation.
 
-Fixture tool composition now belongs entirely to `evals/catalog.py`. The
+Fixture tool composition now belongs entirely to `evals/harness/catalog.py`. The
 evaluation namespace is resolved first, then a case may replace its web or
 read-only knowledge tool with a deterministic fixture. No profile, fixture
 tool, or evaluation-specific override is accepted by `KnowledgeTeam` or the

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from evals.live_judges import build_live_judge_input
-from evals.models import TeamCaseInput, TeamCaseOutput, ToolEvidenceRecord
+from evals.evaluators.live import build_live_judge_input
+from evals.harness.models import TeamCaseInput, TeamCaseOutput, ToolEvidenceRecord
 
 
 def test_live_judge_uses_only_successful_search_evidence() -> None:

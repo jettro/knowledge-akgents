@@ -1,4 +1,4 @@
-"""Tests for the evaluation spike's event collection."""
+"""Tests for the main evaluation runner and event collection."""
 
 from __future__ import annotations
 
@@ -12,10 +12,10 @@ from akgentic.core.messages.orchestrator import ErrorMessage, EventMessage, Sent
 from akgentic.llm import LlmMessageEvent, LlmUsageEvent, ToolCallEvent, ToolReturnEvent
 from pydantic_ai.messages import ModelRequest, ToolReturnPart
 
-from evals.cli import positive_int
-from evals.collector import EvaluationEventCollector
 from evals.datasets.retrieval_only import build_retrieval_only_dataset
-from evals.observability_spike import _select_case
+from evals.harness.cli import positive_int
+from evals.harness.collector import EvaluationEventCollector
+from evals.runners.evaluate import _select_case
 
 
 def _address(name: str, *, is_user_proxy: bool = False) -> ActorAddressProxy:

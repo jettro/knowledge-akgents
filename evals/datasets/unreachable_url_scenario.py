@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.event_evaluators import (
+from evals.evaluators.events import (
     CalledRequiredTools,
     CompletedSuccessfully,
     FollowedMessageRoute,
@@ -16,7 +16,7 @@ from evals.event_evaluators import (
     ToolCallsSucceeded,
     ToolEvidenceContainsTerms,
 )
-from evals.models import TeamCaseInput, TeamCaseOutput
+from evals.harness.models import TeamCaseInput, TeamCaseOutput
 
 UNREACHABLE_URL = "https://eval.invalid/unreachable"
 FAILURE_MESSAGE = "Connection timed out while fetching the evaluation URL"

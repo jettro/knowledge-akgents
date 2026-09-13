@@ -1,7 +1,7 @@
-# Adding fixture datasets
+# Adding JSON datasets
 
-Ordinary retrieval datasets are self-contained JSON files under
-`evals/fixtures/`. A bundle contains:
+Ordinary retrieval dataset definitions are self-contained JSON files under
+`evals/datasets/`. A definition contains:
 
 - one or more named knowledge fixtures;
 - questions and case metadata;
@@ -12,7 +12,7 @@ No Python module or scenario registration is required.
 
 ## Create a dataset
 
-Create a file such as `evals/fixtures/people.json`:
+Create a file such as `evals/datasets/people.json`:
 
 ```json
 {
@@ -65,9 +65,14 @@ can select another fixture declared in the same file:
 }
 ```
 
-This keeps cases and the exact knowledge they use in one reviewable artifact.
-There are no fixture paths to resolve and no external files that can silently
-drift away from the dataset.
+Here, **dataset** follows Pydantic Evals terminology: it groups cases and
+shared evaluators. The `fixtures` object is project-specific controlled input
+data used to populate the fake knowledge tool for a case. Pydantic Evals does
+not define that fixture format.
+
+Keeping the named fixtures inside the dataset JSON puts the cases and exact
+knowledge they use in one reviewable artifact. There are no fixture paths to
+resolve and no external files that can silently drift away from the dataset.
 
 ## Available evaluator settings
 
@@ -97,19 +102,19 @@ Arbitrary Python and evaluator expressions are never loaded from the file.
 Run any fixture bundle with:
 
 ```bash
-make eval-fixture FIXTURE_DATASET=evals/fixtures/people.json
+make eval-dataset DATASET=evals/datasets/people.json
 ```
 
 Select one case or save a report through `EVAL_FLAGS`:
 
 ```bash
-make eval-fixture \
-  FIXTURE_DATASET=evals/fixtures/people.json \
+make eval-dataset \
+  DATASET=evals/datasets/people.json \
   EVAL_FLAGS="--case jane-role --save-report eval-reports/people.json"
 ```
 
 The existing retrieval target is the same generic runner with
-`evals/fixtures/retrieval_only.json` selected:
+`evals/datasets/retrieval_only.json` selected:
 
 ```bash
 make eval-retrieval
@@ -120,6 +125,6 @@ first to validate fixture files and harness behavior without network or model
 calls.
 
 When a requirement cannot be represented by the allow-listed JSON vocabulary,
-add or reuse a Python evaluator in `evals/event_evaluators.py`, extend its
-strict definition in `evals/fixture_datasets.py`, and add loader rejection
+add or reuse a Python evaluator in `evals/evaluators/events.py`, extend its
+strict definition in `evals/datasets/json_loader.py`, and add loader rejection
 tests.

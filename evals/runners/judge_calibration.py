@@ -7,12 +7,12 @@ import json
 
 import logfire
 
-from evals.cli import positive_int
 from evals.datasets.judge_calibration import (
     build_judge_calibration_dataset,
     return_candidate_answer,
 )
-from evals.reporting import load_report, save_report
+from evals.harness.cli import positive_int
+from evals.harness.reporting import load_report, save_report
 from knowledge_akgents.settings import settings
 
 

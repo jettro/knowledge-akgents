@@ -37,6 +37,7 @@ class Settings(BaseSettings):
 
     # Vector store (Qdrant). Exporting AKGENTIC_QDRANT_URL switches the backend to Qdrant.
     akgentic_qdrant_url: str = ""
+    akgentic_qdrant_api_key: str = ""
 
     # Local URL submission and ingestion-validator state. Delete this directory to
     # start over — it holds no data the knowledge graph itself needs.

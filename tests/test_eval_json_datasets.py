@@ -1,4 +1,4 @@
-"""Validation tests for self-contained JSON fixture datasets."""
+"""Validation tests for project JSON dataset definitions."""
 
 from __future__ import annotations
 
@@ -8,9 +8,9 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from evals.fixture_datasets import (
-    build_fixture_dataset,
-    load_fixture_dataset_definition,
+from evals.datasets.json_loader import (
+    build_json_dataset,
+    load_dataset_definition,
 )
 
 
@@ -65,8 +65,8 @@ def test_loader_accepts_allow_listed_fixture_case_and_evaluator_fields(
 ) -> None:
     path = _write_json(tmp_path, _definition())
 
-    definition = load_fixture_dataset_definition(path)
-    dataset = build_fixture_dataset(path, timeout_seconds=1)
+    definition = load_dataset_definition(path)
+    dataset = build_json_dataset(path, timeout_seconds=1)
 
     assert definition.name == "example/dataset"
     assert definition.cases[0].name == "example"
@@ -79,7 +79,7 @@ def test_loader_rejects_unknown_fields(tmp_path: Path) -> None:
     value["arbitrary_python"] = 'eval("unsafe")'
 
     with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
-        load_fixture_dataset_definition(_write_json(tmp_path, value))
+        load_dataset_definition(_write_json(tmp_path, value))
 
 
 def test_loader_rejects_unknown_evaluator_type(tmp_path: Path) -> None:
@@ -87,7 +87,7 @@ def test_loader_rejects_unknown_evaluator_type(tmp_path: Path) -> None:
     value["cases"][0]["evaluators"] = [{"type": "execute_python"}]
 
     with pytest.raises(ValidationError, match="union_tag_invalid"):
-        load_fixture_dataset_definition(_write_json(tmp_path, value))
+        load_dataset_definition(_write_json(tmp_path, value))
 
 
 def test_loader_rejects_missing_vocabulary_reference(tmp_path: Path) -> None:
@@ -95,7 +95,7 @@ def test_loader_rejects_missing_vocabulary_reference(tmp_path: Path) -> None:
     value["cases"][0]["evaluators"][0]["accepted_terms_ref"] = "absent"
 
     with pytest.raises(ValidationError, match="unknown vocabulary"):
-        load_fixture_dataset_definition(_write_json(tmp_path, value))
+        load_dataset_definition(_write_json(tmp_path, value))
 
 
 def test_loader_rejects_missing_fixture_reference(tmp_path: Path) -> None:
@@ -103,4 +103,4 @@ def test_loader_rejects_missing_fixture_reference(tmp_path: Path) -> None:
     value["cases"][0]["fixture"] = "absent"
 
     with pytest.raises(ValidationError, match="unknown fixture"):
-        load_fixture_dataset_definition(_write_json(tmp_path, value))
+        load_dataset_definition(_write_json(tmp_path, value))

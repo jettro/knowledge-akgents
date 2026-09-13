@@ -7,23 +7,22 @@ from typing import Any
 
 from pydantic_evals import Dataset
 
-from evals.fixture_datasets import (
-    build_fixture_dataset,
-    load_fixture_dataset_definition,
+from evals.datasets.json_loader import (
+    build_json_dataset,
+    load_dataset_definition,
 )
-from evals.models import TeamCaseInput, TeamCaseOutput
+from evals.harness.models import TeamCaseInput, TeamCaseOutput
 
-EVALS_ROOT = Path(__file__).parents[1]
-FIXTURE_DATASET_PATH = EVALS_ROOT / "fixtures" / "retrieval_only.json"
+DATASET_PATH = Path(__file__).with_suffix(".json")
 
-_DEFAULT_DEFINITION = load_fixture_dataset_definition(FIXTURE_DATASET_PATH)
+_DEFAULT_DEFINITION = load_dataset_definition(DATASET_PATH)
 MISSING_KNOWLEDGE_TERMS = _DEFAULT_DEFINITION.vocabularies["missing_knowledge"]
 
 
 def build_retrieval_only_dataset(
     timeout_seconds: float = 180.0,
 ) -> Dataset[TeamCaseInput, TeamCaseOutput, dict[str, Any]]:
-    return build_fixture_dataset(
-        FIXTURE_DATASET_PATH,
+    return build_json_dataset(
+        DATASET_PATH,
         timeout_seconds=timeout_seconds,
     )

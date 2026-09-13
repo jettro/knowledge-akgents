@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from evals.datasets.jettro_scenario import build_jettro_scenario_dataset
-from evals.event_evaluators import CompletedSuccessfully, ToolCallCount, ToolCallsSucceeded
+from evals.evaluators.events import CompletedSuccessfully, ToolCallCount, ToolCallsSucceeded
 
 
 def test_jettro_scenario_defines_three_ordered_turns() -> None:

@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 from akgentic.catalog import Catalog, CatalogValidationError, YamlEntryRepository
 
-from evals.catalog import EVALUATION_CATALOG_NAMESPACE, load_case_team_card
-from evals.fixture_web import FixtureWebTool
+from evals.harness.catalog import EVALUATION_CATALOG_NAMESPACE, load_case_team_card
+from evals.harness.fixture_web import FixtureWebTool
 from knowledge_akgents.catalog import (
     CATALOG_ROOT,
     PRODUCTION_CATALOG_NAMESPACE,

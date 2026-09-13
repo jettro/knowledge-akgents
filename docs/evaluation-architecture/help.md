@@ -1,7 +1,15 @@
 # Evaluation architecture
 
-The evaluation harness has three layers. Keeping these layers distinct makes it
-clear what contributors should change.
+There are four distinct layers. Only three are implemented in this repository.
+
+| Layer | Location | Responsibility |
+|---|---|---|
+| Pydantic Evals framework | Installed `pydantic-evals` package | `Dataset`, `Case`, experiment execution, reports, spans, and evaluator APIs |
+| Knowledge Akgents harness | `evals/harness/` | Starts teams, injects controlled tools, collects events, loads JSON datasets, and saves reports |
+| Application evaluation policy | `evals/evaluators/` | Defines what correct Knowledge Akgents routing, tool usage, and answers mean |
+| Evaluation content | `evals/datasets/` and `evals/fixtures/` | Defines the cases and controlled source material to evaluate |
+
+Command-line entry points live separately in `evals/runners/`.
 
 ## Evaluation data
 
@@ -15,32 +23,45 @@ Evaluation data describes scenarios and expected outcomes:
 - human labels used to calibrate judges;
 - metadata such as `canonical`, `paraphrase`, or `negative-control`.
 
-Ordinary retrieval datasets live as self-contained JSON fixture bundles under
-`evals/fixtures/`. One file contains named knowledge fixtures, cases,
-vocabularies, metadata, and allow-listed evaluator settings. Adding another
-retrieval dataset does not require a Python module or runner registration.
+Ordinary retrieval dataset definitions live as self-contained JSON files under
+`evals/datasets/`. One file contains Pydantic Evals case data plus named
+knowledge fixtures, vocabularies, metadata, and allow-listed evaluator
+settings. Adding another retrieval dataset does not require a Python module or
+runner registration.
 
 Specialized multi-turn ingestion, failure, and change-detection scenarios still
 live under `evals/datasets/` because their ordered tool-state transitions are
 not yet part of the generic fixture schema.
+
+In this repository, the terms mean:
+
+- **Dataset** — the Pydantic Evals concept: a collection of cases and shared
+  evaluators. Our JSON file is a project schema that is converted into a
+  Pydantic Evals `Dataset`.
+- **Case** — the Pydantic Evals concept: one input scenario with metadata and
+  optional case-specific evaluators.
+- **Fixture** — a Knowledge Akgents testing concept: controlled knowledge or
+  web content supplied to the task instead of a live dependency. Pydantic Evals
+  does not prescribe this fixture abstraction.
 
 ## Knowledge Akgents evaluation logic
 
 This repository supplies the domain-specific behavior that Pydantic Evals does
 not know about:
 
-- `evals/tasks.py` starts a `KnowledgeTeam` for a case;
-- `evals/catalog.py` selects the evaluation or production catalog team and
+- `evals/harness/tasks.py` starts a `KnowledgeTeam` for a case;
+- `evals/harness/catalog.py` selects the evaluation or production catalog team and
   applies deterministic fixture tools only to the evaluation team;
-- `evals/collector.py` converts Akgentic events into a stable result;
-- `evals/event_evaluators.py` checks routes, tools, arguments, counts, and
+- `evals/harness/collector.py` converts Akgentic events into a stable result;
+- `evals/evaluators/events.py` checks routes, tools, arguments, counts, and
   responses;
-- `evals/live_judges.py` judges answers against captured `search_graph`
+- `evals/evaluators/live.py` judges answers against captured `search_graph`
   evidence;
 - fixture tools isolate agent behavior from Tavily and production Qdrant.
 
-Change this layer only when a new type of behavior cannot be represented with
-the existing inputs and evaluators.
+Change `harness/` when execution or evidence collection changes. Change
+`evaluators/` when the definition of correct application behavior changes.
+Ordinary new cases should require changes only under `datasets/`.
 
 ## Pydantic Evals framework
 
@@ -57,9 +78,13 @@ The framework runs evaluations, but it does not define what a correct
 Knowledge Akgents answer or tool call looks like. Those rules belong to the
 case data and repository-specific evaluators.
 
+No Pydantic Evals framework implementation is copied into this repository.
+The harness only adapts the application's actor runtime and fixture tools to
+the framework's public APIs.
+
 ## Catalog and fixture datasets
 
-The Akgentic catalog and evaluation fixture JSON solve different problems:
+The Akgentic catalog and evaluation dataset JSON solve different problems:
 
 - `akgentic-catalog` YAML entries define the team, agents, prompts, shared
   model defaults, and tools;

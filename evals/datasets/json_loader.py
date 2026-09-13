@@ -1,4 +1,4 @@
-"""Strict self-contained JSON fixture datasets."""
+"""Load project JSON definitions into Pydantic Evals datasets."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from pydantic_evals import Case, Dataset
 from pydantic_evals.evaluators import Evaluator
 
-from evals.event_evaluators import (
+from evals.evaluators.events import (
     CalledRequiredTools,
     CompletedSuccessfully,
     DidNotCallTools,
@@ -20,8 +20,8 @@ from evals.event_evaluators import (
     ToolCallCount,
     ToolCallsSucceeded,
 )
-from evals.fixture_knowledge import KnowledgeFixture
-from evals.models import TeamCaseInput, TeamCaseOutput
+from evals.harness.fixture_knowledge import KnowledgeFixture
+from evals.harness.models import TeamCaseInput, TeamCaseOutput
 
 RETRIEVAL_ROUTE = (
     ("@Human", "@Manager"),
@@ -85,7 +85,7 @@ class CaseDefinition(StrictModel):
     evaluators: tuple[EvaluatorDefinition, ...] = ()
 
 
-class FixtureDatasetDefinition(StrictModel):
+class JsonDatasetDefinition(StrictModel):
     version: Literal[1]
     task: Literal["retrieval"]
     name: str = Field(min_length=1)
@@ -96,7 +96,7 @@ class FixtureDatasetDefinition(StrictModel):
     cases: tuple[CaseDefinition, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
-    def validate_dataset(self) -> FixtureDatasetDefinition:
+    def validate_dataset(self) -> JsonDatasetDefinition:
         names = [case.name for case in self.cases]
         if len(names) != len(set(names)):
             raise ValueError("Case names must be unique")
@@ -123,23 +123,23 @@ class FixtureDatasetDefinition(StrictModel):
         return self
 
 
-def load_fixture_dataset_definition(path: Path) -> FixtureDatasetDefinition:
-    """Load one strictly validated JSON fixture dataset."""
+def load_dataset_definition(path: Path) -> JsonDatasetDefinition:
+    """Load one strictly validated project dataset definition."""
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        raise ValueError(f"Could not load evaluation fixture JSON {path}: {exc}") from exc
+        raise ValueError(f"Could not load evaluation dataset JSON {path}: {exc}") from exc
     if not isinstance(raw, dict):
-        raise ValueError(f"Evaluation fixture JSON {path} must contain an object")
-    return FixtureDatasetDefinition.model_validate(raw)
+        raise ValueError(f"Evaluation dataset JSON {path} must contain an object")
+    return JsonDatasetDefinition.model_validate(raw)
 
 
-def build_fixture_dataset(
+def build_json_dataset(
     path: Path,
     timeout_seconds: float = 180.0,
 ) -> Dataset[TeamCaseInput, TeamCaseOutput, dict[str, Any]]:
-    """Build a runnable retrieval dataset entirely from one JSON fixture file."""
-    definition = load_fixture_dataset_definition(path)
+    """Build a Pydantic Evals retrieval Dataset from one project JSON file."""
+    definition = load_dataset_definition(path)
     cases: list[Case[TeamCaseInput, TeamCaseOutput, dict[str, Any]]] = []
     for case_definition in definition.cases:
         fixture_name = case_definition.fixture or definition.default_fixture

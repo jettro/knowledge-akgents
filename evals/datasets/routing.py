@@ -8,8 +8,9 @@ from pydantic_evals import Case, Dataset
 
 from evals.datasets.jettro_ingestion import FIXTURE_PATH as JETTRO_FIXTURE_PATH
 from evals.datasets.jettro_ingestion import JETTRO_ABOUT_URL
-from evals.datasets.retrieval_only import FIXTURE_DATASET_PATH
-from evals.event_evaluators import (
+from evals.datasets.json_loader import load_dataset_definition
+from evals.datasets.retrieval_only import DATASET_PATH
+from evals.evaluators.events import (
     CalledRequiredTools,
     CompletedSuccessfully,
     DidNotCallTools,
@@ -20,10 +21,9 @@ from evals.event_evaluators import (
     ToolCallCount,
     ToolCallsSucceeded,
 )
-from evals.fixture_datasets import load_fixture_dataset_definition
-from evals.models import TeamCaseInput, TeamCaseOutput
+from evals.harness.models import TeamCaseInput, TeamCaseOutput
 
-KNOWLEDGE_FIXTURE = load_fixture_dataset_definition(FIXTURE_DATASET_PATH).fixtures["pilot"]
+KNOWLEDGE_FIXTURE = load_dataset_definition(DATASET_PATH).fixtures["pilot"]
 
 
 def build_routing_dataset(

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from evals import tasks
-from evals.models import TeamCaseInput, TeamCaseOutput
+from evals.harness import tasks
+from evals.harness.models import TeamCaseInput, TeamCaseOutput
 
 
 def test_each_task_run_uses_and_shuts_down_a_fresh_team(

@@ -7,7 +7,7 @@ from evals.datasets.no_useful_content_scenario import (
     NO_USEFUL_CONTENT_URL,
     build_no_useful_content_scenario_dataset,
 )
-from evals.event_evaluators import HumanResponseContainsAnyTerm, ToolCallCount
+from evals.evaluators.events import HumanResponseContainsAnyTerm, ToolCallCount
 
 
 def test_no_useful_content_scenario_uses_isolated_fixture() -> None:

@@ -5,11 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from evals.catalog import TeamCatalog, load_case_team_card
-from evals.collector import EvaluationEventCollector
-from evals.fixture_knowledge import FixtureKnowledgeTool, KnowledgeFixture
-from evals.fixture_web import FixtureWebTool
-from evals.models import TeamCaseInput, TeamCaseOutput
+from evals.harness.catalog import TeamCatalog, load_case_team_card
+from evals.harness.collector import EvaluationEventCollector
+from evals.harness.fixture_knowledge import FixtureKnowledgeTool, KnowledgeFixture
+from evals.harness.fixture_web import FixtureWebTool
+from evals.harness.models import TeamCaseInput, TeamCaseOutput
 from knowledge_akgents.change_aware_web import ChangeAwareWebTool
 from knowledge_akgents.team import KnowledgeTeam
 

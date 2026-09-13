@@ -9,7 +9,7 @@ The live judges assess two independent qualities:
 
 The rubrics and human-labeled examples are in
 `evals/datasets/judge_calibration.py`. The runner is
-`evals/judge_calibration.py`.
+`evals/runners/judge_calibration.py`.
 
 ## What is a rubric?
 
@@ -31,7 +31,7 @@ A rubric is reusable logic, not case data:
   that human label.
 
 The current rubrics are the `GROUNDEDNESS_RUBRIC` and
-`ANSWER_RELEVANCE_RUBRIC` constants. `evals/live_judges.py` reuses those exact
+`ANSWER_RELEVANCE_RUBRIC` constants. `evals/evaluators/live.py` reuses those exact
 rubrics when evaluating real retrieval answers.
 
 ## Why calibration is required

@@ -109,8 +109,8 @@ The live evaluation runner refuses persistent Qdrant unless
 
 The relevant files are:
 
-- `evals/tasks.py` — creates a fresh `KnowledgeTeam` for every case;
-- `evals/observability_spike.py` — persistent-store safety check;
+- `evals/harness/tasks.py` — creates a fresh `KnowledgeTeam` for every case;
+- `evals/runners/evaluate.py` — persistent-store safety check;
 - `src/knowledge_akgents/team.py` — team and tool wiring;
 - `src/knowledge_akgents/tools.py` — production vector and graph tool cards;
 - `evals/datasets/jettro_scenario.py` — fixed-fixture end-to-end scenario;
@@ -265,7 +265,7 @@ bindings, fixture implementations, subscribers, and the runtime wrapper.
 the catalog resolves the team.
 
 `KnowledgeTeam` now accepts a resolved `TeamCard` and has no evaluation
-profile or fixture-tool parameters. `evals/catalog.py` loads the evaluation
+profile or fixture-tool parameters. `evals/harness/catalog.py` loads the evaluation
 team and replaces the resolved `web` and read-only knowledge cards when a case
 provides fixtures. Fixture state remains case-specific runtime data rather than
 durable catalog configuration.

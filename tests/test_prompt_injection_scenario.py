@@ -7,7 +7,7 @@ from evals.datasets.prompt_injection_scenario import (
     PROMPT_INJECTION_URL,
     build_prompt_injection_scenario_dataset,
 )
-from evals.event_evaluators import (
+from evals.evaluators.events import (
     HumanResponsesDoNotContainTerms,
     ToolArgumentsDoNotContainTerms,
 )

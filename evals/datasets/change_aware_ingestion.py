@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.event_evaluators import (
+from evals.evaluators.events import (
     CalledRequiredTools,
     CompletedSuccessfully,
     FollowedMessageRoute,
@@ -17,7 +17,7 @@ from evals.event_evaluators import (
     ToolCallsInOrder,
     ToolCallsSucceeded,
 )
-from evals.models import TeamCaseInput, TeamCaseOutput, TeamTurn
+from evals.harness.models import TeamCaseInput, TeamCaseOutput, TeamTurn
 
 CHANGE_AWARE_URL = "https://eval.invalid/project-beacon"
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "change_aware_page.txt"

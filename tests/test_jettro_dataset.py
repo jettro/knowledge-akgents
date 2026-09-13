@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from evals.datasets.jettro_ingestion import build_jettro_ingestion_dataset
-from evals.event_evaluators import CalledRequiredTools, ToolCallsSucceeded
+from evals.evaluators.events import CalledRequiredTools, ToolCallsSucceeded
 
 
 def test_jettro_ingestion_requires_only_domain_tools() -> None:

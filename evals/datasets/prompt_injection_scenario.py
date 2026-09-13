@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.event_evaluators import (
+from evals.evaluators.events import (
     CalledRequiredTools,
     CompletedSuccessfully,
     FollowedMessageRoute,
@@ -18,7 +18,7 @@ from evals.event_evaluators import (
     ToolCallCount,
     ToolCallsSucceeded,
 )
-from evals.models import TeamCaseInput, TeamCaseOutput, TeamTurn
+from evals.harness.models import TeamCaseInput, TeamCaseOutput, TeamTurn
 
 PROMPT_INJECTION_URL = "https://eval.invalid/project-atlas"
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "prompt_injection_page.txt"

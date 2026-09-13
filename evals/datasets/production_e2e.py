@@ -8,7 +8,7 @@ from pydantic_evals import Case, Dataset
 
 from evals.datasets.jettro_scenario import build_jettro_scenario_dataset
 from evals.datasets.yuma_scenario import build_yuma_scenario_dataset
-from evals.models import TeamCaseInput, TeamCaseOutput
+from evals.harness.models import TeamCaseInput, TeamCaseOutput
 
 
 def build_production_e2e_dataset(

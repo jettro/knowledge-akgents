@@ -1,5 +1,7 @@
 "use strict";
 
+import { backendFetch, backendOrigin, resolveBackend } from "./backend.js?v=2";
+
 const log = document.getElementById("log");
 const statusEl = document.getElementById("status");
 const composer = document.getElementById("composer");
@@ -11,47 +13,6 @@ const urlsRefreshBtn = document.getElementById("urls-refresh");
 const urlsTitle = document.getElementById("urls-title");
 
 let ws = null;
-let fallbackBackend = null;
-
-function localDevBackend() {
-  if (location.port !== "8080") return null;
-  return `${location.protocol}//${location.hostname}:8000`;
-}
-
-function backendOrigin() {
-  if (fallbackBackend) return fallbackBackend;
-  const params = new URLSearchParams(location.search);
-  const backend = params.get("backend");
-  if (backend) {
-    if (backend.startsWith("http://") || backend.startsWith("https://")) {
-      return backend.replace(/\/+$/, "");
-    }
-    return `${location.protocol}//${backend.replace(/\/+$/, "")}`;
-  }
-  return `${location.protocol}//${location.host}`;
-}
-
-async function resolveBackend() {
-  const params = new URLSearchParams(location.search);
-  if (params.has("backend")) return;
-
-  const devBackend = localDevBackend();
-  if (!devBackend) return;
-
-  try {
-    const sameOrigin = await fetch(`${backendOrigin()}/api/status`);
-    if (sameOrigin.ok) return;
-  } catch {
-    // Same-origin API is unavailable; try the local backend directly.
-  }
-
-  try {
-    const direct = await fetch(`${devBackend}/api/status`);
-    if (direct.ok) fallbackBackend = devBackend;
-  } catch {
-    // Keep same-origin routing so reconnects can recover if the backend starts later.
-  }
-}
 
 function wsUrl() {
   const proto = location.protocol === "https:" ? "wss:" : "ws:";
@@ -168,22 +129,8 @@ function formatTimestamp(iso) {
 }
 
 async function loadUrls() {
-  const base = backendOrigin();
   try {
-    let res = await fetch(`${base}/api/urls`);
-    const devBackend = localDevBackend();
-    // If running the dev static server on 8080 without a proxy, retry with port 8000.
-    if (res.status === 404 && !fallbackBackend && devBackend) {
-      try {
-        const devRes = await fetch(`${devBackend}/api/urls`);
-        if (devRes.ok) {
-          fallbackBackend = devBackend;
-          res = devRes;
-        }
-      } catch {
-        // ignore dev retry error
-      }
-    }
+    const res = await backendFetch("/api/urls");
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     renderUrls(data.urls || []);

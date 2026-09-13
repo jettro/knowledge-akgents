@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from akgentic.tool.knowledge_graph.models import SearchQuery
 
-from evals.fixture_knowledge import FixtureKnowledgeTool, KnowledgeFixtureRecord
+from evals.harness.fixture_knowledge import FixtureKnowledgeTool, KnowledgeFixtureRecord
 
 
 def test_fixture_knowledge_returns_matching_records() -> None:

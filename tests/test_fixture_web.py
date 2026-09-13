@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from evals.catalog import load_case_team_card
-from evals.fixture_web import FixtureWebTool
+from evals.harness.catalog import load_case_team_card
+from evals.harness.fixture_web import FixtureWebTool
 
 
 def test_fixture_web_tool_returns_reviewed_content() -> None:

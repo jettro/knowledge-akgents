@@ -7,7 +7,7 @@ from evals.datasets.yuma_scenario import (
     YUMA_BACKGROUND_URL,
     build_yuma_scenario_dataset,
 )
-from evals.event_evaluators import (
+from evals.evaluators.events import (
     CompletedSuccessfully,
     HumanResponseContainsAnyTerm,
     HumanResponseContainsTerms,

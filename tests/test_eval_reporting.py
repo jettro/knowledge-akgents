@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pydantic_evals import Case, Dataset
 
-from evals.reporting import load_report, save_report
+from evals.harness.reporting import load_report, save_report
 
 
 def test_report_round_trip_supports_baseline_rendering(tmp_path: Path) -> None:

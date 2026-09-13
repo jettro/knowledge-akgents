@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.event_evaluators import (
+from evals.evaluators.events import (
     CalledRequiredTools,
     CompletedSuccessfully,
     FollowedMessageRoute,
@@ -16,7 +16,7 @@ from evals.event_evaluators import (
     ToolCallCount,
     ToolCallsSucceeded,
 )
-from evals.models import TeamCaseInput, TeamCaseOutput
+from evals.harness.models import TeamCaseInput, TeamCaseOutput
 
 NO_USEFUL_CONTENT_URL = "https://eval.invalid/empty-content"
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "no_useful_content_page.txt"

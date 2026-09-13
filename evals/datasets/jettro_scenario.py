@@ -7,7 +7,7 @@ from typing import Any
 from pydantic_evals import Case, Dataset
 
 from evals.datasets.jettro_ingestion import FIXTURE_PATH, JETTRO_ABOUT_URL
-from evals.event_evaluators import (
+from evals.evaluators.events import (
     CalledRequiredTools,
     CompletedSuccessfully,
     FollowedMessageRoute,
@@ -16,7 +16,7 @@ from evals.event_evaluators import (
     ToolCallCount,
     ToolCallsSucceeded,
 )
-from evals.models import TeamCaseInput, TeamCaseOutput, TeamTurn
+from evals.harness.models import TeamCaseInput, TeamCaseOutput, TeamTurn
 
 
 def build_jettro_scenario_dataset(

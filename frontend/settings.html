@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Settings · Knowledge Akgents</title>
+    <link rel="stylesheet" href="styles.css?v=3" />
+  </head>
+  <body class="settings-page">
+    <header class="app-header">
+      <div class="app-header-inner">
+        <a data-backend-link class="product-brand" href="/">
+          <span class="brand-mark" aria-hidden="true">K</span>
+          <span class="brand-name">Knowledge <strong>Akgents</strong></span>
+        </a>
+        <nav class="app-tabs" aria-label="Primary navigation">
+          <a data-backend-link href="/">
+            <span class="tab-icon" aria-hidden="true">◫</span>
+            Chat
+          </a>
+          <a data-backend-link class="active" href="settings.html">
+            <span class="tab-icon" aria-hidden="true">⌁</span>
+            Settings
+          </a>
+        </nav>
+        <div id="api-status" class="status offline">checking…</div>
+      </div>
+    </header>
+
+    <main class="settings-main">
+      <div class="settings-heading">
+        <div>
+          <p class="eyebrow">Runtime diagnostics</p>
+          <h2>System health</h2>
+          <p>See how this instance is configured and whether its services agree.</p>
+        </div>
+        <button id="settings-refresh" class="secondary-button" type="button">
+          <span aria-hidden="true">↻</span>
+          Refresh status
+        </button>
+      </div>
+
+      <div id="settings-error" class="settings-error" hidden></div>
+
+      <section class="settings-grid" aria-live="polite">
+        <article class="settings-card">
+          <div class="card-heading">
+            <div class="card-title">
+              <span class="card-icon storage-icon" aria-hidden="true">DB</span>
+              <div>
+                <p>Storage</p>
+                <h3>Knowledge graph</h3>
+              </div>
+            </div>
+            <span id="storage-mode" class="pill neutral">loading</span>
+          </div>
+          <dl>
+            <div><dt>Persistent</dt><dd id="storage-persistent">—</dd></div>
+            <div><dt>Qdrant target</dt><dd id="qdrant-target">—</dd></div>
+            <div><dt>Reachable</dt><dd id="qdrant-reachable">—</dd></div>
+            <div><dt>Collection</dt><dd id="qdrant-collection">—</dd></div>
+            <div><dt>Graph points</dt><dd id="qdrant-points">—</dd></div>
+          </dl>
+          <p id="qdrant-error" class="card-note error-text" hidden></p>
+        </article>
+
+        <article class="settings-card">
+          <div class="card-heading">
+            <div class="card-title">
+              <span class="card-icon urls-icon" aria-hidden="true">↗</span>
+              <div>
+                <p>Sources</p>
+                <h3>Imported URLs</h3>
+              </div>
+            </div>
+            <span id="url-count" class="pill neutral">loading</span>
+          </div>
+          <dl>
+            <div><dt>Tracked</dt><dd id="urls-tracked">—</dd></div>
+            <div><dt>Successfully ingested</dt><dd id="urls-ingested">—</dd></div>
+            <div><dt>Last status failed</dt><dd id="urls-failed">—</dd></div>
+          </dl>
+        </article>
+
+        <article class="settings-card">
+          <div class="card-heading">
+            <div class="card-title">
+              <span class="card-icon sync-icon" aria-hidden="true">↔</span>
+              <div>
+                <p>Consistency</p>
+                <h3>Synchronization</h3>
+              </div>
+            </div>
+            <span id="sync-state" class="pill neutral">loading</span>
+          </div>
+          <p id="sync-reason" class="card-note">Checking URL and Qdrant state…</p>
+          <p class="card-note muted">
+            This is an operational consistency check, not an exact count comparison:
+            one URL can create multiple entities and relations.
+          </p>
+        </article>
+
+        <article class="settings-card">
+          <div class="card-heading">
+            <div class="card-title">
+              <span class="card-icon services-icon" aria-hidden="true">AI</span>
+              <div>
+                <p>Connections</p>
+                <h3>External services</h3>
+              </div>
+            </div>
+          </div>
+          <dl>
+            <div><dt>Model provider</dt><dd id="model-provider">—</dd></div>
+            <div><dt>Model</dt><dd id="model-name">—</dd></div>
+            <div><dt>Model credentials</dt><dd id="model-configured">—</dd></div>
+            <div><dt>Web search</dt><dd id="web-configured">—</dd></div>
+          </dl>
+        </article>
+      </section>
+
+      <section class="reset-guidance">
+        <span class="reset-icon" aria-hidden="true">↺</span>
+        <div>
+          <h3>Start from an empty local stack</h3>
+          <p>
+            Run <code>make reset-and-up</code> to remove both data volumes and restart
+            Qdrant and URL tracking from the same clean state.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="settings.js?v=2"></script>
+  </body>
+</html>

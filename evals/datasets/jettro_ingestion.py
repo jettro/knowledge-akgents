@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.event_evaluators import (
+from evals.evaluators.events import (
     AnswerContainsTerms,
     CalledRequiredTools,
     CompletedSuccessfully,
@@ -15,7 +15,7 @@ from evals.event_evaluators import (
     ToolArgumentsContain,
     ToolCallsSucceeded,
 )
-from evals.models import TeamCaseInput, TeamCaseOutput
+from evals.harness.models import TeamCaseInput, TeamCaseOutput
 
 JETTRO_ABOUT_URL = "https://coenradie.com/about"
 FIXTURE_PATH = Path(__file__).resolve().parents[1] / "fixtures" / "jettro_about.txt"

@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.event_evaluators import (
+from evals.evaluators.events import (
     CalledRequiredTools,
     CompletedSuccessfully,
     FollowedMessageRoute,
@@ -17,7 +17,7 @@ from evals.event_evaluators import (
     ToolCallCount,
     ToolCallsSucceeded,
 )
-from evals.models import TeamCaseInput, TeamCaseOutput, TeamTurn
+from evals.harness.models import TeamCaseInput, TeamCaseOutput, TeamTurn
 
 YUMA_BACKGROUND_URL = "https://www.weareyuma.com/en/about/about-us/background"
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "yuma_background.txt"

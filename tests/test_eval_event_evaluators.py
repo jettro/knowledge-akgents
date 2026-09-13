@@ -5,7 +5,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import Any, cast
 
-from evals.event_evaluators import (
+from evals.evaluators.events import (
     DidNotCallTools,
     DidNotInvolveActors,
     FollowedMessageRoute,
@@ -19,7 +19,7 @@ from evals.event_evaluators import (
     _contains_expected,
     _is_ordered_subsequence,
 )
-from evals.models import (
+from evals.harness.models import (
     MessageRecord,
     TeamCaseOutput,
     ToolCallRecord,

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from evals.datasets.routing import build_routing_dataset
-from evals.event_evaluators import DidNotInvolveActors, FollowedMessageRoute
+from evals.evaluators.events import DidNotInvolveActors, FollowedMessageRoute
 
 
 def test_routing_dataset_defines_direct_and_manager_cases() -> None:
