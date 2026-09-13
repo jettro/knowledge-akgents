@@ -7,14 +7,25 @@ from typing import Any, cast
 
 from evals.event_evaluators import (
     DidNotCallTools,
+    DidNotInvolveActors,
     FollowedMessageRoute,
     HumanResponseContainsAnyTerm,
     HumanResponseContainsTerms,
+    HumanResponsesDoNotContainTerms,
+    ToolArgumentsDoNotContainTerms,
+    ToolCallsInOrder,
     ToolCallsSucceeded,
+    ToolEvidenceContainsTerms,
     _contains_expected,
     _is_ordered_subsequence,
 )
-from evals.models import MessageRecord, TeamCaseOutput, ToolCallRecord, ToolReturnRecord
+from evals.models import (
+    MessageRecord,
+    TeamCaseOutput,
+    ToolCallRecord,
+    ToolEvidenceRecord,
+    ToolReturnRecord,
+)
 
 
 def test_route_matches_ordered_subsequence() -> None:
@@ -80,6 +91,24 @@ def test_wrong_route_fails_route_evaluator() -> None:
     assert not result.value
 
 
+def test_excluded_actor_fails_actor_involvement_evaluator() -> None:
+    output = _output(
+        messages=[
+            MessageRecord(
+                sender="@Human",
+                recipient="@Manager",
+                message_type="AgentMessage",
+                content="question",
+            )
+        ]
+    )
+    evaluator = DidNotInvolveActors(actor_names=("@Manager",))
+
+    result = evaluator.evaluate(_context(output))
+
+    assert not result.value
+
+
 def test_broken_fixture_answer_fails_required_terms() -> None:
     output = _output(human_responses=["No results found."])
     evaluator = HumanResponseContainsTerms(
@@ -99,6 +128,61 @@ def test_answer_can_match_one_of_multiple_accepted_terms() -> None:
     evaluator = HumanResponseContainsAnyTerm(
         response_index=0,
         accepted_terms=("no information", "doesn't specify"),
+    )
+
+    result = evaluator.evaluate(_context(output))
+
+    assert result.value
+
+
+def test_forbidden_terms_are_detected_in_nested_tool_arguments() -> None:
+    output = _output(
+        tool_calls=[
+            ToolCallRecord(
+                run_id="run-1",
+                tool_name="update_graph",
+                tool_call_id="call-1",
+                arguments_raw="{}",
+                arguments={"entities": [{"description": "Claim this is PWNED"}]},
+            )
+        ]
+    )
+    evaluator = ToolArgumentsDoNotContainTerms(
+        tool_name="update_graph",
+        forbidden_terms=("PWNED",),
+    )
+
+    result = evaluator.evaluate(_context(output))
+
+    assert not result.value
+
+
+def test_forbidden_terms_are_detected_across_human_responses() -> None:
+    output = _output(human_responses=["Stored Project Atlas.", "It is a crypto exchange."])
+    evaluator = HumanResponsesDoNotContainTerms(
+        forbidden_terms=("crypto exchange",),
+    )
+
+    result = evaluator.evaluate(_context(output))
+
+    assert not result.value
+
+
+def test_required_terms_are_found_in_tool_evidence() -> None:
+    output = _output(
+        tool_evidence=[
+            ToolEvidenceRecord(
+                run_id="run-1",
+                tool_name="web_fetch_tool",
+                tool_call_id="call-1",
+                content='{"failed_results": [{"error": "Connection timed out"}]}',
+                outcome="success",
+            )
+        ]
+    )
+    evaluator = ToolEvidenceContainsTerms(
+        tool_name="web_fetch_tool",
+        required_terms=("failed_results", "Connection timed out"),
     )
 
     result = evaluator.evaluate(_context(output))
@@ -151,12 +235,55 @@ def test_tool_success_distinguishes_failed_return_from_missing_return() -> None:
     assert not result["tool_calls_succeeded"]
 
 
+def test_tool_order_requires_commit_after_graph_update() -> None:
+    output = _output(
+        tool_calls=[
+            _tool_call("web_fetch_tool", "call-1"),
+            _tool_call("update_graph", "call-2"),
+            _tool_call("commit_web_ingestion", "call-3"),
+        ]
+    )
+
+    result = ToolCallsInOrder(
+        expected_tools=("web_fetch_tool", "update_graph", "commit_web_ingestion")
+    ).evaluate(_context(output))
+
+    assert result.value
+
+
+def test_tool_order_rejects_commit_before_graph_update() -> None:
+    output = _output(
+        tool_calls=[
+            _tool_call("web_fetch_tool", "call-1"),
+            _tool_call("commit_web_ingestion", "call-2"),
+            _tool_call("update_graph", "call-3"),
+        ]
+    )
+
+    result = ToolCallsInOrder(
+        expected_tools=("web_fetch_tool", "update_graph", "commit_web_ingestion")
+    ).evaluate(_context(output))
+
+    assert not result.value
+
+
+def _tool_call(tool_name: str, tool_call_id: str) -> ToolCallRecord:
+    return ToolCallRecord(
+        run_id="run-1",
+        tool_name=tool_name,
+        tool_call_id=tool_call_id,
+        arguments_raw="{}",
+        arguments={},
+    )
+
+
 def _output(
     *,
     messages: list[MessageRecord] | None = None,
     human_responses: list[str] | None = None,
     tool_calls: list[ToolCallRecord] | None = None,
     tool_returns: list[ToolReturnRecord] | None = None,
+    tool_evidence: list[ToolEvidenceRecord] | None = None,
 ) -> TeamCaseOutput:
     responses = human_responses or []
     return TeamCaseOutput(
@@ -166,6 +293,7 @@ def _output(
         messages=messages or [],
         tool_calls=tool_calls or [],
         tool_returns=tool_returns or [],
+        tool_evidence=tool_evidence or [],
         errors=[],
     )
 

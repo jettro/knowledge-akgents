@@ -1,0 +1,4 @@
+# Project Beacon
+
+Project Beacon is a synthetic maintenance service created by Harbor Labs.
+It helps field engineers coordinate emergency repairs.

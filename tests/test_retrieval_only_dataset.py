@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from evals.datasets.retrieval_only import (
+    CONFLICT_FIXTURE_PATH,
     FIXTURE_PATH,
     MISSING_KNOWLEDGE_TERMS,
     build_retrieval_only_dataset,
@@ -31,8 +32,20 @@ def test_retrieval_only_dataset_defines_canonical_and_paraphrased_cases() -> Non
         "yuma-consulting-founders",
         "jettro-unknown-favorite-database",
         "jettro-profession-and-unknown-favorite-database",
+        "synthetic-conflicting-database-preference",
     ]
-    assert all(case.inputs.knowledge_fixture_path == str(FIXTURE_PATH) for case in dataset.cases)
+    standard_cases = [
+        case
+        for case in dataset.cases
+        if case.name != "synthetic-conflicting-database-preference"
+    ]
+    conflict_case = next(
+        case for case in dataset.cases if case.name == "synthetic-conflicting-database-preference"
+    )
+    assert all(
+        case.inputs.knowledge_fixture_path == str(FIXTURE_PATH) for case in standard_cases
+    )
+    assert conflict_case.inputs.knowledge_fixture_path == str(CONFLICT_FIXTURE_PATH)
     assert all(len(case.inputs.ordered_turns()) == 1 for case in dataset.cases)
     assert {case.name: case.metadata["prompt_variant"] for case in dataset.cases} == {
         "jettro-profession": "canonical",
@@ -49,6 +62,7 @@ def test_retrieval_only_dataset_defines_canonical_and_paraphrased_cases() -> Non
         "jettro-profession-and-unknown-favorite-database": (
             "partial-knowledge-negative-control"
         ),
+        "synthetic-conflicting-database-preference": "conflicting-evidence",
     }
 
 
@@ -78,6 +92,9 @@ def test_retrieval_only_cases_define_answer_specific_evaluators() -> None:
     assert required_terms["jettro-profession-and-unknown-favorite-database"] == [
         ("software architect", "ingest")
     ]
+    assert required_terms["synthetic-conflicting-database-preference"] == [
+        ("PostgreSQL", "Elasticsearch")
+    ]
     assert forbidden.forbidden_tools == ("web_fetch_tool", "update_graph")
 
 
@@ -86,6 +103,7 @@ def test_negative_control_cases_limit_search_retries() -> None:
     expected_limits = {
         "jettro-unknown-favorite-database": 2,
         "jettro-profession-and-unknown-favorite-database": 3,
+        "synthetic-conflicting-database-preference": 2,
     }
 
     for case_name, maximum in expected_limits.items():

@@ -17,6 +17,11 @@ runner behavior.
 make eval-ingestion
 make eval-jettro
 make eval-yuma
+make eval-prompt-injection
+make eval-no-useful-content
+make eval-unreachable-url
+make eval-routing
+make eval-change-aware-ingestion
 make eval-retrieval
 ```
 

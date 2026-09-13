@@ -13,6 +13,8 @@ to extend it.
   paid runs, repetitions, reports, and Logfire.
 - [Evaluation report viewer](evaluation-report-viewer/help.md): inspect saved
   native reports in a local web interface.
+- [Change-aware ingestion](change-aware-ingestion/help.md): how extracted
+  content hashes, unchanged skips, commits, failures, and force requests work.
 
 The longer-term design and experiment history remain in
 [`evals-plan.md`](../evals-plan.md).

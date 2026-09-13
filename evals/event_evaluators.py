@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from typing import Any
 
@@ -60,6 +61,31 @@ class FollowedMessageRoute(Evaluator[TeamCaseInput, TeamCaseOutput, Metadata]):
 
 
 @dataclass
+class DidNotInvolveActors(Evaluator[TeamCaseInput, TeamCaseOutput, Metadata]):
+    actor_names: tuple[str, ...]
+
+    def evaluate(
+        self,
+        ctx: EvaluatorContext[TeamCaseInput, TeamCaseOutput, Metadata],
+    ) -> EvaluationReason:
+        observed = {
+            actor
+            for message in ctx.output.messages
+            for actor in (message.sender, message.recipient)
+            if actor
+        }
+        unexpected = sorted(set(self.actor_names) & observed)
+        return EvaluationReason(
+            value=not unexpected,
+            reason=(
+                f"Unexpected actors involved: {unexpected}"
+                if unexpected
+                else f"Excluded actors were not involved: {list(self.actor_names)}"
+            ),
+        )
+
+
+@dataclass
 class CalledRequiredTools(Evaluator[TeamCaseInput, TeamCaseOutput, Metadata]):
     required_tools: tuple[str, ...]
 
@@ -75,6 +101,19 @@ class CalledRequiredTools(Evaluator[TeamCaseInput, TeamCaseOutput, Metadata]):
             )
             for tool_name in self.required_tools
         }
+
+
+@dataclass
+class ToolCallsInOrder(Evaluator[TeamCaseInput, TeamCaseOutput, Metadata]):
+    expected_tools: tuple[str, ...]
+
+    def evaluate(
+        self,
+        ctx: EvaluatorContext[TeamCaseInput, TeamCaseOutput, Metadata],
+    ) -> EvaluationReason:
+        observed = [call.tool_name for call in ctx.output.tool_calls]
+        matched = _is_ordered_subsequence(list(self.expected_tools), observed)
+        return EvaluationReason(value=matched, reason=f"Observed tool order: {observed}")
 
 
 @dataclass
@@ -121,6 +160,41 @@ class ToolArgumentsContain(Evaluator[TeamCaseInput, TeamCaseOutput, Metadata]):
 
 
 @dataclass
+class ToolArgumentsDoNotContainTerms(
+    Evaluator[TeamCaseInput, TeamCaseOutput, Metadata]
+):
+    tool_name: str
+    forbidden_terms: tuple[str, ...]
+
+    def evaluate(
+        self,
+        ctx: EvaluatorContext[TeamCaseInput, TeamCaseOutput, Metadata],
+    ) -> EvaluationReason:
+        matching_calls = [
+            call for call in ctx.output.tool_calls if call.tool_name == self.tool_name
+        ]
+        serialized = [
+            json.dumps(call.arguments, ensure_ascii=False, sort_keys=True).casefold()
+            for call in matching_calls
+        ]
+        matched = sorted(
+            {
+                term
+                for term in self.forbidden_terms
+                if any(term.casefold() in arguments for arguments in serialized)
+            }
+        )
+        return EvaluationReason(
+            value=bool(matching_calls) and not matched,
+            reason=(
+                f"Forbidden terms in {self.tool_name} arguments: {matched}"
+                if matched
+                else f"Observed {len(matching_calls)} clean {self.tool_name} call(s)"
+            ),
+        )
+
+
+@dataclass
 class ToolCallsSucceeded(Evaluator[TeamCaseInput, TeamCaseOutput, Metadata]):
     tool_names: tuple[str, ...] | None = None
 
@@ -142,6 +216,31 @@ class ToolCallsSucceeded(Evaluator[TeamCaseInput, TeamCaseOutput, Metadata]):
             and all(call.parse_error is None for call in selected_calls),
             "tool_calls_succeeded": bool(call_ids) and call_ids <= successful_return_ids,
         }
+
+
+@dataclass
+class ToolEvidenceContainsTerms(Evaluator[TeamCaseInput, TeamCaseOutput, Metadata]):
+    tool_name: str
+    required_terms: tuple[str, ...]
+
+    def evaluate(
+        self,
+        ctx: EvaluatorContext[TeamCaseInput, TeamCaseOutput, Metadata],
+    ) -> EvaluationReason:
+        evidence = "\n".join(
+            record.content
+            for record in ctx.output.tool_evidence
+            if record.tool_name == self.tool_name
+        ).casefold()
+        missing = [term for term in self.required_terms if term.casefold() not in evidence]
+        return EvaluationReason(
+            value=bool(evidence) and not missing,
+            reason=(
+                f"Missing {self.tool_name} evidence terms: {missing}"
+                if missing
+                else "All required tool-evidence terms present"
+            ),
+        )
 
 
 @dataclass
@@ -213,6 +312,30 @@ class HumanResponseContainsAnyTerm(Evaluator[TeamCaseInput, TeamCaseOutput, Meta
         return EvaluationReason(
             value=bool(matched),
             reason=f"Matched accepted terms: {matched}",
+        )
+
+
+@dataclass
+class HumanResponsesDoNotContainTerms(
+    Evaluator[TeamCaseInput, TeamCaseOutput, Metadata]
+):
+    forbidden_terms: tuple[str, ...]
+
+    def evaluate(
+        self,
+        ctx: EvaluatorContext[TeamCaseInput, TeamCaseOutput, Metadata],
+    ) -> EvaluationReason:
+        responses = [response.casefold() for response in ctx.output.human_responses]
+        matched = sorted(
+            {
+                term
+                for term in self.forbidden_terms
+                if any(term.casefold() in response for response in responses)
+            }
+        )
+        return EvaluationReason(
+            value=not matched,
+            reason=f"Forbidden response terms: {matched}" if matched else "No forbidden terms",
         )
 
 

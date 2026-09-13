@@ -63,10 +63,22 @@ make web                                     # static UI on :8080
 ### Imported URLs
 
 Every URL sent to `@WebIngest` is recorded in a small local cache — `data/urls.json` —
-separate from the knowledge graph itself. This is *only* an input history (url, first/last
-imported timestamps, how many times it was submitted); it doesn't affect ingestion or
-retrieval. The frontend shows it in the **Imported URLs** panel (fetched from
-`GET /api/urls`), so you can see at a glance what has already been fed into the system.
+separate from the knowledge graph itself. Alongside submission history, it stores a
+normalized hash of the last successfully ingested Tavily content. When a later fetch
+produces the same hash, `@WebIngest` skips extraction and graph updates. Ask explicitly to
+**force re-ingestion** to bypass that check. A new hash is committed only after the graph
+update succeeds, so a failed refresh does not replace the last known successful state.
+The frontend shows the submitted URLs in the **Imported URLs** panel (fetched from
+`GET /api/urls`).
+
+Each successful commit also records the entity names and relation triples attributed to
+that URL. When changed content is ingested, `@WebIngest` updates retained facts, creates
+new facts, and deletes stale facts owned exclusively by the previous version of that
+source. Facts also claimed by another URL are not offered for deletion.
+
+This is a hash of Tavily's query-filtered extracted text, not of the origin page bytes.
+The Tavily request still happens, and a materially different extraction query or result
+may cause reprocessing even when the underlying page did not change.
 
 To start over, delete the `data/` directory (or just `data/urls.json`) and restart the
 backend — this only clears the URL history, not the knowledge base itself (that lives in
@@ -101,7 +113,12 @@ but do not use Tavily or export to Logfire by default:
 make eval-ingestion        # one Jettro ingestion case
 make eval-jettro           # Jettro ingest + two retrieval turns
 make eval-yuma             # Yuma ingest + two retrieval turns
-make eval-retrieval        # twelve retrieval and missing-knowledge cases
+make eval-prompt-injection # synthetic untrusted-page ingestion scenario
+make eval-no-useful-content # synthetic boilerplate-only ingestion scenario
+make eval-unreachable-url  # controlled web-fetch failure scenario
+make eval-routing          # manager and direct-specialist routing cases
+make eval-change-aware-ingestion # unchanged, forced, and changed ingestion cases
+make eval-retrieval        # thirteen retrieval, conflict, and missing-knowledge cases
 make eval-variance         # retrieval cases repeated three times
 make eval-judge            # static two-dimensional judge calibration
 make eval-judge-stability  # judge calibration repeated three times

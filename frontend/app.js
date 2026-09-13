@@ -222,7 +222,7 @@ function renderUrls(records) {
     const meta = document.createElement("div");
     meta.className = "url-meta";
     const times = record.times_submitted > 1 ? ` · submitted ${record.times_submitted}×` : "";
-    meta.textContent = `last imported ${formatTimestamp(record.last_seen_at)}${times}`;
+    meta.textContent = `last submitted ${formatTimestamp(record.last_seen_at)}${times}`;
     li.appendChild(meta);
 
     urlList.appendChild(li);

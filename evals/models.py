@@ -19,6 +19,8 @@ class TeamCaseInput(BaseModel):
     timeout_seconds: float = 180.0
     fixture_source_url: str | None = None
     fixture_path: str | None = None
+    fixture_paths: list[str] = Field(default_factory=list)
+    fixture_web_failure: str | None = None
     knowledge_fixture_path: str | None = None
 
     @model_validator(mode="after")

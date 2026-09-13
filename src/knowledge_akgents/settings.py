@@ -38,8 +38,8 @@ class Settings(BaseSettings):
     # Vector store (Qdrant). Exporting AKGENTIC_QDRANT_URL switches the backend to Qdrant.
     akgentic_qdrant_url: str = ""
 
-    # Local, on-disk cache (currently just the ingested-URL history). Delete this
-    # directory to start over — it holds no data the knowledge graph itself needs.
+    # Local URL submission and ingestion-validator state. Delete this directory to
+    # start over — it holds no data the knowledge graph itself needs.
     data_dir: str = "data"
 
     # HTTP server

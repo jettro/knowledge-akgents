@@ -20,6 +20,9 @@ from evals.event_evaluators import (
 from evals.models import TeamCaseInput, TeamCaseOutput
 
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "pilot_knowledge.json"
+CONFLICT_FIXTURE_PATH = (
+    Path(__file__).parents[1] / "fixtures" / "conflicting_knowledge.json"
+)
 RETRIEVAL_ROUTE = (
     ("@Human", "@Manager"),
     ("@Manager", "@Knowledge"),
@@ -193,6 +196,39 @@ def build_retrieval_only_dataset(
                         accepted_terms=MISSING_KNOWLEDGE_TERMS,
                     ),
                     ToolCallCount(tool_name="search_graph", minimum=1, maximum=3),
+                ),
+            ),
+            Case(
+                name="synthetic-conflicting-database-preference",
+                inputs=TeamCaseInput(
+                    message="Which application database does Alex Example prefer?",
+                    timeout_seconds=timeout_seconds,
+                    knowledge_fixture_path=str(CONFLICT_FIXTURE_PATH),
+                ),
+                metadata={
+                    "mode": "fixed-knowledge-retrieval-only",
+                    "fixture_kind": "synthetic-conflict",
+                    "prompt_variant": "conflicting-evidence",
+                },
+                evaluators=(
+                    HumanResponseContainsTerms(
+                        response_index=0,
+                        required_terms=("PostgreSQL", "Elasticsearch"),
+                    ),
+                    HumanResponseContainsAnyTerm(
+                        response_index=0,
+                        accepted_terms=(
+                            "conflict",
+                            "conflicting",
+                            "different",
+                            "disagree",
+                            "inconsistent",
+                            "cannot determine",
+                            "can't determine",
+                            "unclear",
+                        ),
+                    ),
+                    ToolCallCount(tool_name="search_graph", minimum=1, maximum=2),
                 ),
             ),
         ],

@@ -15,9 +15,20 @@ from pydantic_evals import Dataset
 from pydantic_evals.evaluators import Evaluator, EvaluatorContext, EvaluatorOutput
 
 from evals.cli import positive_int
+from evals.datasets.change_aware_ingestion import build_change_aware_ingestion_dataset
 from evals.datasets.jettro_ingestion import build_jettro_ingestion_dataset
 from evals.datasets.jettro_scenario import build_jettro_scenario_dataset
+from evals.datasets.no_useful_content_scenario import (
+    build_no_useful_content_scenario_dataset,
+)
+from evals.datasets.prompt_injection_scenario import (
+    build_prompt_injection_scenario_dataset,
+)
 from evals.datasets.retrieval_only import build_retrieval_only_dataset
+from evals.datasets.routing import build_routing_dataset
+from evals.datasets.unreachable_url_scenario import (
+    build_unreachable_url_scenario_dataset,
+)
 from evals.datasets.yuma_scenario import build_yuma_scenario_dataset
 from evals.live_judges import LiveRetrievalJudges
 from evals.models import TeamCaseInput, TeamCaseOutput
@@ -108,7 +119,17 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--scenario",
-        choices=("ingestion", "jettro-multi-turn", "yuma-multi-turn", "retrieval-only"),
+        choices=(
+            "ingestion",
+            "jettro-multi-turn",
+            "yuma-multi-turn",
+            "retrieval-only",
+            "prompt-injection",
+            "no-useful-content",
+            "unreachable-url",
+            "routing",
+            "change-aware-ingestion",
+        ),
         default="ingestion",
         help="Select the evaluation case to run.",
     )
@@ -171,6 +192,16 @@ def main() -> None:
         dataset = build_jettro_scenario_dataset(args.timeout)
     elif args.scenario == "yuma-multi-turn":
         dataset = build_yuma_scenario_dataset(args.timeout)
+    elif args.scenario == "prompt-injection":
+        dataset = build_prompt_injection_scenario_dataset(args.timeout)
+    elif args.scenario == "no-useful-content":
+        dataset = build_no_useful_content_scenario_dataset(args.timeout)
+    elif args.scenario == "unreachable-url":
+        dataset = build_unreachable_url_scenario_dataset(args.timeout)
+    elif args.scenario == "routing":
+        dataset = build_routing_dataset(args.timeout)
+    elif args.scenario == "change-aware-ingestion":
+        dataset = build_change_aware_ingestion_dataset(args.timeout)
     elif args.scenario == "retrieval-only":
         dataset = build_retrieval_only_dataset(args.timeout)
     else:

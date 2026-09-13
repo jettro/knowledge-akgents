@@ -1,7 +1,8 @@
 .DEFAULT_GOAL := help
 .PHONY: help sync upgrade run web eval-viewer lint format typecheck test test-evals eval-ingestion \
 	eval-jettro eval-yuma eval-retrieval eval-variance eval-judge \
-	eval-judge-stability up down logs build clean
+	eval-judge-stability eval-prompt-injection eval-no-useful-content \
+	eval-unreachable-url eval-routing eval-change-aware-ingestion up down logs build clean
 
 EVAL_TIMEOUT ?= 180
 EVAL_FLAGS ?=
@@ -41,7 +42,10 @@ test: ## Run the test suite
 test-evals: ## Run deterministic evaluation harness tests (no network/LLM)
 	uv run pytest tests/test_eval_*.py tests/test_fixture_*.py tests/test_jettro_*.py \
 		tests/test_yuma_*.py tests/test_live_*.py tests/test_retrieval_only_dataset.py \
-		tests/test_observability_spike.py tests/test_judge_calibration.py
+		tests/test_observability_spike.py tests/test_judge_calibration.py \
+		tests/test_prompt_injection_scenario.py tests/test_no_useful_content_scenario.py \
+		tests/test_unreachable_url_scenario.py tests/test_routing_dataset.py \
+		tests/test_change_aware_web.py tests/test_change_aware_ingestion_dataset.py
 
 eval-ingestion: ## Run the paid fixed-fixture Jettro ingestion evaluation
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
@@ -54,6 +58,26 @@ eval-jettro: ## Run the paid Jettro ingestion-and-query scenario
 eval-yuma: ## Run the paid Yuma ingestion-and-query scenario
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
 		--scenario yuma-multi-turn --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-prompt-injection: ## Run the paid fixed-fixture ingestion safety scenario
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--scenario prompt-injection --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-no-useful-content: ## Run the paid boilerplate-only ingestion scenario
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--scenario no-useful-content --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-unreachable-url: ## Run the paid controlled web-fetch failure scenario
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--scenario unreachable-url --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-routing: ## Run the paid manager and direct-specialist routing cases
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--scenario routing --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-change-aware-ingestion: ## Run paid unchanged, forced, and changed ingestion cases
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--scenario change-aware-ingestion --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-retrieval: ## Run the paid retrieval and missing-knowledge cases once
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \

@@ -11,6 +11,9 @@ from akgentic.tool.knowledge_graph import KnowledgeGraphTool
 from akgentic.tool.search import SearchTool, WebCrawl, WebFetch
 from akgentic.tool.vector_store import VectorStoreTool
 
+from knowledge_akgents.change_aware_web import ChangeAwareWebTool
+from knowledge_akgents.settings import settings
+
 
 def vector_store_card() -> VectorStoreTool:
     """The config card that guarantees the shared ``#VectorStore`` actor exists."""
@@ -27,10 +30,13 @@ def knowledge_ingest_card() -> KnowledgeGraphTool:
     return KnowledgeGraphTool(search=True, update_graph=True)
 
 
-def web_card() -> SearchTool:
-    """Retrieve and extract web page content via Tavily."""
-    return SearchTool(
-        web_search=True,
-        web_fetch=WebFetch(timeout=30),
-        web_crawl=WebCrawl(timeout=150, max_depth=2, max_breadth=5, limit=10),
+def web_card() -> ChangeAwareWebTool:
+    """Retrieve web content and suppress unchanged extracts before graph ingestion."""
+    return ChangeAwareWebTool(
+        repository_path=settings.urls_file,
+        delegate=SearchTool(
+            web_search=True,
+            web_fetch=WebFetch(timeout=30),
+            web_crawl=WebCrawl(timeout=150, max_depth=2, max_breadth=5, limit=10),
+        ),
     )

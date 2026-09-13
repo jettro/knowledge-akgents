@@ -23,12 +23,23 @@ def test_each_task_run_uses_and_shuts_down_a_fresh_team(
 
     first = tasks.run_team_case(TeamCaseInput(message="first", timeout_seconds=1))
     second = tasks.run_team_case(TeamCaseInput(message="second", timeout_seconds=1))
+    failure = tasks.run_team_case(
+        TeamCaseInput(
+            message="failure",
+            timeout_seconds=1,
+            fixture_source_url="https://eval.invalid/unreachable",
+            fixture_web_failure="Connection timed out",
+        )
+    )
 
     assert first.final_response == "first"
     assert second.final_response == "second"
-    assert len(teams) == 2
+    assert failure.final_response == "failure"
+    assert len(teams) == 3
     assert teams[0] is not teams[1]
     assert all(team.shutdown_called for team in teams)
+    assert teams[2].web_tool.delegate.source_url == "https://eval.invalid/unreachable"
+    assert teams[2].web_tool.delegate.failure_message == "Connection timed out"
 
 
 class FakeCollector:

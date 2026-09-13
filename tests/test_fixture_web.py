@@ -35,6 +35,39 @@ def test_fixture_web_tool_rejects_unknown_url() -> None:
     assert result["failed_results"][0]["url"] == "https://example.com"
 
 
+def test_fixture_web_tool_returns_configured_failure() -> None:
+    card = FixtureWebTool(
+        source_url="https://eval.invalid/unreachable",
+        failure_message="Connection timed out",
+    )
+    tool = card.get_tools()[0]
+
+    result = tool(urls=["https://eval.invalid/unreachable"], query="fetch page")
+
+    assert result["results"] == []
+    assert result["failed_results"] == [
+        {
+            "url": "https://eval.invalid/unreachable",
+            "error": "Connection timed out",
+        }
+    ]
+
+
+def test_fixture_web_tool_returns_sequence_then_repeats_last_content() -> None:
+    tool = FixtureWebTool(
+        source_url="https://eval.invalid/changed",
+        content_sequence=["first", "second"],
+    ).get_tools()[0]
+
+    first = tool(urls=["https://eval.invalid/changed"], query="facts")
+    second = tool(urls=["https://eval.invalid/changed"], query="facts")
+    third = tool(urls=["https://eval.invalid/changed"], query="facts")
+
+    assert first["results"][0]["raw_content"] == "first"
+    assert second["results"][0]["raw_content"] == "second"
+    assert third["results"][0]["raw_content"] == "second"
+
+
 def test_webingest_card_accepts_fixture_tool() -> None:
     fixture = FixtureWebTool(
         source_url="https://coenradie.com/about",

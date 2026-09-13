@@ -1,0 +1,4 @@
+# Project Beacon
+
+Project Beacon is a synthetic scheduling service created by Harbor Labs.
+It helps maintenance teams coordinate inspection windows.

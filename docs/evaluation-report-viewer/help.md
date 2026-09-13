@@ -34,6 +34,11 @@ The viewer shows:
 Multiple files can be loaded and selected from the run list. Side-by-side or
 baseline comparison is intentionally deferred to a later increment.
 
+The deterministic evaluation tests include a compatibility contract for the
+native report fields and static assets used by the viewer. When report
+serialization or viewer assumptions change, update the viewer and this contract
+together, then perform a browser smoke test with a newly generated report.
+
 ## Data sensitivity
 
 Reports can contain prompts, answers, retrieved evidence, fixture paths, and

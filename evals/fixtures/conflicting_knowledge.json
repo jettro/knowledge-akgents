@@ -1,0 +1,14 @@
+{
+  "records": [
+    {
+      "name": "Alex Example",
+      "entity_type": "Person",
+      "description": "One reviewed source states that Alex Example prefers PostgreSQL for application databases."
+    },
+    {
+      "name": "Alex Example",
+      "entity_type": "Person",
+      "description": "A second reviewed source states that Alex Example prefers Elasticsearch for application databases."
+    }
+  ]
+}

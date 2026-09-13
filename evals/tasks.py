@@ -3,19 +3,42 @@
 from __future__ import annotations
 
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from evals.collector import EvaluationEventCollector
 from evals.fixture_knowledge import FixtureKnowledgeTool, KnowledgeFixture
 from evals.fixture_web import FixtureWebTool
 from evals.models import TeamCaseInput, TeamCaseOutput
+from knowledge_akgents.change_aware_web import ChangeAwareWebTool
 from knowledge_akgents.team import KnowledgeTeam
 
 
 def run_team_case(inputs: TeamCaseInput) -> TeamCaseOutput:
+    with TemporaryDirectory(prefix="knowledge-akgents-eval-") as state_dir:
+        return _run_team_case(inputs, Path(state_dir))
+
+
+def _run_team_case(inputs: TeamCaseInput, state_dir: Path) -> TeamCaseOutput:
     web_tool = None
-    if inputs.fixture_path and inputs.fixture_source_url:
-        content = Path(inputs.fixture_path).read_text(encoding="utf-8")
-        web_tool = FixtureWebTool(source_url=inputs.fixture_source_url, content=content)
+    if inputs.fixture_source_url:
+        content = (
+            Path(inputs.fixture_path).read_text(encoding="utf-8")
+            if inputs.fixture_path
+            else ""
+        )
+        content_sequence = [
+            Path(fixture_path).read_text(encoding="utf-8")
+            for fixture_path in inputs.fixture_paths
+        ]
+        web_tool = ChangeAwareWebTool(
+            repository_path=state_dir / "urls.json",
+            delegate=FixtureWebTool(
+                source_url=inputs.fixture_source_url,
+                content=content,
+                content_sequence=content_sequence,
+                failure_message=inputs.fixture_web_failure,
+            ),
+        )
 
     knowledge_tool = None
     if inputs.knowledge_fixture_path:
