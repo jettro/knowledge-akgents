@@ -1025,6 +1025,34 @@ Hosted Logfire datasets can be considered later if collaborative curation or
 promotion of production traces becomes more important than code review of every
 case.
 
+### Dataset authoring direction: migrate cases to YAML
+
+The current pilot defines most cases in Python under `evals/datasets/`. That is
+appropriate while the case schema, evaluator vocabulary, and isolation model
+are still changing. The intended end state is to move ordinary case definitions
+to version-controlled YAML so contributors can add questions, fixtures,
+metadata, and expected behavior without editing Python.
+
+The migration should preserve a strict separation:
+
+- YAML contains case data and references to known evaluator options;
+- Pydantic models validate every YAML document;
+- a Python loader converts validated definitions into Pydantic Evals `Case`
+  objects;
+- task adapters, event collection, and evaluator implementations remain Python;
+- arbitrary Python or unrestricted evaluator expressions are not embedded in
+  YAML.
+
+This is explicitly a contributor-experience goal: a focused pull request should
+be able to add a reviewed fixture and one or more cases without changing the
+evaluation engine. The YAML schema should be introduced only after the current
+Python cases establish the stable vocabulary it needs to represent.
+
+This evaluation YAML is separate from the planned Akgentic catalog migration.
+Catalog profiles should eventually define production, fixture, Qdrant
+integration, and live team configurations. Evaluation YAML should define the
+inputs and expected behavior applied to one of those profiles.
+
 ## Rollout plan
 
 ### Phase 0: define success criteria
@@ -1394,6 +1422,90 @@ groundedness matched 24/24 human decisions and answer relevance matched 24/24.
 Every source case agreed in all three runs, with no decision flips. This meets
 the pilot stability criterion, while the small synthetic dataset remains a
 reason not to treat the judges as release-blocking yet.
+
+The calibrated judges can be attached to actual retrieval-only evaluations
+through the opt-in `--with-judges` flag. The event collector captures successful
+`ToolReturnPart` content from Akgentic `LlmMessageEvent` records and correlates
+it by tool name, run ID, and call ID. The live judges receive the final question,
+the actual `search_graph` evidence seen by the agent, and the final answer. They
+do not fall back to fixture files when evidence is missing; both dimensions fail
+explicitly instead. Deterministic assertions remain the primary gate, and judge
+calls add two paid model evaluations per case.
+
+The first approved live-judge run used the Jettro profession case and passed
+100% in 13.5 seconds. The collector captured the actual successful
+`search_graph` result, the groundedness judge confirmed that both the software
+architect and search-enthusiast claims were supported, and the relevance judge
+confirmed that the answer directly addressed the profession question. The
+agent usage metrics in `TeamCaseOutput` cover Akgentic model activity only; the
+two Pydantic judge calls are additional paid evaluator work and are not included
+in those event-derived token totals.
+
+The first judged missing-fact case passed all deterministic assertions and the
+groundedness judge, but the relevance judge failed because it expected the
+answer to provide Jettro's favorite database even though the evidence did not
+contain that fact. This is classified as a judge-calibration defect. The
+relevance rubric now treats a clear evidence-based unavailable answer as
+complete, while rejecting a generic refusal that does not connect its
+uncertainty to the reviewed evidence. The static calibration dataset adds
+correct-unavailable, hallucinated-direct, and generic-refusal controls before
+the live negative control is judged again.
+
+The first expanded calibration run agreed with 21 of 22 human labels.
+Groundedness agreed on all 11 cases. Relevance disagreed only on the
+hallucinated-direct control: it incorrectly used the missing evidence to fail
+an otherwise direct answer. The rubric was clarified again so unsupported
+facts remain a groundedness concern, while relevance independently accepts a
+direct answer or a clear evidence-based unavailable response.
+
+The refined 11-case calibration then achieved 22 of 22 agreement:
+groundedness agreed on all 11 labels and answer relevance agreed on all 11
+labels. This establishes calibrated positive, unsupported, irrelevant,
+incomplete, correctly unavailable, hallucinated-direct, and generic-refusal
+controls before rerunning the live missing-fact case.
+
+On the next live missing-fact run, answer relevance passed, but groundedness
+incorrectly treated the operational sentence "`@Knowledge` recommends
+ingesting a relevant source via `@WebIngest`" as a domain fact requiring support
+from the retrieved knowledge. The grounding scope is therefore clarified to
+judge claims about the question's subject, not workflow recommendations or
+their team-member attribution. The correctly unavailable calibration control
+now includes this exact ingestion-guidance form.
+
+The revised grounding scope retained 22 of 22 agreement on the static
+calibration dataset. The final live missing-fact run then passed 100%,
+including both groundedness and answer relevance. It made two successful,
+non-speculative `search_graph` calls, stated that the favorite database was not
+in the shared knowledge, did not invent an answer, and recommended ingesting a
+relevant source through `@WebIngest`. The agent run used six model requests,
+9,752 input tokens, 587 output tokens, 8,855 cache-read tokens, and 879
+cache-write tokens; the two judge calls are additional and are not included in
+these event-derived usage totals.
+
+The first full nine-case retrieval run with both live judges passed all 18
+groundedness and answer-relevance decisions. Eight cases passed every
+deterministic assertion. The missing-fact case answered correctly and passed
+both judges, but made three successful searches instead of the contractual
+maximum of two, producing a 99.1% aggregate deterministic/judge result. Its
+queries were targeted rather than guessed answer candidates, but the final
+`Jettro Coenradie database` query was redundant after the preceding favorite-
+database and broader-person searches. The two-search limit remains unchanged
+so this efficiency variance stays visible.
+
+Across the nine agent evaluations, the run used 54 model requests, 86,370 input
+tokens, and 4,351 output tokens; judge usage is additional. The largest agent
+usage cases were `yuma-companies` at 10 requests and 17,209 input tokens and
+`yuma-purpose` at nine requests and 15,233 input tokens. No actor or tool errors
+occurred.
+
+A focused three-repeat stability check of the missing-fact case, without judge
+calls, then passed 100%. Every repetition used exactly one targeted hybrid
+search, stated that the favorite database was unavailable, avoided inventing a
+database, and requested a source for `@WebIngest`. Agent request counts were
+five, seven, and five. This indicates that the three-search full-suite result
+was isolated nondeterministic variance rather than a recurring prompt defect.
+No prompt change or relaxation of the two-search contract is warranted from
+this sample.
 
 Create a small human-labeled set for groundedness, extraction quality, and answer
 relevance. Compare judge output and reasons with those labels.

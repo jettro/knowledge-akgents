@@ -57,6 +57,14 @@ class ToolReturnRecord(BaseModel):
     success: bool
 
 
+class ToolEvidenceRecord(BaseModel):
+    run_id: str | None
+    tool_name: str
+    tool_call_id: str
+    content: str
+    outcome: str
+
+
 class LlmUsageRecord(BaseModel):
     run_id: str
     model_name: str
@@ -75,5 +83,6 @@ class TeamCaseOutput(BaseModel):
     messages: list[MessageRecord]
     tool_calls: list[ToolCallRecord]
     tool_returns: list[ToolReturnRecord]
+    tool_evidence: list[ToolEvidenceRecord] = Field(default_factory=list)
     llm_usage: list[LlmUsageRecord] = Field(default_factory=list)
     errors: list[str]

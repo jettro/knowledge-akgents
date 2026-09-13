@@ -15,6 +15,11 @@ the reviewed evidence in the input.
 Fail when the answer invents or contradicts a fact. Do not penalize omissions,
 incompleteness, relevance, writing style, or formatting. Treat "Aprico
 Consulting" and "Aprico Consultants" as equivalent names.
+
+Judge factual claims about the subject of the user's question. Do not require
+retrieved knowledge evidence to support operational next-step suggestions,
+such as asking for a source to ingest, or attribution that a team member
+recommended that next step.
 """.strip()
 
 ANSWER_RELEVANCE_RUBRIC = """
@@ -26,6 +31,13 @@ Fail when the answer is irrelevant or omits a required part of the answer. Do
 not judge whether factual claims are supported; a direct but factually incorrect
 answer can pass this dimension. Treat "Aprico Consulting" and "Aprico
 Consultants" as equivalent names. Do not judge writing style or formatting.
+
+When the reviewed evidence does not contain the requested fact, a complete and
+relevant answer may clearly state that the evidence does not provide it. A
+generic refusal that does not connect the missing answer to the reviewed
+evidence is incomplete. However, if the candidate directly supplies the
+requested fact, judge that answer as relevant even when the fact is unsupported;
+groundedness judges factual support separately.
 """.strip()
 
 
@@ -123,6 +135,37 @@ def build_judge_calibration_dataset(
             human_grounded=True,
             human_relevant=False,
             failure_kind="incomplete_list",
+        ),
+        _case(
+            "jettro-favorite-database-unavailable",
+            "What is Jettro Coenradie's favorite database?",
+            "Jettro Coenradie is a software architect and search enthusiast.",
+            (
+                "The reviewed evidence does not state Jettro Coenradie's favorite "
+                "database. @Knowledge recommends ingesting a relevant source via "
+                "@WebIngest."
+            ),
+            human_grounded=True,
+            human_relevant=True,
+            failure_kind=None,
+        ),
+        _case(
+            "jettro-favorite-database-hallucinated",
+            "What is Jettro Coenradie's favorite database?",
+            "Jettro Coenradie is a software architect and search enthusiast.",
+            "Jettro Coenradie's favorite database is Elasticsearch.",
+            human_grounded=False,
+            human_relevant=True,
+            failure_kind="invented_fact",
+        ),
+        _case(
+            "jettro-favorite-database-generic-refusal",
+            "What is Jettro Coenradie's favorite database?",
+            "Jettro Coenradie is a software architect and search enthusiast.",
+            "I don't know.",
+            human_grounded=True,
+            human_relevant=False,
+            failure_kind="unhelpful_missing_fact",
         ),
     ]
     return Dataset(

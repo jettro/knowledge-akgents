@@ -9,13 +9,15 @@ from typing import Any
 
 from akgentic.agent import AgentMessage
 from akgentic.core.messages.orchestrator import ErrorMessage, EventMessage, SentMessage
-from akgentic.llm import LlmUsageEvent, ToolCallEvent, ToolReturnEvent
+from akgentic.llm import LlmMessageEvent, LlmUsageEvent, ToolCallEvent, ToolReturnEvent
+from pydantic_ai.messages import ModelRequest, ToolReturnPart
 
 from evals.models import (
     LlmUsageRecord,
     MessageRecord,
     TeamCaseOutput,
     ToolCallRecord,
+    ToolEvidenceRecord,
     ToolReturnRecord,
 )
 
@@ -28,6 +30,7 @@ class EvaluationEventCollector:
         self._messages: list[MessageRecord] = []
         self._tool_calls: list[ToolCallRecord] = []
         self._tool_returns: list[ToolReturnRecord] = []
+        self._tool_evidence: list[ToolEvidenceRecord] = []
         self._llm_usage: list[LlmUsageRecord] = []
         self._errors: list[str] = []
         self._human_responses: list[str] = []
@@ -88,6 +91,7 @@ class EvaluationEventCollector:
                 messages=list(self._messages),
                 tool_calls=list(self._tool_calls),
                 tool_returns=list(self._tool_returns),
+                tool_evidence=list(self._tool_evidence),
                 llm_usage=list(self._llm_usage),
                 errors=list(self._errors),
             )
@@ -153,6 +157,28 @@ class EvaluationEventCollector:
             )
             with self._condition:
                 self._llm_usage.append(record)
+        elif isinstance(event, LlmMessageEvent):
+            self._record_llm_message(event)
+
+    def _record_llm_message(self, event: LlmMessageEvent) -> None:
+        message = event.message
+        if not isinstance(message, ModelRequest):
+            return
+
+        records = [
+            ToolEvidenceRecord(
+                run_id=message.run_id,
+                tool_name=part.tool_name,
+                tool_call_id=part.tool_call_id,
+                content=_stringify_tool_content(part.content),
+                outcome=part.outcome,
+            )
+            for part in message.parts
+            if isinstance(part, ToolReturnPart)
+        ]
+        if records:
+            with self._condition:
+                self._tool_evidence.extend(records)
 
     def _record_error(self, message: ErrorMessage) -> None:
         error = f"{message.content_type or 'Error'}: {message.content}".strip()
@@ -163,3 +189,9 @@ class EvaluationEventCollector:
 
 def _address_name(address: Any) -> str | None:
     return getattr(address, "name", None)
+
+
+def _stringify_tool_content(content: Any) -> str:
+    if isinstance(content, str):
+        return content
+    return json.dumps(content, ensure_ascii=False, sort_keys=True, default=str)

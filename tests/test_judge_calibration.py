@@ -14,14 +14,24 @@ from evals.datasets.judge_calibration import (
 
 def test_judge_calibration_has_separate_human_labels() -> None:
     dataset = build_judge_calibration_dataset("openai:test-model")
+    cases = {case.name: case.metadata for case in dataset.cases}
 
-    assert len(dataset.cases) == 8
-    invented = dataset.cases[1].metadata
-    irrelevant = dataset.cases[3].metadata
-    incomplete = dataset.cases[7].metadata
+    assert len(dataset.cases) == 11
+    invented = cases["jettro-profession-invented"]
+    irrelevant = cases["jettro-surname-irrelevant"]
+    incomplete = cases["yuma-companies-incomplete"]
+    unavailable = cases["jettro-favorite-database-unavailable"]
+    hallucinated = cases["jettro-favorite-database-hallucinated"]
+    refusal = cases["jettro-favorite-database-generic-refusal"]
     assert (invented["human_grounded"], invented["human_relevant"]) == (False, True)
     assert (irrelevant["human_grounded"], irrelevant["human_relevant"]) == (False, False)
     assert (incomplete["human_grounded"], incomplete["human_relevant"]) == (True, False)
+    assert (unavailable["human_grounded"], unavailable["human_relevant"]) == (True, True)
+    assert (hallucinated["human_grounded"], hallucinated["human_relevant"]) == (
+        False,
+        True,
+    )
+    assert (refusal["human_grounded"], refusal["human_relevant"]) == (True, False)
 
 
 def test_judge_calibration_covers_targeted_failure_kinds() -> None:
@@ -32,7 +42,12 @@ def test_judge_calibration_covers_targeted_failure_kinds() -> None:
         if case.metadata["failure_kind"] is not None
     }
 
-    assert failure_kinds == {"invented_fact", "irrelevant", "incomplete_list"}
+    assert failure_kinds == {
+        "invented_fact",
+        "irrelevant",
+        "incomplete_list",
+        "unhelpful_missing_fact",
+    }
 
 
 def test_judge_uses_input_evidence_and_explicit_rubric() -> None:
@@ -48,7 +63,10 @@ def test_judge_uses_input_evidence_and_explicit_rubric() -> None:
         "answer_relevance",
     ]
     assert "Do not penalize omissions" in GROUNDEDNESS_RUBRIC
+    assert "operational next-step suggestions" in GROUNDEDNESS_RUBRIC
     assert "direct but factually incorrect" in ANSWER_RELEVANCE_RUBRIC
+    assert "does not contain the requested fact" in ANSWER_RELEVANCE_RUBRIC
+    assert "groundedness judges factual support separately" in ANSWER_RELEVANCE_RUBRIC
 
 
 def test_static_calibration_task_returns_candidate_answer() -> None:

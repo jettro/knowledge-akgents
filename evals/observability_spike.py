@@ -19,6 +19,7 @@ from evals.datasets.jettro_ingestion import build_jettro_ingestion_dataset
 from evals.datasets.jettro_scenario import build_jettro_scenario_dataset
 from evals.datasets.retrieval_only import build_retrieval_only_dataset
 from evals.datasets.yuma_scenario import build_yuma_scenario_dataset
+from evals.live_judges import LiveRetrievalJudges
 from evals.models import TeamCaseInput, TeamCaseOutput
 from evals.reporting import load_report, save_report
 from evals.tasks import run_team_case
@@ -44,6 +45,7 @@ class EventInventory(Evaluator[TeamCaseInput, TeamCaseOutput, dict[str, str]]):
             "human_response_count": len(ctx.output.human_responses),
             "tool_call_count": len(ctx.output.tool_calls),
             "tool_return_count": len(ctx.output.tool_returns),
+            "tool_evidence_count": len(ctx.output.tool_evidence),
             "tool_argument_parse_error_count": sum(
                 call.parse_error is not None for call in ctx.output.tool_calls
             ),
@@ -121,6 +123,11 @@ def _parse_args() -> argparse.Namespace:
         help="Run only the named case from the selected dataset.",
     )
     parser.add_argument(
+        "--with-judges",
+        action="store_true",
+        help="Run the calibrated groundedness and relevance judges.",
+    )
+    parser.add_argument(
         "--save-report",
         help="Write the native Pydantic Evals report JSON to this path.",
     )
@@ -169,6 +176,14 @@ def main() -> None:
     else:
         dataset = build_jettro_ingestion_dataset(args.timeout)
     _select_case(dataset, args.case)
+    if args.with_judges:
+        if args.scenario != "retrieval-only":
+            raise SystemExit("--with-judges currently supports only retrieval-only cases")
+        dataset.add_evaluator(
+            LiveRetrievalJudges(
+                model=f"{settings.llm_provider}:{settings.llm_model}",
+            )
+        )
     dataset.add_evaluator(EventInventory())
     dataset.add_evaluator(SpanInventory())
     report = dataset.evaluate_sync(
@@ -181,6 +196,7 @@ def main() -> None:
             "logfire_export": args.send_to_logfire,
             "purpose": "discover event and span contracts",
             "repeat": args.repeat,
+            "live_judges": args.with_judges,
         },
     )
     baseline = load_report(args.baseline) if args.baseline else None
@@ -213,6 +229,7 @@ def main() -> None:
                     }
                     for call in output.tool_calls
                 ],
+                "tool_evidence_count": len(output.tool_evidence),
                 "usage": {
                     "models": sorted({usage.model_name for usage in output.llm_usage}),
                     "providers": sorted({usage.provider_name for usage in output.llm_usage}),

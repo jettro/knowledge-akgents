@@ -37,7 +37,7 @@ test: ## Run the test suite
 
 test-evals: ## Run deterministic evaluation harness tests (no network/LLM)
 	uv run pytest tests/test_eval_*.py tests/test_fixture_*.py tests/test_jettro_*.py \
-		tests/test_yuma_*.py tests/test_retrieval_only_dataset.py \
+		tests/test_yuma_*.py tests/test_live_*.py tests/test_retrieval_only_dataset.py \
 		tests/test_observability_spike.py tests/test_judge_calibration.py
 
 eval-ingestion: ## Run the paid fixed-fixture Jettro ingestion evaluation
@@ -52,7 +52,7 @@ eval-yuma: ## Run the paid Yuma ingestion-and-query scenario
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
 		--scenario yuma-multi-turn --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
-eval-retrieval: ## Run the paid canonical/paraphrased retrieval cases once
+eval-retrieval: ## Run the paid retrieval and missing-knowledge cases once
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
 		--scenario retrieval-only --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 

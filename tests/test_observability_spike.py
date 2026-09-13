@@ -9,7 +9,8 @@ import pytest
 from akgentic.agent import AgentMessage
 from akgentic.core import ActorAddressProxy
 from akgentic.core.messages.orchestrator import ErrorMessage, EventMessage, SentMessage
-from akgentic.llm import LlmUsageEvent, ToolCallEvent, ToolReturnEvent
+from akgentic.llm import LlmMessageEvent, LlmUsageEvent, ToolCallEvent, ToolReturnEvent
+from pydantic_ai.messages import ModelRequest, ToolReturnPart
 
 from evals.cli import positive_int
 from evals.collector import EvaluationEventCollector
@@ -121,6 +122,37 @@ def test_collector_captures_llm_usage() -> None:
     assert output.llm_usage[0].input_tokens == 120
     assert output.llm_usage[0].output_tokens == 30
     assert output.llm_usage[0].requests == 1
+
+
+def test_collector_captures_tool_return_evidence() -> None:
+    collector = EvaluationEventCollector()
+    agent = _address("@Knowledge")
+
+    collector.on_message(
+        EventMessage(
+            sender=agent,
+            event=LlmMessageEvent(
+                message=ModelRequest(
+                    run_id="run-1",
+                    parts=[
+                        ToolReturnPart(
+                            tool_name="search_graph",
+                            tool_call_id="call-1",
+                            content="Search Results: Jettro is a software architect.",
+                        )
+                    ],
+                )
+            ),
+        )
+    )
+
+    output = collector.wait(0)
+
+    assert output.tool_evidence[0].run_id == "run-1"
+    assert output.tool_evidence[0].tool_name == "search_graph"
+    assert output.tool_evidence[0].tool_call_id == "call-1"
+    assert "software architect" in output.tool_evidence[0].content
+    assert output.tool_evidence[0].outcome == "success"
 
 
 def test_collector_completes_on_actor_error() -> None:

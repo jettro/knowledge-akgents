@@ -1,0 +1,16 @@
+# Knowledge Akgents documentation
+
+The topic guides below explain how the evaluation harness is organized and how
+to extend it.
+
+- [Evaluation architecture](evaluation-architecture/help.md): what is case
+  data, what is Knowledge Akgents logic, and what Pydantic Evals provides.
+- [Adding evaluation cases](adding-evaluation-cases/help.md): how to add
+  retrieval cases and case-specific expectations.
+- [Judge calibration](judge-calibration/help.md): when and why to calibrate the
+  LLM judges.
+- [Running evaluations](running-evaluations/help.md): deterministic checks,
+  paid runs, repetitions, reports, and Logfire.
+
+The longer-term design and experiment history remain in
+[`evals-plan.md`](../evals-plan.md).
