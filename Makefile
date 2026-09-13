@@ -1,12 +1,17 @@
 .DEFAULT_GOAL := help
-.PHONY: help sync upgrade run web lint format typecheck test up down logs build clean
+.PHONY: help sync upgrade run web lint format typecheck test test-evals eval-ingestion \
+	eval-jettro eval-yuma eval-retrieval eval-variance eval-judge \
+	eval-judge-stability up down logs build clean
+
+EVAL_TIMEOUT ?= 180
+EVAL_FLAGS ?=
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
 sync: ## Install/resolve dependencies (incl. local akgentic-tool & akgentic-llm)
-	uv sync
+	uv sync --all-groups
 
 upgrade: ## Check for and install updates to all dependencies
 	uv lock --upgrade
@@ -29,6 +34,37 @@ typecheck: ## Type-check the backend with mypy
 
 test: ## Run the test suite
 	uv run pytest
+
+test-evals: ## Run deterministic evaluation harness tests (no network/LLM)
+	uv run pytest tests/test_eval_*.py tests/test_fixture_*.py tests/test_jettro_*.py \
+		tests/test_yuma_*.py tests/test_retrieval_only_dataset.py \
+		tests/test_observability_spike.py tests/test_judge_calibration.py
+
+eval-ingestion: ## Run the paid fixed-fixture Jettro ingestion evaluation
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--scenario ingestion --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-jettro: ## Run the paid Jettro ingestion-and-query scenario
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--scenario jettro-multi-turn --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-yuma: ## Run the paid Yuma ingestion-and-query scenario
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--scenario yuma-multi-turn --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-retrieval: ## Run the paid canonical/paraphrased retrieval cases once
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--scenario retrieval-only --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-variance: ## Run the paid retrieval variance sample (three repetitions)
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--scenario retrieval-only --repeat 3 --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-judge: ## Run the paid static LLM-judge calibration once
+	uv run python -m evals.judge_calibration $(EVAL_FLAGS)
+
+eval-judge-stability: ## Run the paid LLM-judge calibration three times
+	uv run python -m evals.judge_calibration --repeat 3 $(EVAL_FLAGS)
 
 build: ## Build the Docker images
 	docker compose build

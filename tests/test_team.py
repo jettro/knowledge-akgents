@@ -18,7 +18,7 @@ def dummy_openai_key(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_cards_have_expected_tools() -> None:
-    from knowledge_akgents.agents import knowledge_card, webingest_card
+    from knowledge_akgents.agents import KNOWLEDGE_PROMPT, knowledge_card, webingest_card
 
     k = knowledge_card()
     w = webingest_card()
@@ -37,6 +37,8 @@ def test_cards_have_expected_tools() -> None:
     assert "VectorStoreTool" in w_tools
     assert "KnowledgeGraphTool" in w_tools
     assert "SearchTool" in w_tools
+    assert "never add guessed answer candidates" in KNOWLEDGE_PROMPT
+    assert "Please ingest a source via @WebIngest." in KNOWLEDGE_PROMPT
 
 
 def test_team_boots_with_expected_roster(dummy_openai_key: None) -> None:

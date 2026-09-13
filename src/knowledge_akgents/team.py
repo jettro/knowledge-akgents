@@ -9,10 +9,12 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Iterable
 from typing import Any
 
 from akgentic.agent import AgentMessage, BaseAgent, HumanProxy
-from akgentic.core import ActorSystem, BaseConfig, Orchestrator
+from akgentic.core import ActorSystem, BaseConfig, EventSubscriber, Orchestrator
+from akgentic.tool.core import ToolCard
 
 from knowledge_akgents.agents import all_cards, knowledge_card, manager_card, webingest_card
 from knowledge_akgents.events import Publish, WebEventBridge
@@ -23,14 +25,24 @@ logger = logging.getLogger(__name__)
 class KnowledgeTeam:
     """Owns the actor system and exposes a small send/roster/shutdown surface."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        web_tool: ToolCard | None = None,
+        knowledge_tool: ToolCard | None = None,
+    ) -> None:
         self._system: ActorSystem | None = None
         self._orchestrator: Any = None
         self._human: Any = None
         self._manager_addr: Any = None
         self._started = False
+        self._web_tool = web_tool
+        self._knowledge_tool = knowledge_tool
 
-    def start(self, publish: Publish) -> None:
+    def start(
+        self,
+        publish: Publish,
+        subscribers: Iterable[EventSubscriber] = (),
+    ) -> None:
         if self._started:
             return
 
@@ -43,9 +55,11 @@ class KnowledgeTeam:
 
         # Stream team traffic to the web layer.
         self._orchestrator.subscribe(WebEventBridge(publish))
+        for subscriber in subscribers:
+            self._orchestrator.subscribe(subscriber)
 
         # Register the role catalog.
-        self._orchestrator.register_agent_profiles(all_cards())
+        self._orchestrator.register_agent_profiles(all_cards(self._web_tool, self._knowledge_tool))
 
         # Human proxy: the browser's seat at the table.
         human_addr = self._orchestrator.createActor(
@@ -59,8 +73,14 @@ class KnowledgeTeam:
         self._manager_addr = self._orchestrator.createActor(
             BaseAgent, config=manager_card().get_config_copy()
         )
-        self._orchestrator.createActor(BaseAgent, config=knowledge_card().get_config_copy())
-        self._orchestrator.createActor(BaseAgent, config=webingest_card().get_config_copy())
+        self._orchestrator.createActor(
+            BaseAgent,
+            config=knowledge_card(self._knowledge_tool).get_config_copy(),
+        )
+        self._orchestrator.createActor(
+            BaseAgent,
+            config=webingest_card(self._web_tool).get_config_copy(),
+        )
 
         time.sleep(0.3)  # let actors initialise
         self._started = True

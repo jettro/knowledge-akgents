@@ -1,0 +1,12 @@
+Source URL: https://coenradie.com/about
+Captured and reviewed: 2026-09-12
+
+Jettro Coenradie is a software architect and search enthusiast.
+
+He has worked in consulting and information technology for more than 25 years.
+His work focuses on software architecture, search, artificial intelligence, data,
+and cloud-native development. He helps teams turn complex technology into systems
+that people can use and maintain.
+
+He shares knowledge through blog posts, conference talks, open-source projects,
+books, and learning material.

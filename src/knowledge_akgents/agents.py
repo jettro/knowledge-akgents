@@ -13,6 +13,7 @@ from typing import Any, cast
 from akgentic.agent import AgentConfig
 from akgentic.core import AgentCard
 from akgentic.llm import ModelConfig, PromptTemplate
+from akgentic.tool.core import ToolCard
 
 from knowledge_akgents.settings import settings
 from knowledge_akgents.tools import (
@@ -41,12 +42,17 @@ Routing rules:
   with the URL and what to focus on.
 - If the user asks a question to be answered from stored knowledge, delegate to @Knowledge.
 - Relay the specialist's answer back to the human clearly and concisely.
+- When @Knowledge says a requested fact is missing, preserve its @WebIngest
+  recommendation in the response to the human.
 """
 
 KNOWLEDGE_PROMPT = """You are the Knowledge agent. Answer questions using ONLY the shared
 knowledge base via your knowledge-graph tools (search the graph, read entities/relations).
-If the knowledge base has nothing relevant, say so plainly and suggest ingesting a source
-via @WebIngest rather than inventing an answer. Cite the entities/relations you relied on.
+Start with one targeted search. Retry only when the result is empty because the wording may
+not match; never add guessed answer candidates to a retry query. If the requested fact is
+not present, say so plainly and include this exact sentence:
+"Please ingest a source via @WebIngest."
+Do not invent an answer. Cite the entities/relations you relied on.
 """
 
 WEBINGEST_PROMPT = """You are the Web-Ingest agent. Given a URL (and optionally a focus),
@@ -73,7 +79,7 @@ def manager_card() -> AgentCard:
     )
 
 
-def knowledge_card() -> AgentCard:
+def knowledge_card(knowledge_tool: ToolCard | None = None) -> AgentCard:
     return AgentCard(
         agent_class="akgentic.agent.BaseAgent",
         description="Answers questions from the shared knowledge base.",
@@ -83,12 +89,16 @@ def knowledge_card() -> AgentCard:
             role="Knowledge",
             prompt=PromptTemplate(template=KNOWLEDGE_PROMPT),
             model_cfg=_model(),
-            tools=[vector_store_card(), knowledge_query_card()],
+            tools=(
+                [knowledge_tool]
+                if knowledge_tool is not None
+                else [vector_store_card(), knowledge_query_card()]
+            ),
         ),
     )
 
 
-def webingest_card() -> AgentCard:
+def webingest_card(web_tool: ToolCard | None = None) -> AgentCard:
     return AgentCard(
         agent_class="akgentic.agent.BaseAgent",
         description="Fetches web pages and stores extracted knowledge in the shared base.",
@@ -98,10 +108,13 @@ def webingest_card() -> AgentCard:
             role="WebIngest",
             prompt=PromptTemplate(template=WEBINGEST_PROMPT),
             model_cfg=_model(),
-            tools=[vector_store_card(), web_card(), knowledge_ingest_card()],
+            tools=[vector_store_card(), web_tool or web_card(), knowledge_ingest_card()],
         ),
     )
 
 
-def all_cards() -> list[AgentCard]:
-    return [manager_card(), knowledge_card(), webingest_card()]
+def all_cards(
+    web_tool: ToolCard | None = None,
+    knowledge_tool: ToolCard | None = None,
+) -> list[AgentCard]:
+    return [manager_card(), knowledge_card(knowledge_tool), webingest_card(web_tool)]

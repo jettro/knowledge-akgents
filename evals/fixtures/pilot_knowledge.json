@@ -1,0 +1,44 @@
+{
+  "records": [
+    {
+      "name": "Jettro Coenradie",
+      "entity_type": "Person",
+      "description": "Jettro Coenradie's surname is Coenradie. His profession is software architect, and he is also a search enthusiast."
+    },
+    {
+      "name": "Yuma",
+      "entity_type": "Company",
+      "description": "Yuma is an end-to-end digital transformation partner combining strategy, design, technology, data, and operational expertise."
+    },
+    {
+      "name": "xplus",
+      "entity_type": "Company",
+      "description": "xplus is one of the six companies that formed Yuma."
+    },
+    {
+      "name": "Luminis",
+      "entity_type": "Company",
+      "description": "Luminis is one of the six companies that formed Yuma."
+    },
+    {
+      "name": "BPSOLUTIONS",
+      "entity_type": "Company",
+      "description": "BPSOLUTIONS is one of the six companies that formed Yuma."
+    },
+    {
+      "name": "Total Design",
+      "entity_type": "Company",
+      "description": "Total Design is one of the six companies that formed Yuma."
+    },
+    {
+      "name": "Aprico Consultants",
+      "entity_type": "Company",
+      "description": "Aprico Consultants is one of the six companies that formed Yuma."
+    },
+    {
+      "name": "B12 Consulting",
+      "entity_type": "Company",
+      "description": "B12 Consulting is one of the six companies that formed Yuma."
+    }
+  ]
+}

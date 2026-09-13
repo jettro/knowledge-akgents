@@ -81,11 +81,65 @@ make typecheck   # mypy
 make test        # pytest (team-boot + input parsing; no network/LLM required)
 ```
 
+## Evaluations
+
+The Pydantic Evals harness lives in `evals/`; its design and recorded pilot
+results are in [`evals-plan.md`](evals-plan.md).
+
+Run the deterministic harness tests without network or model calls:
+
+```bash
+make test-evals
+```
+
+Live evaluation targets use reviewed local fixtures and force the knowledge
+store to be in-memory. They require `OPENAI_API_KEY` and make paid model calls,
+but do not use Tavily or export to Logfire by default:
+
+```bash
+make eval-ingestion        # one Jettro ingestion case
+make eval-jettro           # Jettro ingest + two retrieval turns
+make eval-yuma             # Yuma ingest + two retrieval turns
+make eval-retrieval        # eight canonical/paraphrased retrieval cases
+make eval-variance         # retrieval cases repeated three times
+make eval-judge            # static two-dimensional judge calibration
+make eval-judge-stability  # judge calibration repeated three times
+```
+
+Pass additional runner options through `EVAL_FLAGS`; Logfire export is always
+explicit:
+
+```bash
+make eval-retrieval EVAL_FLAGS=--send-to-logfire
+make eval-retrieval EVAL_TIMEOUT=240
+make eval-retrieval EVAL_FLAGS="--case jettro-unknown-favorite-database"
+```
+
+Save a native Pydantic Evals report and compare a later candidate run against
+it:
+
+```bash
+make eval-retrieval EVAL_FLAGS="--save-report eval-reports/retrieval-baseline.json"
+make eval-retrieval EVAL_FLAGS="--baseline eval-reports/retrieval-baseline.json"
+```
+
+`eval-reports/` is gitignored because reports can contain prompts, answers, and
+tool arguments. Commit curated conclusions or thresholds instead of raw
+execution data.
+
+No GitHub Actions workflow is provided yet. The project currently resolves
+`akgentic-llm` from the editable sibling path `../akgentic-llm`, which a generic
+hosted runner does not have. CI should hard-gate `make test-evals` only after
+that dependency is available through a package registry or an explicit checkout
+step. Paid evaluations and subjective judge scores should remain manual or
+scheduled, not run on every pull request.
+
 ## Project layout
 
 ```
 src/knowledge_akgents/   settings, tools, agents, events bridge, team wiring, FastAPI app
                          (repository.py tracks imported URLs in data/urls.json)
+evals/                   Pydantic Evals datasets, fixtures, collectors, and runners
 frontend/                static Human-Proxy UI + nginx config
 docker/                  backend & web Dockerfiles
 compose.yaml             qdrant + backend + web
