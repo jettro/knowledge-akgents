@@ -1,0 +1,13 @@
+id: _meta
+kind: meta
+namespace: knowledge-akgents-production
+user_id: anonymous
+model_type: akgentic.catalog.models.namespace_meta.NamespaceMeta
+description: Production Knowledge Akgents namespace metadata.
+payload:
+  name: Knowledge Akgents production
+  description: Reviewed production team, prompts, models, and tools.
+  properties:
+    environment: production
+  shareable: true
+  public: false

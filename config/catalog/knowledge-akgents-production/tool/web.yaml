@@ -1,0 +1,20 @@
+id: web
+kind: tool
+namespace: knowledge-akgents-production
+user_id: anonymous
+model_type: knowledge_akgents.change_aware_web.ChangeAwareWebTool
+description: Change-aware Tavily web tool.
+payload:
+  repository_path: data/urls.json
+  delegate:
+    __model__: akgentic.tool.search.search.SearchTool
+    web_search: true
+    web_fetch:
+      __model__: akgentic.tool.search.search.WebFetch
+      timeout: 30
+    web_crawl:
+      __model__: akgentic.tool.search.search.WebCrawl
+      timeout: 150
+      max_depth: 2
+      max_breadth: 5
+      limit: 10

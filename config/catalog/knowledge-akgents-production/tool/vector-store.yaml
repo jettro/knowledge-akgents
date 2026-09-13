@@ -1,0 +1,7 @@
+id: vector-store
+kind: tool
+namespace: knowledge-akgents-production
+user_id: anonymous
+model_type: akgentic.tool.vector_store.tool.VectorStoreTool
+description: Shared vector-store actor card.
+payload: {}

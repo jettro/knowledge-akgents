@@ -1,0 +1,29 @@
+id: knowledge-akgents-evaluation
+kind: team
+namespace: knowledge-akgents-evaluation
+user_id: anonymous
+model_type: akgentic.team.models.TeamCard
+description: Fixture-capable Knowledge Akgents evaluation team.
+payload:
+  name: knowledge-akgents-evaluation
+  description: Evaluation team using the reviewed production agent definitions.
+  entry_point:
+    card:
+      __ref__: human
+      __namespace__: knowledge-akgents-production
+      __type__: akgentic.core.AgentCard
+  members:
+    - card:
+        __ref__: manager
+        __namespace__: knowledge-akgents-production
+        __type__: akgentic.core.AgentCard
+    - card:
+        __ref__: knowledge
+        __namespace__: knowledge-akgents-production
+        __type__: akgentic.core.AgentCard
+    - card:
+        __ref__: web-ingest
+        __namespace__: knowledge-akgents-production
+        __type__: akgentic.core.AgentCard
+  message_types:
+    - __type__: akgentic.agent.AgentMessage

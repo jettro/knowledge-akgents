@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from evals.catalog import TeamCatalog, load_case_team_card
 from evals.collector import EvaluationEventCollector
 from evals.fixture_knowledge import FixtureKnowledgeTool, KnowledgeFixture
 from evals.fixture_web import FixtureWebTool
@@ -13,14 +14,22 @@ from knowledge_akgents.change_aware_web import ChangeAwareWebTool
 from knowledge_akgents.team import KnowledgeTeam
 
 
-def run_team_case(inputs: TeamCaseInput) -> TeamCaseOutput:
+def run_team_case(
+    inputs: TeamCaseInput,
+    *,
+    catalog_team: TeamCatalog = "evaluation",
+) -> TeamCaseOutput:
     with TemporaryDirectory(prefix="knowledge-akgents-eval-") as state_dir:
-        return _run_team_case(inputs, Path(state_dir))
+        return _run_team_case(inputs, Path(state_dir), catalog_team)
 
 
-def _run_team_case(inputs: TeamCaseInput, state_dir: Path) -> TeamCaseOutput:
+def _run_team_case(
+    inputs: TeamCaseInput,
+    state_dir: Path,
+    catalog_team: TeamCatalog = "evaluation",
+) -> TeamCaseOutput:
     web_tool = None
-    if inputs.fixture_source_url:
+    if catalog_team == "evaluation" and inputs.fixture_source_url:
         content = (
             Path(inputs.fixture_path).read_text(encoding="utf-8")
             if inputs.fixture_path
@@ -48,7 +57,13 @@ def _run_team_case(inputs: TeamCaseInput, state_dir: Path) -> TeamCaseOutput:
         knowledge_tool = FixtureKnowledgeTool(records=fixture.records)
 
     collector = EvaluationEventCollector()
-    team = KnowledgeTeam(web_tool=web_tool, knowledge_tool=knowledge_tool)
+    team_card = load_case_team_card(
+        catalog_team,
+        state_dir,
+        web_tool=web_tool,
+        knowledge_tool=knowledge_tool,
+    )
+    team = KnowledgeTeam(team_card)
     try:
         team.start(publish=lambda _: None, subscribers=(collector,))
         output = collector.wait_for_human_responses(0, 0)

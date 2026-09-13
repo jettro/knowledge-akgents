@@ -1,0 +1,9 @@
+id: default-model
+kind: model
+namespace: knowledge-akgents-production
+user_id: anonymous
+model_type: akgentic.llm.ModelConfig
+description: Default model configuration, overridden from application settings at runtime.
+payload:
+  provider: openai
+  model: gpt-5.6-luna

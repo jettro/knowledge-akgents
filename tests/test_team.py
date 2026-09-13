@@ -52,10 +52,11 @@ def test_cards_have_expected_tools() -> None:
 
 
 def test_team_boots_with_expected_roster(dummy_openai_key: None) -> None:
+    from knowledge_akgents.catalog import load_production_team_card
     from knowledge_akgents.team import KnowledgeTeam
 
     events: list[dict] = []
-    team = KnowledgeTeam()
+    team = KnowledgeTeam(load_production_team_card())
     try:
         team.start(publish=events.append)
         roster = team.roster()
@@ -66,7 +67,8 @@ def test_team_boots_with_expected_roster(dummy_openai_key: None) -> None:
 
 
 def test_send_before_start_raises() -> None:
+    from knowledge_akgents.catalog import load_production_team_card
     from knowledge_akgents.team import KnowledgeTeam
 
     with pytest.raises(RuntimeError):
-        KnowledgeTeam().send("hello")
+        KnowledgeTeam(load_production_team_card()).send("hello")

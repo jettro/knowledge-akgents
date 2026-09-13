@@ -1,0 +1,25 @@
+id: knowledge
+kind: agent
+namespace: knowledge-akgents-production
+user_id: anonymous
+model_type: akgentic.core.AgentCard
+description: Answers questions from the shared knowledge base.
+payload:
+  agent_class: knowledge_akgents.trace_context.TraceContextBaseAgent
+  description: Answers questions from the shared knowledge base.
+  skills: [knowledge, retrieval, question-answering]
+  config:
+    __model__: akgentic.agent.config.AgentConfig
+    name: "@Knowledge"
+    role: Knowledge
+    prompt:
+      template:
+        __ref__: knowledge-prompt
+    model_cfg:
+      __ref__: default-model
+      __type__: akgentic.llm.ModelConfig
+    tools:
+      - __ref__: vector-store
+        __type__: akgentic.tool.vector_store.tool.VectorStoreTool
+      - __ref__: knowledge-query
+        __type__: akgentic.tool.knowledge_graph.kg_tool.KnowledgeGraphTool

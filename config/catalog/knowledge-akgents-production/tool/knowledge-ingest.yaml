@@ -1,0 +1,9 @@
+id: knowledge-ingest
+kind: tool
+namespace: knowledge-akgents-production
+user_id: anonymous
+model_type: akgentic.tool.knowledge_graph.kg_tool.KnowledgeGraphTool
+description: Knowledge graph search and update tool.
+payload:
+  search: true
+  update_graph: true

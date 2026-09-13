@@ -2,18 +2,16 @@
 
 ## Add a retrieval case
 
-For the current Python-based dataset, add a case to
-`evals/datasets/retrieval_only.py`:
+Add ordinary retrieval cases to `evals/cases/retrieval_only.yaml`:
 
-```python
-_case(
-    "jane-role",
-    "What role does Jane Doe have?",
-    ("software engineer",),
-    fixture_path,
-    timeout_seconds,
-    "canonical",
-)
+```yaml
+- name: jane-role
+  message: What role does Jane Doe have?
+  metadata:
+    prompt_variant: canonical
+  evaluators:
+    - type: human_response_contains_terms
+      required_terms: [software engineer]
 ```
 
 The shared retrieval dataset already checks that:
@@ -23,11 +21,18 @@ The shared retrieval dataset already checks that:
 - `search_graph` is called successfully;
 - ingestion and graph-update tools are not called.
 
-The tuple of required terms is a small deterministic contract for the answer.
+The required terms are a small deterministic contract for the answer.
 Add a paraphrase as a separate case when different wording should produce the
 same result.
 
+The YAML file is validated strictly. Unknown fields, unknown evaluator types,
+duplicate case names, missing vocabulary references, invalid call-count ranges,
+absolute fixture paths, and fixture paths outside `evals/` are rejected.
+
 ## Add fixture knowledge
+
+`default_fixture` applies to every case that does not define its own `fixture`.
+Paths are relative to the YAML file and must remain inside `evals/`.
 
 Add reviewed records to `evals/fixtures/pilot_knowledge.json`, or introduce a
 separate fixture when the cases represent another knowledge domain. Keep
@@ -38,17 +43,30 @@ Do not put secrets, production customer data, or access tokens in fixtures.
 
 ## Add case-specific expectations
 
-Attach evaluators directly to a `Case` when it has requirements that do not
-apply to the whole dataset. The missing-fact regression, for example, checks
-that the response acknowledges unavailable knowledge, recommends ingestion,
-and makes no more than two searches.
+Add case-specific evaluator definitions under the case's `evaluators` key when
+requirements do not apply to the whole dataset. The supported YAML evaluator
+types are currently:
 
-Reuse evaluators from `evals/event_evaluators.py`. Add a new evaluator only
-when the required behavior cannot be expressed by the existing ones.
+- `human_response_contains_terms`;
+- `human_response_contains_any_term`;
+- `tool_call_count`.
+
+Reusable alternative wording can be defined once under the top-level
+`vocabularies` mapping and referenced with `accepted_terms_ref`. The
+missing-knowledge cases use this mechanism.
+
+Shared routing, required-tool, forbidden-tool, completion, and successful-return
+contracts intentionally remain in `evals/datasets/retrieval_only.py`. They are
+evaluation logic, not case data.
+
+When a requirement cannot be represented by the allow-listed YAML vocabulary,
+add or reuse a Python evaluator in `evals/event_evaluators.py`, define its
+strict configuration model in `evals/yaml_cases.py`, and add loader rejection
+tests. YAML must never contain arbitrary Python or evaluator expressions.
 
 ## Validate the case
 
-Run the harness tests first:
+Run the schema and deterministic harness tests first:
 
 ```bash
 make test-evals
@@ -68,31 +86,3 @@ make eval-retrieval EVAL_FLAGS="--case jane-role --with-judges"
 ```
 
 Live runs require credentials and make paid model calls.
-
-## Planned YAML migration
-
-The intended end state is for ordinary case contributions to be YAML rather
-than Python. A future case could look like:
-
-```yaml
-name: jane-role
-question: What role does Jane Doe have?
-fixture: jane.json
-variant: canonical
-expect:
-  answer_contains:
-    - software engineer
-  required_tools:
-    - search_graph
-  forbidden_tools:
-    - web_fetch_tool
-    - update_graph
-```
-
-A Pydantic model will validate this schema, and a Python loader will translate
-it into Pydantic Evals `Case` objects. Evaluators and task execution will remain
-in Python.
-
-This migration is intentionally deferred until the case vocabulary is stable.
-It should make contributions easier without hiding unsupported behavior behind
-free-form YAML.

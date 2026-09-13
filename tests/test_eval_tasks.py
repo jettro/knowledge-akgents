@@ -12,14 +12,33 @@ def test_each_task_run_uses_and_shuts_down_a_fresh_team(
     monkeypatch: Any,
 ) -> None:
     teams: list[FakeTeam] = []
+    compositions: list[dict[str, Any]] = []
 
     class RecordingTeam(FakeTeam):
-        def __init__(self, web_tool: Any = None, knowledge_tool: Any = None) -> None:
-            super().__init__(web_tool, knowledge_tool)
+        def __init__(self, team_card: Any) -> None:
+            super().__init__(team_card)
             teams.append(self)
+
+    def record_composition(
+        catalog_team: str,
+        state_dir: Any,
+        *,
+        web_tool: Any = None,
+        knowledge_tool: Any = None,
+    ) -> object:
+        compositions.append(
+            {
+                "catalog_team": catalog_team,
+                "state_dir": state_dir,
+                "web_tool": web_tool,
+                "knowledge_tool": knowledge_tool,
+            }
+        )
+        return object()
 
     monkeypatch.setattr(tasks, "KnowledgeTeam", RecordingTeam)
     monkeypatch.setattr(tasks, "EvaluationEventCollector", FakeCollector)
+    monkeypatch.setattr(tasks, "load_case_team_card", record_composition)
 
     first = tasks.run_team_case(TeamCaseInput(message="first", timeout_seconds=1))
     second = tasks.run_team_case(TeamCaseInput(message="second", timeout_seconds=1))
@@ -38,8 +57,54 @@ def test_each_task_run_uses_and_shuts_down_a_fresh_team(
     assert len(teams) == 3
     assert teams[0] is not teams[1]
     assert all(team.shutdown_called for team in teams)
-    assert teams[2].web_tool.delegate.source_url == "https://eval.invalid/unreachable"
-    assert teams[2].web_tool.delegate.failure_message == "Connection timed out"
+    assert all(item["catalog_team"] == "evaluation" for item in compositions)
+    assert compositions[2]["web_tool"].delegate.source_url == (
+        "https://eval.invalid/unreachable"
+    )
+    assert compositions[2]["web_tool"].delegate.failure_message == "Connection timed out"
+
+
+def test_production_task_does_not_construct_fixture_web_tool(monkeypatch: Any) -> None:
+    compositions: list[dict[str, Any]] = []
+
+    def record_composition(
+        catalog_team: str,
+        state_dir: Any,
+        *,
+        web_tool: Any = None,
+        knowledge_tool: Any = None,
+    ) -> object:
+        compositions.append(
+            {
+                "catalog_team": catalog_team,
+                "web_tool": web_tool,
+                "knowledge_tool": knowledge_tool,
+            }
+        )
+        return object()
+
+    monkeypatch.setattr(tasks, "KnowledgeTeam", FakeTeam)
+    monkeypatch.setattr(tasks, "EvaluationEventCollector", FakeCollector)
+    monkeypatch.setattr(tasks, "load_case_team_card", record_composition)
+
+    output = tasks.run_team_case(
+        TeamCaseInput(
+            message="Ingest https://coenradie.com/about",
+            timeout_seconds=1,
+            fixture_source_url="https://coenradie.com/about",
+            fixture_path="not-read-in-production.txt",
+        ),
+        catalog_team="production",
+    )
+
+    assert output.final_response == "Ingest https://coenradie.com/about"
+    assert compositions == [
+        {
+            "catalog_team": "production",
+            "web_tool": None,
+            "knowledge_tool": None,
+        }
+    ]
 
 
 class FakeCollector:
@@ -64,9 +129,8 @@ class FakeCollector:
 
 
 class FakeTeam:
-    def __init__(self, web_tool: Any = None, knowledge_tool: Any = None) -> None:
-        self.web_tool = web_tool
-        self.knowledge_tool = knowledge_tool
+    def __init__(self, team_card: Any) -> None:
+        self.team_card = team_card
         self.collector: FakeCollector | None = None
         self.shutdown_called = False
 

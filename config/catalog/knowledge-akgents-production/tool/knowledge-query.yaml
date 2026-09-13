@@ -1,0 +1,9 @@
+id: knowledge-query
+kind: tool
+namespace: knowledge-akgents-production
+user_id: anonymous
+model_type: akgentic.tool.knowledge_graph.kg_tool.KnowledgeGraphTool
+description: Read-only knowledge graph tool.
+payload:
+  search: true
+  update_graph: false

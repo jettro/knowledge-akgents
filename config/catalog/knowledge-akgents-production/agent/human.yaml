@@ -1,0 +1,14 @@
+id: human
+kind: agent
+namespace: knowledge-akgents-production
+user_id: anonymous
+model_type: akgentic.core.AgentCard
+description: Browser-facing human proxy.
+payload:
+  agent_class: knowledge_akgents.trace_context.TraceContextHumanProxy
+  description: Browser-facing human proxy.
+  skills: [human-input]
+  config:
+    __model__: akgentic.core.agent_config.BaseConfig
+    name: "@Human"
+    role: Human

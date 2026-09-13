@@ -240,45 +240,48 @@ storage variance.
     --baseline eval-reports/qdrant-baseline.json
     ```
 
-13. Reassess catalog after storage configurations stabilize.
-    Catalog YAML may eventually define production, fixture, ephemeral-Qdrant,
-    and live-evaluation team profiles. It should not be introduced solely to
-    work around a temporary framework API.
+13. Use the existing production/evaluation catalog split when storage
+    configurations stabilize. `knowledge-akgents-production` provides the
+    exact production team definition, while `knowledge-akgents-evaluation`
+    supports deterministic fixture replacement outside application code.
+    Storage mode remains a runtime concern: use a dedicated Qdrant URL and
+    explicit cleanup rather than encoding one mutable test database into the
+    team definition.
 
-## Intended catalog migration
+## Current catalog composition
 
-The current application-level tool injection is an intentional intermediate
-solution, not the desired final team-definition approach.
+Knowledge Akgents now uses `akgentic-catalog` directly. A
+`YamlEntryRepository` reads two version-controlled namespaces:
 
-Today:
+- `knowledge-akgents-production` owns the reviewed team, agents, prompts,
+  model, and tools;
+- `knowledge-akgents-evaluation` owns a separate team entry that references
+  the shareable production agents.
 
-- `KnowledgeTeam` accepts optional `web_tool` and `knowledge_tool` instances;
-- `knowledge_card()` and `webingest_card()` conditionally replace production
-  tools with evaluation fixture tools;
-- `evals/tasks.py` constructs those fixture tools and injects them into the
-  Python-defined team.
+Catalog entries own prompts, agent metadata, the shared model definition, tool
+cards, and the Human entry point. Python owns settings-based model and path
+bindings, fixture implementations, subscribers, and the runtime wrapper.
+`TeamFactory` performs actor construction and role-catalog registration after
+the catalog resolves the team.
 
-This keeps the pilot deterministic while production defaults remain unchanged,
-but it places evaluation-specific composition logic in the application team and
-agent factories.
+`KnowledgeTeam` now accepts a resolved `TeamCard` and has no evaluation
+profile or fixture-tool parameters. `evals/catalog.py` loads the evaluation
+team and replaces the resolved `web` and read-only knowledge cards when a case
+provides fixtures. Fixture state remains case-specific runtime data rather than
+durable catalog configuration.
 
-Once Akgentic's Qdrant refactoring and catalog capabilities are stable, migrate
-team composition to catalog-defined profiles. The intended profiles are:
+The production namespace is also available as a live end-to-end evaluation
+tier. The current runner combines it with temporary URL state and in-memory
+Qdrant by default, so selecting production configuration does not select
+production data. It uses real Tavily and model calls. A future real-Qdrant tier
+should add:
 
-- **production** — real web tools and the production knowledge store;
-- **deterministic fixture** — fixture-backed web and knowledge tools;
-- **Qdrant integration** — fixed web fixture with a real isolated Qdrant-backed
-  knowledge tool;
-- **fully live evaluation** — real web retrieval and isolated Qdrant.
+- a dedicated collection or ephemeral Qdrant instance;
+- an ownership label for cleanup;
+- refusal of known production endpoints unless separately authorized.
 
-The catalog migration should remove the need for the current optional
-`web_tool` and `knowledge_tool` parameters from the production
-`KnowledgeTeam`, `knowledge_card()`, `webingest_card()`, and `all_cards()`
-interfaces. Selecting a catalog profile should determine the tool composition
-instead.
-
-Do not remove those injection seams until catalog can express all required
-behavior:
+Add them only when the catalog can express the final storage
+configuration and lifecycle:
 
 - custom or fixture-backed tool cards;
 - shared vector-store and knowledge-graph configuration between agents;
@@ -288,10 +291,9 @@ behavior:
 - event subscribers required by the evaluation collector;
 - deterministic lifecycle and cleanup for Qdrant-backed runs.
 
-Catalog should replace configuration and assembly, not reduce testability. If a
-fixture tool cannot be represented directly in YAML, catalog must support a
-registered custom tool type or another explicit extension mechanism before the
-Python injection is removed.
+Catalog replaces configuration and assembly without reducing testability.
+Registered Python tool-card overrides remain the explicit mechanism for fixture
+tools and other controlled implementations that do not belong in YAML.
 
 ## Acceptance criteria
 
@@ -322,9 +324,7 @@ The Qdrant integration layer is ready when:
 - Can an ephemeral Qdrant URL be configured without affecting application
   settings loaded from `.env`?
 - Should Qdrant integration run locally only, in scheduled CI, or both?
-- Does catalog support the final collection, tenant, and cleanup configuration
-  without custom Python wiring?
-- Can catalog represent the fixture-backed `web_fetch_tool` and `search_graph`
-  implementations used by deterministic evaluations?
-- Can the catalog-selected team still attach the evaluation event collector
-  without application-specific agent construction?
+- Should ephemeral-Qdrant and fully live behavior use separate catalog
+  namespaces or settings applied after loading the existing namespace?
+- Can collection, tenant, and cleanup configuration remain serializable
+  catalog data, or do lifecycle handles require a runtime binding?

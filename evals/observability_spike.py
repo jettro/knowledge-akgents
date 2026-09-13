@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 from dataclasses import dataclass
+from functools import partial
 
 import logfire
 from pydantic_evals import Dataset
@@ -134,6 +135,15 @@ def _parse_args() -> argparse.Namespace:
         help="Select the evaluation case to run.",
     )
     parser.add_argument(
+        "--catalog-team",
+        choices=("evaluation", "production"),
+        default="evaluation",
+        help=(
+            "Use the fixture-capable evaluation team or the exact production "
+            "catalog team with isolated runtime state."
+        ),
+    )
+    parser.add_argument(
         "--repeat",
         type=positive_int,
         default=1,
@@ -179,6 +189,16 @@ def main() -> None:
             "Persistent Qdrant is configured. Run with AKGENTIC_QDRANT_URL='' "
             "for an isolated in-memory spike, or explicitly pass --allow-persistent-store."
         )
+    if args.catalog_team == "production" and args.scenario not in {
+        "ingestion",
+        "jettro-multi-turn",
+        "yuma-multi-turn",
+    }:
+        raise SystemExit(
+            "The production catalog team is supported only for ingestion, "
+            "jettro-multi-turn, and yuma-multi-turn. Other scenarios depend on "
+            "synthetic fixture failures or preloaded fixture knowledge."
+        )
 
     logfire.configure(
         send_to_logfire=args.send_to_logfire,
@@ -218,7 +238,7 @@ def main() -> None:
     dataset.add_evaluator(EventInventory())
     dataset.add_evaluator(SpanInventory())
     report = dataset.evaluate_sync(
-        run_team_case,
+        partial(run_team_case, catalog_team=args.catalog_team),
         name=f"{args.scenario}-observability",
         max_concurrency=1,
         repeat=args.repeat,
@@ -228,6 +248,7 @@ def main() -> None:
             "purpose": "discover event and span contracts",
             "repeat": args.repeat,
             "live_judges": args.with_judges,
+            "catalog_team": args.catalog_team,
         },
     )
     baseline = load_report(args.baseline) if args.baseline else None

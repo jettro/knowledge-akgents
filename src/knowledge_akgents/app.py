@@ -17,6 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from knowledge_akgents.catalog import load_production_team_card
 from knowledge_akgents.repository import UrlRecord, UrlRepository
 from knowledge_akgents.settings import settings
 from knowledge_akgents.team import KnowledgeTeam
@@ -56,7 +57,7 @@ class ConnectionManager:
 
 
 manager = ConnectionManager()
-team = KnowledgeTeam()
+team = KnowledgeTeam(load_production_team_card())
 url_repository = UrlRepository(settings.urls_file)
 
 _URL_RE = re.compile(r"https?://[^\s<>\"'\[\]{}]+")

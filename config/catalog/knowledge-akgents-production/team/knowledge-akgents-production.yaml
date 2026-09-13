@@ -1,0 +1,25 @@
+id: knowledge-akgents-production
+kind: team
+namespace: knowledge-akgents-production
+user_id: anonymous
+model_type: akgentic.team.models.TeamCard
+description: Production Knowledge Akgents team.
+payload:
+  name: knowledge-akgents-production
+  description: Production Knowledge Akgents team.
+  entry_point:
+    card:
+      __ref__: human
+      __type__: akgentic.core.AgentCard
+  members:
+    - card:
+        __ref__: manager
+        __type__: akgentic.core.AgentCard
+    - card:
+        __ref__: knowledge
+        __type__: akgentic.core.AgentCard
+    - card:
+        __ref__: web-ingest
+        __type__: akgentic.core.AgentCard
+  message_types:
+    - __type__: akgentic.agent.AgentMessage

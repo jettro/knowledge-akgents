@@ -15,6 +15,11 @@ to extend it.
   native reports in a local web interface.
 - [Change-aware ingestion](change-aware-ingestion/help.md): how extracted
   content hashes, unchanged skips, commits, failures, and force requests work.
+- [Team catalog](team-catalog/help.md): `akgentic-catalog` entries,
+  references, runtime bindings, and the Akgentic `TeamCard` boundary.
+- [Actor trace-context propagation](trace-context/help.md): how evaluation,
+  OpenTelemetry, model, and tool spans remain connected across local actor
+  threads.
 
 The longer-term design and experiment history remain in
 [`evals-plan.md`](../evals-plan.md).

@@ -1,0 +1,20 @@
+id: manager
+kind: agent
+namespace: knowledge-akgents-production
+user_id: anonymous
+model_type: akgentic.core.AgentCard
+description: Routes requests to the Knowledge and Web-Ingest specialists.
+payload:
+  agent_class: knowledge_akgents.trace_context.TraceContextBaseAgent
+  description: Routes requests to the Knowledge and Web-Ingest specialists.
+  skills: [coordination, routing]
+  config:
+    __model__: akgentic.agent.config.AgentConfig
+    name: "@Manager"
+    role: Manager
+    prompt:
+      template:
+        __ref__: manager-prompt
+    model_cfg:
+      __ref__: default-model
+      __type__: akgentic.llm.ModelConfig

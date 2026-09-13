@@ -1,0 +1,13 @@
+id: _meta
+kind: meta
+namespace: knowledge-akgents-evaluation
+user_id: anonymous
+model_type: akgentic.catalog.models.namespace_meta.NamespaceMeta
+description: Evaluation Knowledge Akgents namespace metadata.
+payload:
+  name: Knowledge Akgents evaluation
+  description: Evaluation team that reuses reviewed production agents.
+  properties:
+    environment: evaluation
+  shareable: false
+  public: false

@@ -2,7 +2,9 @@
 .PHONY: help sync upgrade run web eval-viewer lint format typecheck test test-evals eval-ingestion \
 	eval-jettro eval-yuma eval-retrieval eval-variance eval-judge \
 	eval-judge-stability eval-prompt-injection eval-no-useful-content \
-	eval-unreachable-url eval-routing eval-change-aware-ingestion up down logs build clean
+	eval-unreachable-url eval-routing eval-change-aware-ingestion \
+	eval-production-ingestion eval-production-jettro eval-production-yuma \
+	up down logs build clean
 
 EVAL_TIMEOUT ?= 180
 EVAL_FLAGS ?=
@@ -45,7 +47,8 @@ test-evals: ## Run deterministic evaluation harness tests (no network/LLM)
 		tests/test_observability_spike.py tests/test_judge_calibration.py \
 		tests/test_prompt_injection_scenario.py tests/test_no_useful_content_scenario.py \
 		tests/test_unreachable_url_scenario.py tests/test_routing_dataset.py \
-		tests/test_change_aware_web.py tests/test_change_aware_ingestion_dataset.py
+		tests/test_change_aware_web.py tests/test_change_aware_ingestion_dataset.py \
+		tests/test_yaml_cases.py tests/test_trace_context.py
 
 eval-ingestion: ## Run the paid fixed-fixture Jettro ingestion evaluation
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
@@ -78,6 +81,20 @@ eval-routing: ## Run the paid manager and direct-specialist routing cases
 eval-change-aware-ingestion: ## Run paid unchanged, forced, and changed ingestion cases
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
 		--scenario change-aware-ingestion --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-production-ingestion: ## Run live ingestion with the exact production catalog team
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--catalog-team production --scenario ingestion --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-production-jettro: ## Run live Jettro E2E with the production catalog team
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--catalog-team production --scenario jettro-multi-turn \
+		--timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-production-yuma: ## Run live Yuma E2E with the production catalog team
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--catalog-team production --scenario yuma-multi-turn \
+		--timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-retrieval: ## Run the paid retrieval and missing-knowledge cases once
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \

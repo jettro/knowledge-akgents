@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from evals.catalog import load_case_team_card
 from evals.fixture_web import FixtureWebTool
-from knowledge_akgents.agents import webingest_card
 
 
 def test_fixture_web_tool_returns_reviewed_content() -> None:
@@ -68,13 +70,14 @@ def test_fixture_web_tool_returns_sequence_then_repeats_last_content() -> None:
     assert third["results"][0]["raw_content"] == "second"
 
 
-def test_webingest_card_accepts_fixture_tool() -> None:
+def test_evaluation_team_accepts_fixture_tool(tmp_path: Path) -> None:
     fixture = FixtureWebTool(
         source_url="https://coenradie.com/about",
         content="fixture",
     )
 
-    card = webingest_card(fixture)
+    team_card = load_case_team_card("evaluation", tmp_path, web_tool=fixture)
+    card = team_card.agent_cards["@WebIngest"]
 
     assert fixture in card.config.tools
-    assert not any(type(tool).__name__ == "SearchTool" for tool in card.config.tools)
+    assert not any(type(tool).__name__ == "ChangeAwareWebTool" for tool in card.config.tools)

@@ -124,6 +124,22 @@ make eval-judge            # static two-dimensional judge calibration
 make eval-judge-stability  # judge calibration repeated three times
 ```
 
+Three additional targets load the exact production catalog team. They keep
+Qdrant and URL-ingestion state isolated, but use the production web tool and
+therefore make real Tavily calls as well as paid model calls:
+
+```bash
+make eval-production-ingestion # live Jettro ingestion
+make eval-production-jettro    # live Jettro ingest + retrieval
+make eval-production-yuma      # live Yuma ingest + retrieval
+```
+
+These targets do not use production Qdrant merely because they load the
+production namespace. They explicitly clear `AKGENTIC_QDRANT_URL`, use a
+temporary URL repository per case, and leave Logfire export disabled unless
+requested. Persistent Qdrant requires bypassing the Make target and passing
+both a configured URL and `--allow-persistent-store`.
+
 Pass additional runner options through `EVAL_FLAGS`; Logfire export is always
 explicit:
 
@@ -171,9 +187,10 @@ scheduled, not run on every pull request.
 ## Project layout
 
 ```
-src/knowledge_akgents/   settings, tools, agents, events bridge, team wiring, FastAPI app
+src/knowledge_akgents/   settings, catalog loading, events bridge, team runtime, FastAPI app
                          (repository.py tracks imported URLs in data/urls.json)
-evals/                   Pydantic Evals datasets, fixtures, collectors, and runners
+config/catalog/          production and evaluation akgentic-catalog namespaces
+evals/                   Pydantic Evals YAML cases, fixtures, loaders, evaluators, and runners
 eval-viewer/             local static viewer for saved evaluation reports
 docs/                    contributor help organized by topic
 frontend/                static Human-Proxy UI + nginx config

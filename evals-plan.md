@@ -1048,10 +1048,14 @@ be able to add a reviewed fixture and one or more cases without changing the
 evaluation engine. The YAML schema should be introduced only after the current
 Python cases establish the stable vocabulary it needs to represent.
 
-This evaluation YAML is separate from the planned Akgentic catalog migration.
-Catalog profiles should eventually define production, fixture, Qdrant
-integration, and live team configurations. Evaluation YAML should define the
-inputs and expected behavior applied to one of those profiles.
+This evaluation YAML is separate from the Akgentic catalog. The
+`knowledge-akgents-production` namespace defines the reviewed runtime team and
+its agents, prompts, model defaults, and tools. The
+`knowledge-akgents-evaluation` namespace defines a separate team that
+cross-references those production agents. Evaluation YAML defines the inputs
+and expected behavior applied to the selected team. Case-specific fixture
+cards remain evaluation-owned runtime bindings rather than durable catalog
+entries.
 
 ## Rollout plan
 
@@ -1129,6 +1133,45 @@ Consequences:
 - Trace-context propagation should be handled as a separate integration task,
   ideally in the Akgentic actor/message boundary rather than through
   evaluation-only monkey-patching.
+
+#### Trace-context resolution (2026-09-13)
+
+The missing boundary was Pykka's worker-thread mailbox. The evaluation task's
+Python context reached `KnowledgeTeam.send()`, but did not automatically enter
+the HumanProxy or agent worker threads. Propagating only W3C `traceparent`
+values would not have been sufficient: Pydantic Evals also uses a private
+`ContextVar` to associate completed spans with the active case's
+`ctx.span_tree`.
+
+Knowledge Akgents now uses application-owned subclasses of Akgentic
+`HumanProxy` and `BaseAgent`. Before a message crosses an in-process actor
+boundary, they attach a private `contextvars.copy_context()` snapshot. The
+receiver executes Akgentic's normal handler inside a fresh copy of that
+snapshot. `KnowledgeTeam.send()` captures the initial context before
+`TeamRuntime` schedules work on the HumanProxy thread, and agent `send()` calls
+capture context for subsequent hops. No framework code is monkey-patched.
+
+The snapshot is deliberately excluded from message serialization. Python
+`Context` instances are process-local, so this solution targets Akgentic's
+current local Pykka thread runtime. A future process-based, remote, or persisted
+transport will need a framework-level serialized OpenTelemetry carrier and a
+separate evaluation-correlation mechanism.
+
+A deterministic regression test confirms that a child span created on another
+thread retains the evaluation parent and is collected by Pydantic Evals'
+context-subtree exporter. A paid fixture-backed `jettro-profession` run then
+confirmed the real Pydantic AI integration:
+
+- all retrieval assertions passed;
+- no actor errors occurred;
+- the case span tree contained 8 spans;
+- captured span names included `invoke_agent agent`, `chat gpt-5.6-luna`, and
+  `execute_tool search_graph`;
+- the span inventory found one tool span;
+- no Tavily call, persistent Qdrant write, or Logfire export was used.
+
+The native report was saved locally as
+`eval-reports/trace-context-verification.json`.
 
 The Phase 1 implementation now provides:
 
@@ -1937,25 +1980,124 @@ Treat the dataset as a product artifact:
 ## Proposed dependency and command strategy
 
 The deferred real-Qdrant evaluation investigation and continuation checklist
-are recorded in [`qdrant-evals-follow-up.md`](qdrant-evals-follow-up.md). That
-document also records the intended later migration from the current temporary
-Python tool-injection seams to catalog-defined production and evaluation team
-profiles.
+are recorded in [`qdrant-evals-follow-up.md`](qdrant-evals-follow-up.md).
 
-When implementation starts, declare evaluation dependencies explicitly even
-though they are currently installed transitively through `pydantic-ai`:
+### Current continuation priorities
+
+The remaining work should proceed one item at a time, with an approval pause
+between items:
+
+1. migrate ordinary evaluation cases to validated YAML;
+2. migrate team and tool composition to Akgentic catalog namespaces;
+3. improve observability by propagating trace context across Akgentic actor
+   threads.
+
+Report comparison, hosted CI, real-Qdrant evaluation, external-integration
+evaluation, additional operational thresholds, and further optional coverage
+remain deferred unless reprioritized.
+
+The first priority is now complete for the ordinary retrieval dataset. All 13
+retrieval case definitions moved from Python to
+`evals/cases/retrieval_only.yaml`. A strict Pydantic schema and safe PyYAML
+loader validate dataset version, unique case names, metadata, fixture paths,
+named vocabularies, and an allow-list of case evaluator configurations. Unknown
+fields or evaluator types are rejected, and fixture paths cannot be absolute or
+escape the `evals/` tree.
+
+The Python dataset module now contains only shared execution policy and
+evaluator wiring: completion, routing, required/forbidden tools, search-call
+success, and conversion of validated definitions into Pydantic Evals cases.
+The existing builder API, case names, metadata, fixture selection, and
+evaluator behavior remain unchanged. Adding an ordinary retrieval question,
+paraphrase, fixture override, expected term set, or search limit no longer
+requires editing Python.
+
+The second priority is also complete, with a correction after reviewing the
+separate `akgentic-catalog` package. The initial investigation considered only
+the installed core, agent, team, tool, and LLM packages and incorrectly
+concluded that no catalog YAML loader existed. `akgentic-catalog` is the
+framework's configuration layer and provides validated entries, namespace
+repositories, references, bundle import/export, and `Catalog.load_team()`.
+
+Knowledge Akgents now uses `akgentic-catalog` 2.2.6 directly. The
+`knowledge-akgents-production` namespace contains the reviewed team, agent,
+prompt, model, and tool entries. Its namespace metadata is shareable. The
+`knowledge-akgents-evaluation` namespace contains a separate TeamCard whose
+cross-namespace references resolve the reviewed production agents. `__ref__`
+markers then connect those agents to the production prompts, model
+configuration, and tool cards. The package resolves either namespace into a
+native Akgentic `TeamCard`; the application no longer maintains a parallel
+Pydantic catalog schema or YAML loader.
+
+Production Python retains only runtime concerns that should not become static
+catalog data: settings-based provider/model selection, the configured URL
+repository path, subscribers, and the application runtime wrapper. The
+application widens the catalog model-type allowlist only for the specific
+`knowledge_akgents.change_aware_web.` package prefix. It also calls
+`Catalog.validate_namespace()` before loading so direct edits to the
+version-controlled YAML repository receive the catalog's strict validation.
+
+Fixture tool composition now belongs entirely to `evals/catalog.py`. The
+evaluation namespace is resolved first, then a case may replace its web or
+read-only knowledge tool with a deterministic fixture. No profile, fixture
+tool, or evaluation-specific override is accepted by `KnowledgeTeam` or the
+production catalog loader.
+
+`KnowledgeTeam` now accepts an already resolved `TeamCard` and delegates actor
+creation, subscriber registration, role-catalog registration, and startup to
+`TeamFactory`. Its application-facing `start`, `send`, `roster`, and
+`shutdown` behavior remains available, with directed `@Knowledge` and
+`@WebIngest` messages sent through `TeamRuntime.send_to`. Application startup
+selects the production namespace; the evaluation adapter selects the
+evaluation namespace.
+
+The runner also supports `--catalog-team production` for exact-production
+end-to-end evaluation. This leaves the production TeamCard unchanged while
+binding its URL repository to a per-case temporary directory. The provided
+Make targets clear `AKGENTIC_QDRANT_URL`, so the knowledge store is isolated
+in memory, but the production web tool performs real Tavily calls and the
+agents make paid model calls. Persistent Qdrant remains blocked unless
+`--allow-persistent-store` is explicit. This separates production
+configuration from production mutable data.
+
+Focused catalog, team, task-adapter, fixture-web, and FastAPI tests pass, as do
+Ruff, production mypy, all 108 project tests, and all 77 deterministic
+evaluation tests. A paid fixture-backed `jettro-profession` verification also
+passed every assertion after the `akgentic-catalog` replacement. It used the
+expected route and `search_graph` tool, produced no actor errors, and retained
+the connected observability tree with 14 spans, including model, agent, and
+tool spans. The native report is stored locally at
+`eval-reports/akgentic-catalog-verification.json`.
+
+The third priority is complete. The three selected roadmap items—YAML case
+migration, catalog-based team composition, and actor trace-context
+propagation—are now implemented. The external-integration runner path is also
+available through the production namespace, but no paid production-team run
+has been executed as part of this refactor. Report comparison, hosted CI,
+real-Qdrant evaluation, additional operational thresholds, and stronger
+shared-source replacement coverage remain optional unless reprioritized.
+
+The implemented dependency split is explicit:
 
 ```toml
+[project]
+dependencies = [
+    "pyyaml>=6,<7",
+]
+
 [dependency-groups]
 eval = [
-    "pydantic-evals[logfire]",
+    "pydantic-evals[logfire]>=2.43,<3",
+]
+dev = [
+    "types-pyyaml>=6,<7",
 ]
 ```
 
-Pinning should remain compatible with the Pydantic AI version selected by
-Akgentic. Pydantic Evals and Pydantic AI currently share version 2.43.0 in the
-lockfile, which reduces compatibility risk, but the project should not rely on
-an undeclared transitive package.
+PyYAML is a production dependency because application startup loads the team
+catalog. Pydantic Evals remains evaluation-only, while the PyYAML type stubs are
+development-only. Pydantic Evals should remain compatible with the Pydantic AI
+version selected by Akgentic rather than relying on a transitive installation.
 
 Suggested commands:
 

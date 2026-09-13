@@ -24,6 +24,8 @@ This repository supplies the domain-specific behavior that Pydantic Evals does
 not know about:
 
 - `evals/tasks.py` starts a `KnowledgeTeam` for a case;
+- `evals/catalog.py` selects the evaluation or production catalog team and
+  applies deterministic fixture tools only to the evaluation team;
 - `evals/collector.py` converts Akgentic events into a stable result;
 - `evals/event_evaluators.py` checks routes, tools, arguments, counts, and
   responses;
@@ -51,15 +53,25 @@ case data and repository-specific evaluators.
 
 ## Catalog and evaluation cases
 
-The planned Akgentic catalog migration and the evaluation-case migration solve
-different problems:
+The Akgentic catalog and evaluation-case YAML solve different problems:
 
-- catalog YAML defines the team, agents, prompts, tools, and environment
-  profile;
-- evaluation YAML will define questions, fixtures, expected behavior, and
+- `akgentic-catalog` YAML entries define the team, agents, prompts, shared
+  model defaults, and tools;
+- evaluation YAML defines questions, fixtures, expected behavior, and
   metadata;
 - Python will continue to contain task adapters and reusable evaluators;
 - Pydantic Evals will continue to execute the resulting cases and reports.
 
 Keeping these responsibilities separate prevents test expectations from
 becoming part of the production team configuration.
+
+## Evaluation tiers
+
+The default tier loads `knowledge-akgents-evaluation` and uses case fixtures.
+It is repeatable apart from model behavior and does not call Tavily.
+
+The production end-to-end tier loads
+`knowledge-akgents-production` unchanged. It uses temporary ingestion state and
+in-memory Qdrant by default, while exercising the real production web tool.
+Loading the production namespace never authorizes production mutable storage:
+persistent Qdrant requires an explicit runner flag.
