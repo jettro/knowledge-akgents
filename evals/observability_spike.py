@@ -10,6 +10,7 @@ import argparse
 import json
 from dataclasses import dataclass
 from functools import partial
+from pathlib import Path
 
 import logfire
 from pydantic_evals import Dataset
@@ -32,6 +33,7 @@ from evals.datasets.unreachable_url_scenario import (
     build_unreachable_url_scenario_dataset,
 )
 from evals.datasets.yuma_scenario import build_yuma_scenario_dataset
+from evals.fixture_datasets import build_fixture_dataset
 from evals.live_judges import LiveRetrievalJudges
 from evals.models import TeamCaseInput, TeamCaseOutput
 from evals.reporting import load_report, save_report
@@ -146,6 +148,14 @@ def _parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--fixture-dataset",
+        type=Path,
+        help=(
+            "Load a self-contained retrieval dataset from one validated JSON "
+            "fixture file instead of a registered scenario."
+        ),
+    )
+    parser.add_argument(
         "--repeat",
         type=positive_int,
         default=1,
@@ -202,6 +212,8 @@ def main() -> None:
             "jettro-multi-turn, and yuma-multi-turn. Other scenarios depend on "
             "synthetic fixture failures or preloaded fixture knowledge."
         )
+    if args.fixture_dataset is not None and args.catalog_team == "production":
+        raise SystemExit("Fixture datasets require --catalog-team evaluation.")
     if args.scenario == "production-e2e" and args.catalog_team != "production":
         raise SystemExit("The production-e2e scenario requires --catalog-team production.")
 
@@ -213,7 +225,9 @@ def main() -> None:
     )
     logfire.instrument_pydantic_ai()
 
-    if args.scenario == "jettro-multi-turn":
+    if args.fixture_dataset is not None:
+        dataset = build_fixture_dataset(args.fixture_dataset, args.timeout)
+    elif args.scenario == "jettro-multi-turn":
         dataset = build_jettro_scenario_dataset(args.timeout)
     elif args.scenario == "yuma-multi-turn":
         dataset = build_yuma_scenario_dataset(args.timeout)
@@ -235,8 +249,10 @@ def main() -> None:
         dataset = build_jettro_ingestion_dataset(args.timeout)
     _select_case(dataset, args.case)
     if args.with_judges:
-        if args.scenario != "retrieval-only":
-            raise SystemExit("--with-judges currently supports only retrieval-only cases")
+        if args.scenario != "retrieval-only" and args.fixture_dataset is None:
+            raise SystemExit(
+                "--with-judges currently supports only retrieval fixture datasets"
+            )
         dataset.add_evaluator(
             LiveRetrievalJudges(
                 model=f"{settings.llm_provider}:{settings.llm_model}",
@@ -244,9 +260,12 @@ def main() -> None:
         )
     dataset.add_evaluator(EventInventory())
     dataset.add_evaluator(SpanInventory())
+    run_name = (
+        args.fixture_dataset.stem if args.fixture_dataset is not None else args.scenario
+    )
     report = dataset.evaluate_sync(
         partial(run_team_case, catalog_team=args.catalog_team),
-        name=f"{args.scenario}-observability",
+        name=f"{run_name}-observability",
         max_concurrency=1,
         repeat=args.repeat,
         metadata={
@@ -256,6 +275,9 @@ def main() -> None:
             "repeat": args.repeat,
             "live_judges": args.with_judges,
             "catalog_team": args.catalog_team,
+            "fixture_dataset": (
+                str(args.fixture_dataset) if args.fixture_dataset is not None else None
+            ),
         },
     )
     baseline = load_report(args.baseline) if args.baseline else None

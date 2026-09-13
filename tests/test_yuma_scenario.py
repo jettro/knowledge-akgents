@@ -9,6 +9,7 @@ from evals.datasets.yuma_scenario import (
 )
 from evals.event_evaluators import (
     CompletedSuccessfully,
+    HumanResponseContainsAnyTerm,
     HumanResponseContainsTerms,
     ToolCallCount,
     ToolCallsSucceeded,
@@ -65,3 +66,26 @@ def test_yuma_company_answer_accepts_aprico_name_variants() -> None:
 
     assert "Aprico" in company_evaluator.required_terms
     assert "Aprico Consultants" not in company_evaluator.required_terms
+
+
+def test_yuma_description_accepts_current_ai_transformation_wording() -> None:
+    dataset = build_yuma_scenario_dataset(timeout_seconds=1)
+    description_terms = next(
+        evaluator
+        for evaluator in dataset.evaluators
+        if isinstance(evaluator, HumanResponseContainsTerms)
+        and evaluator.response_index == 1
+    )
+    transformation_kind = next(
+        evaluator
+        for evaluator in dataset.evaluators
+        if isinstance(evaluator, HumanResponseContainsAnyTerm)
+        and evaluator.response_index == 1
+    )
+
+    assert description_terms.required_terms == ("transformation", "partner")
+    assert transformation_kind.accepted_terms == (
+        "AI transformation",
+        "AI-transformation",
+        "digital transformation",
+    )

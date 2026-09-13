@@ -1,0 +1,318 @@
+{
+  "version": 1,
+  "task": "retrieval",
+  "name": "knowledge-akgents/pilot-retrieval-only",
+  "default_fixture": "pilot",
+  "default_metadata": {
+    "mode": "fixed-knowledge-retrieval-only",
+    "fixture_captured": "2026-09-12"
+  },
+  "vocabularies": {
+    "missing_knowledge": [
+      "not in the knowledge base",
+      "does not contain",
+      "doesn't contain",
+      "does not specify",
+      "doesn't specify",
+      "doesn’t specify",
+      "does not state",
+      "doesn't state",
+      "doesn’t state",
+      "not present",
+      "no information",
+      "not available",
+      "nothing relevant"
+    ]
+  },
+  "fixtures": {
+    "pilot": {
+      "records": [
+        {
+          "name": "Jettro Coenradie",
+          "entity_type": "Person",
+          "description": "Jettro Coenradie's surname is Coenradie. His profession is software architect, and he is also a search enthusiast."
+        },
+        {
+          "name": "Yuma",
+          "entity_type": "Company",
+          "description": "Yuma is an end-to-end digital transformation partner combining strategy, design, technology, data, and operational expertise."
+        },
+        {
+          "name": "xplus",
+          "entity_type": "Company",
+          "description": "xplus is one of the six companies that formed Yuma."
+        },
+        {
+          "name": "Luminis",
+          "entity_type": "Company",
+          "description": "Luminis is one of the six companies that formed Yuma."
+        },
+        {
+          "name": "BPSOLUTIONS",
+          "entity_type": "Company",
+          "description": "BPSOLUTIONS is one of the six companies that formed Yuma."
+        },
+        {
+          "name": "Total Design",
+          "entity_type": "Company",
+          "description": "Total Design is one of the six companies that formed Yuma."
+        },
+        {
+          "name": "Aprico Consultants",
+          "entity_type": "Company",
+          "description": "Aprico Consultants is one of the six companies that formed Yuma."
+        },
+        {
+          "name": "B12 Consulting",
+          "entity_type": "Company",
+          "description": "B12 Consulting is one of the six companies that formed Yuma."
+        }
+      ]
+    },
+    "conflicting-database": {
+      "records": [
+        {
+          "name": "Alex Example",
+          "entity_type": "Person",
+          "description": "One reviewed source states that Alex Example prefers PostgreSQL for application databases."
+        },
+        {
+          "name": "Alex Example",
+          "entity_type": "Person",
+          "description": "A second reviewed source states that Alex Example prefers Elasticsearch for application databases."
+        }
+      ]
+    }
+  },
+  "cases": [
+    {
+      "name": "jettro-profession",
+      "message": "What is the profession of Jettro Coenradie?",
+      "metadata": {
+        "prompt_variant": "canonical"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["software architect"]
+        }
+      ]
+    },
+    {
+      "name": "jettro-profession-paraphrase",
+      "message": "Which job does Jettro Coenradie have?",
+      "metadata": {
+        "prompt_variant": "paraphrase"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["software architect"]
+        }
+      ]
+    },
+    {
+      "name": "jettro-surname",
+      "message": "What is the last name of Jettro?",
+      "metadata": {
+        "prompt_variant": "canonical"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["Coenradie"]
+        }
+      ]
+    },
+    {
+      "name": "jettro-surname-paraphrase",
+      "message": "Can you tell me Jettro's family name?",
+      "metadata": {
+        "prompt_variant": "paraphrase"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["Coenradie"]
+        }
+      ]
+    },
+    {
+      "name": "yuma-purpose",
+      "message": "What does Yuma do?",
+      "metadata": {
+        "prompt_variant": "canonical"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["digital", "transformation", "partner"]
+        }
+      ]
+    },
+    {
+      "name": "yuma-purpose-paraphrase",
+      "message": "How does Yuma help organizations with digital work?",
+      "metadata": {
+        "prompt_variant": "paraphrase"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["digital", "transformation", "partner"]
+        }
+      ]
+    },
+    {
+      "name": "yuma-companies",
+      "message": "What companies formed Yuma?",
+      "metadata": {
+        "prompt_variant": "canonical"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": [
+            "xplus",
+            "Luminis",
+            "BPSOLUTIONS",
+            "Total Design",
+            "Aprico",
+            "B12 Consulting"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "yuma-companies-paraphrase",
+      "message": "Name the businesses that came together to create Yuma.",
+      "metadata": {
+        "prompt_variant": "paraphrase"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": [
+            "xplus",
+            "Luminis",
+            "BPSOLUTIONS",
+            "Total Design",
+            "Aprico",
+            "B12 Consulting"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "jettro-profession-and-yuma-purpose",
+      "message": "What is Jettro Coenradie's profession, and what does Yuma do?",
+      "metadata": {
+        "prompt_variant": "multi-entity"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": [
+            "software architect",
+            "digital",
+            "transformation",
+            "partner"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "yuma-consulting-founders",
+      "message": "Which companies that formed Yuma have Consulting or Consultants in their name?",
+      "metadata": {
+        "prompt_variant": "filtered-list"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["Aprico", "B12 Consulting"]
+        }
+      ]
+    },
+    {
+      "name": "jettro-unknown-favorite-database",
+      "message": "What is Jettro Coenradie's favorite database?",
+      "metadata": {
+        "prompt_variant": "negative-control"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_any_term",
+          "accepted_terms_ref": "missing_knowledge"
+        },
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["ingest"]
+        },
+        {
+          "type": "tool_call_count",
+          "tool_name": "search_graph",
+          "minimum": 1,
+          "maximum": 2
+        }
+      ]
+    },
+    {
+      "name": "jettro-profession-and-unknown-favorite-database",
+      "message": "What is Jettro Coenradie's profession and what is his favorite database?",
+      "metadata": {
+        "prompt_variant": "partial-knowledge-negative-control"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["software architect", "ingest"]
+        },
+        {
+          "type": "human_response_contains_any_term",
+          "accepted_terms_ref": "missing_knowledge"
+        },
+        {
+          "type": "tool_call_count",
+          "tool_name": "search_graph",
+          "minimum": 1,
+          "maximum": 3
+        }
+      ]
+    },
+    {
+      "name": "synthetic-conflicting-database-preference",
+      "message": "Which application database does Alex Example prefer?",
+      "fixture": "conflicting-database",
+      "metadata": {
+        "fixture_kind": "synthetic-conflict",
+        "prompt_variant": "conflicting-evidence"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["PostgreSQL", "Elasticsearch"]
+        },
+        {
+          "type": "human_response_contains_any_term",
+          "accepted_terms": [
+            "conflict",
+            "conflicting",
+            "different",
+            "disagree",
+            "inconsistent",
+            "cannot determine",
+            "can't determine",
+            "unclear"
+          ]
+        },
+        {
+          "type": "tool_call_count",
+          "tool_name": "search_graph",
+          "minimum": 1,
+          "maximum": 2
+        }
+      ]
+    }
+  ]
+}

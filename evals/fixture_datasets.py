@@ -1,18 +1,33 @@
-"""Validated YAML definitions for contributor-authored evaluation cases."""
+"""Strict self-contained JSON fixture datasets."""
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Annotated, Any, Literal
 
-import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic_evals import Case, Dataset
 from pydantic_evals.evaluators import Evaluator
 
 from evals.event_evaluators import (
+    CalledRequiredTools,
+    CompletedSuccessfully,
+    DidNotCallTools,
+    FollowedMessageRoute,
     HumanResponseContainsAnyTerm,
     HumanResponseContainsTerms,
     ToolCallCount,
+    ToolCallsSucceeded,
+)
+from evals.fixture_knowledge import KnowledgeFixture
+from evals.models import TeamCaseInput, TeamCaseOutput
+
+RETRIEVAL_ROUTE = (
+    ("@Human", "@Manager"),
+    ("@Manager", "@Knowledge"),
+    ("@Knowledge", "@Manager"),
+    ("@Manager", "@Human"),
 )
 
 
@@ -70,23 +85,31 @@ class CaseDefinition(StrictModel):
     evaluators: tuple[EvaluatorDefinition, ...] = ()
 
 
-class DatasetDefinition(StrictModel):
+class FixtureDatasetDefinition(StrictModel):
     version: Literal[1]
+    task: Literal["retrieval"]
     name: str = Field(min_length=1)
-    default_fixture: str | None = None
+    default_fixture: str = Field(min_length=1)
     default_metadata: dict[str, str] = Field(default_factory=dict)
     vocabularies: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+    fixtures: dict[str, KnowledgeFixture] = Field(min_length=1)
     cases: tuple[CaseDefinition, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
-    def validate_dataset(self) -> DatasetDefinition:
+    def validate_dataset(self) -> FixtureDatasetDefinition:
         names = [case.name for case in self.cases]
         if len(names) != len(set(names)):
             raise ValueError("Case names must be unique")
+        if self.default_fixture not in self.fixtures:
+            raise ValueError(f"Unknown default fixture {self.default_fixture!r}")
         for name, terms in self.vocabularies.items():
             if not terms:
                 raise ValueError(f"Vocabulary {name!r} must not be empty")
         for case in self.cases:
+            if case.fixture is not None and case.fixture not in self.fixtures:
+                raise ValueError(
+                    f"Case {case.name!r} references unknown fixture {case.fixture!r}"
+                )
             for evaluator in case.evaluators:
                 if (
                     isinstance(evaluator, HumanResponseContainsAnyTermDefinition)
@@ -100,22 +123,66 @@ class DatasetDefinition(StrictModel):
         return self
 
 
-def load_dataset_definition(path: Path) -> DatasetDefinition:
-    """Load one strict YAML dataset definition."""
+def load_fixture_dataset_definition(path: Path) -> FixtureDatasetDefinition:
+    """Load one strictly validated JSON fixture dataset."""
     try:
-        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except (OSError, yaml.YAMLError) as exc:
-        raise ValueError(f"Could not load evaluation YAML {path}: {exc}") from exc
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"Could not load evaluation fixture JSON {path}: {exc}") from exc
     if not isinstance(raw, dict):
-        raise ValueError(f"Evaluation YAML {path} must contain a mapping at the top level")
-    return DatasetDefinition.model_validate(raw)
+        raise ValueError(f"Evaluation fixture JSON {path} must contain an object")
+    return FixtureDatasetDefinition.model_validate(raw)
+
+
+def build_fixture_dataset(
+    path: Path,
+    timeout_seconds: float = 180.0,
+) -> Dataset[TeamCaseInput, TeamCaseOutput, dict[str, Any]]:
+    """Build a runnable retrieval dataset entirely from one JSON fixture file."""
+    definition = load_fixture_dataset_definition(path)
+    cases: list[Case[TeamCaseInput, TeamCaseOutput, dict[str, Any]]] = []
+    for case_definition in definition.cases:
+        fixture_name = case_definition.fixture or definition.default_fixture
+        metadata = {
+            **definition.default_metadata,
+            **case_definition.metadata,
+            "fixture": fixture_name,
+        }
+        cases.append(
+            Case(
+                name=case_definition.name,
+                inputs=TeamCaseInput(
+                    message=case_definition.message,
+                    timeout_seconds=timeout_seconds,
+                    knowledge_fixture=definition.fixtures[fixture_name],
+                ),
+                metadata=metadata,
+                evaluators=tuple(
+                    build_case_evaluator(evaluator, definition.vocabularies)
+                    for evaluator in case_definition.evaluators
+                ),
+            )
+        )
+
+    return Dataset(
+        name=definition.name,
+        cases=cases,
+        evaluators=[
+            CompletedSuccessfully(),
+            FollowedMessageRoute(expected_route=RETRIEVAL_ROUTE),
+            CalledRequiredTools(required_tools=("search_graph",)),
+            DidNotCallTools(forbidden_tools=("web_fetch_tool", "update_graph")),
+            ToolCallCount(tool_name="search_graph", minimum=1),
+            ToolCallsSucceeded(tool_names=("search_graph",)),
+        ],
+    )
 
 
 def build_case_evaluator(
     definition: EvaluatorDefinition,
     vocabularies: dict[str, tuple[str, ...]],
 ) -> Evaluator[Any, Any, Any]:
-    """Convert one allow-listed YAML evaluator definition to Python logic."""
+    """Convert one allow-listed JSON evaluator definition to Python logic."""
     if isinstance(definition, HumanResponseContainsTermsDefinition):
         return HumanResponseContainsTerms(
             response_index=definition.response_index,
@@ -138,16 +205,3 @@ def build_case_evaluator(
             maximum=definition.maximum,
         )
     raise TypeError(f"Unsupported evaluator definition: {type(definition).__name__}")
-
-
-def resolve_case_path(config_path: Path, value: str, allowed_root: Path) -> Path:
-    """Resolve a YAML path while preventing reads outside the evaluation tree."""
-    if Path(value).is_absolute():
-        raise ValueError("Evaluation YAML paths must be relative")
-    resolved = (config_path.parent / value).resolve()
-    root = allowed_root.resolve()
-    if not resolved.is_relative_to(root):
-        raise ValueError(f"Evaluation YAML path escapes {root}: {value}")
-    if not resolved.is_file():
-        raise ValueError(f"Evaluation YAML path does not exist: {resolved}")
-    return resolved

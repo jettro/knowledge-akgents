@@ -28,6 +28,13 @@ make eval-retrieval
 These commands require model credentials and make paid calls. The standard
 targets force in-memory knowledge storage and do not export to Logfire.
 
+Run any self-contained retrieval fixture dataset without registering a Python
+scenario:
+
+```bash
+make eval-fixture FIXTURE_DATASET=evals/fixtures/people.json
+```
+
 Select one case:
 
 ```bash

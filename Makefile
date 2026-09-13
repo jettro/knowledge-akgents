@@ -4,12 +4,13 @@
 	eval-judge-stability eval-prompt-injection eval-no-useful-content \
 	eval-unreachable-url eval-routing eval-change-aware-ingestion \
 	eval-production-ingestion eval-production-jettro eval-production-yuma \
-	eval-production-e2e \
+	eval-production-e2e eval-fixture \
 	up down logs build clean
 
 EVAL_TIMEOUT ?= 180
 EVAL_FLAGS ?=
 EVAL_REPORT ?= eval-reports/production-e2e.json
+FIXTURE_DATASET ?= evals/fixtures/retrieval_only.json
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -50,7 +51,7 @@ test-evals: ## Run deterministic evaluation harness tests (no network/LLM)
 		tests/test_prompt_injection_scenario.py tests/test_no_useful_content_scenario.py \
 		tests/test_unreachable_url_scenario.py tests/test_routing_dataset.py \
 		tests/test_change_aware_web.py tests/test_change_aware_ingestion_dataset.py \
-		tests/test_yaml_cases.py tests/test_trace_context.py
+		tests/test_trace_context.py
 
 eval-ingestion: ## Run the paid fixed-fixture Jettro ingestion evaluation
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
@@ -104,13 +105,19 @@ eval-production-e2e: ## Run Jettro + Yuma production E2E and save one report
 		--timeout $(EVAL_TIMEOUT) --verbose-output \
 		--save-report $(EVAL_REPORT) $(EVAL_FLAGS)
 
+eval-fixture: ## Run any self-contained JSON fixture dataset
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--fixture-dataset $(FIXTURE_DATASET) --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
 eval-retrieval: ## Run the paid retrieval and missing-knowledge cases once
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
-		--scenario retrieval-only --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+		--fixture-dataset evals/fixtures/retrieval_only.json \
+		--timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-variance: ## Run the paid retrieval variance sample (three repetitions)
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
-		--scenario retrieval-only --repeat 3 --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+		--fixture-dataset evals/fixtures/retrieval_only.json \
+		--repeat 3 --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-judge: ## Run the paid static LLM-judge calibration once
 	uv run python -m evals.judge_calibration $(EVAL_FLAGS)

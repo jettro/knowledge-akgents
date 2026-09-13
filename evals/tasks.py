@@ -50,7 +50,9 @@ def _run_team_case(
         )
 
     knowledge_tool = None
-    if inputs.knowledge_fixture_path:
+    if inputs.knowledge_fixture is not None:
+        knowledge_tool = FixtureKnowledgeTool(records=inputs.knowledge_fixture.records)
+    elif inputs.knowledge_fixture_path:
         fixture = KnowledgeFixture.model_validate_json(
             Path(inputs.knowledge_fixture_path).read_text(encoding="utf-8")
         )

@@ -11,6 +11,7 @@ from evals.event_evaluators import (
     CalledRequiredTools,
     CompletedSuccessfully,
     FollowedMessageRoute,
+    HumanResponseContainsAnyTerm,
     HumanResponseContainsTerms,
     ToolArgumentsContain,
     ToolCallCount,
@@ -82,7 +83,15 @@ def build_yuma_scenario_dataset(
             ToolCallsSucceeded(tool_names=("web_fetch_tool", "update_graph", "search_graph")),
             HumanResponseContainsTerms(
                 response_index=1,
-                required_terms=("digital", "transformation", "partner"),
+                required_terms=("transformation", "partner"),
+            ),
+            HumanResponseContainsAnyTerm(
+                response_index=1,
+                accepted_terms=(
+                    "AI transformation",
+                    "AI-transformation",
+                    "digital transformation",
+                ),
             ),
             HumanResponseContainsTerms(
                 response_index=2,

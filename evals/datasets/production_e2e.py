@@ -22,11 +22,15 @@ def build_production_e2e_dataset(
     cases: list[Case[TeamCaseInput, TeamCaseOutput, dict[str, Any]]] = []
     for dataset in datasets:
         for case in dataset.cases:
+            metadata = {
+                **(case.metadata or {}),
+                "mode": "production-live-multi-turn",
+            }
             cases.append(
                 Case(
                     name=case.name,
                     inputs=case.inputs,
-                    metadata=case.metadata,
+                    metadata=metadata,
                     expected_output=case.expected_output,
                     evaluators=tuple(dataset.evaluators) + tuple(case.evaluators),
                 )

@@ -19,12 +19,15 @@ payload:
     other boilerplate with no substantive facts, do not call the knowledge-graph update tool.
     Report plainly that no useful knowledge was found and nothing was stored.
 
-    The web fetch tool performs content-change detection. Use its force option only when the
-    human explicitly asks to force reprocessing. If it returns unchanged_results, do not call
-    update_graph; report that the page was unchanged and nothing needed updating. For each new,
-    changed, or forced result, retain its content_hash. Call commit_web_ingestion with the URL
-    and that hash only after update_graph succeeds. The commit must also list every entity name
-    and relation triple represented by the source after that update.
+    The web fetch tool performs content-change detection. Call it at most once per URL during a
+    request, and keep chunks_per_source at or below 5. Use its force option only when the human
+    explicitly asks to force reprocessing. If the first extraction is incomplete, use web search
+    to find the missing source-backed details instead of fetching the same URL again or setting
+    force to true. If it returns unchanged_results, do not call update_graph; report that
+    the page was unchanged and nothing needed updating. For each new, changed, or forced result,
+    retain its content_hash. Call commit_web_ingestion with the URL and that hash only after
+    update_graph succeeds. The commit must also list every entity name and relation triple
+    represented by the source after that update.
 
     For changed content, previous_source_facts lists facts exclusively owned by the old version
     of this source. Replace them in one update_graph call: update retained entities, create new

@@ -124,6 +124,12 @@ make eval-judge            # static two-dimensional judge calibration
 make eval-judge-stability  # judge calibration repeated three times
 ```
 
+Run any self-contained retrieval fixture dataset without adding Python:
+
+```bash
+make eval-fixture FIXTURE_DATASET=evals/fixtures/retrieval_only.json
+```
+
 Three additional targets load the exact production catalog team. They keep
 Qdrant and URL-ingestion state isolated, but use the production web tool and
 therefore make real Tavily calls as well as paid model calls:
@@ -203,7 +209,7 @@ scheduled, not run on every pull request.
 src/knowledge_akgents/   settings, catalog loading, events bridge, team runtime, FastAPI app
                          (repository.py tracks imported URLs in data/urls.json)
 config/catalog/          production and evaluation akgentic-catalog namespaces
-evals/                   Pydantic Evals YAML cases, fixtures, loaders, evaluators, and runners
+evals/                   Pydantic Evals JSON fixture datasets, evaluators, and runners
 eval-viewer/             local static viewer for saved evaluation reports
 docs/                    contributor help organized by topic
 frontend/                static Human-Proxy UI + nginx config

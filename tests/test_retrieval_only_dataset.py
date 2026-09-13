@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 from evals.datasets.retrieval_only import (
-    CONFLICT_FIXTURE_PATH,
-    FIXTURE_PATH,
+    FIXTURE_DATASET_PATH,
     MISSING_KNOWLEDGE_TERMS,
     build_retrieval_only_dataset,
 )
@@ -34,18 +33,15 @@ def test_retrieval_only_dataset_defines_canonical_and_paraphrased_cases() -> Non
         "jettro-profession-and-unknown-favorite-database",
         "synthetic-conflicting-database-preference",
     ]
-    standard_cases = [
-        case
-        for case in dataset.cases
-        if case.name != "synthetic-conflicting-database-preference"
-    ]
+    standard_cases = [case for case in dataset.cases if case.metadata["fixture"] == "pilot"]
     conflict_case = next(
         case for case in dataset.cases if case.name == "synthetic-conflicting-database-preference"
     )
-    assert all(
-        case.inputs.knowledge_fixture_path == str(FIXTURE_PATH) for case in standard_cases
-    )
-    assert conflict_case.inputs.knowledge_fixture_path == str(CONFLICT_FIXTURE_PATH)
+    assert FIXTURE_DATASET_PATH.name == "retrieval_only.json"
+    assert all(len(case.inputs.knowledge_fixture.records) == 8 for case in standard_cases)
+    assert len(conflict_case.inputs.knowledge_fixture.records) == 2
+    assert conflict_case.metadata["fixture"] == "conflicting-database"
+    assert all(case.inputs.knowledge_fixture_path is None for case in dataset.cases)
     assert all(len(case.inputs.ordered_turns()) == 1 for case in dataset.cases)
     assert {case.name: case.metadata["prompt_variant"] for case in dataset.cases} == {
         "jettro-profession": "canonical",

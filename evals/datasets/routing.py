@@ -8,7 +8,7 @@ from pydantic_evals import Case, Dataset
 
 from evals.datasets.jettro_ingestion import FIXTURE_PATH as JETTRO_FIXTURE_PATH
 from evals.datasets.jettro_ingestion import JETTRO_ABOUT_URL
-from evals.datasets.retrieval_only import FIXTURE_PATH as KNOWLEDGE_FIXTURE_PATH
+from evals.datasets.retrieval_only import FIXTURE_DATASET_PATH
 from evals.event_evaluators import (
     CalledRequiredTools,
     CompletedSuccessfully,
@@ -20,7 +20,10 @@ from evals.event_evaluators import (
     ToolCallCount,
     ToolCallsSucceeded,
 )
+from evals.fixture_datasets import load_fixture_dataset_definition
 from evals.models import TeamCaseInput, TeamCaseOutput
+
+KNOWLEDGE_FIXTURE = load_fixture_dataset_definition(FIXTURE_DATASET_PATH).fixtures["pilot"]
 
 
 def build_routing_dataset(
@@ -35,7 +38,7 @@ def build_routing_dataset(
                     message="What is the profession of Jettro Coenradie?",
                     target="@Knowledge",
                     timeout_seconds=timeout_seconds,
-                    knowledge_fixture_path=str(KNOWLEDGE_FIXTURE_PATH),
+                    knowledge_fixture=KNOWLEDGE_FIXTURE,
                 ),
                 metadata={"route_kind": "direct-knowledge"},
                 evaluators=(
@@ -99,7 +102,7 @@ def build_routing_dataset(
                     timeout_seconds=timeout_seconds,
                     fixture_source_url=JETTRO_ABOUT_URL,
                     fixture_path=str(JETTRO_FIXTURE_PATH),
-                    knowledge_fixture_path=str(KNOWLEDGE_FIXTURE_PATH),
+                    knowledge_fixture=KNOWLEDGE_FIXTURE,
                 ),
                 metadata={"route_kind": "manager-read-only-url"},
                 evaluators=(

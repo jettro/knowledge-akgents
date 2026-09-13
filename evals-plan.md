@@ -1025,34 +1025,36 @@ Hosted Logfire datasets can be considered later if collaborative curation or
 promotion of production traces becomes more important than code review of every
 case.
 
-### Dataset authoring direction: migrate cases to YAML
+### Dataset authoring direction: self-contained JSON fixtures
 
-The current pilot defines most cases in Python under `evals/datasets/`. That is
-appropriate while the case schema, evaluator vocabulary, and isolation model
-are still changing. The intended end state is to move ordinary case definitions
-to version-controlled YAML so contributors can add questions, fixtures,
-metadata, and expected behavior without editing Python.
+The initial pilot defined most cases in Python under `evals/datasets/`, then
+moved ordinary retrieval cases into YAML with external fixture paths. The
+current format goes one step further: an ordinary retrieval dataset is one
+version-controlled JSON file containing named knowledge fixtures, questions,
+metadata, vocabularies, and expected behavior.
 
 The migration should preserve a strict separation:
 
-- YAML contains case data and references to known evaluator options;
-- Pydantic models validate every YAML document;
+- JSON contains case data, reviewed knowledge, and references to known
+  evaluator options;
+- Pydantic models validate every JSON document;
 - a Python loader converts validated definitions into Pydantic Evals `Case`
   objects;
 - task adapters, event collection, and evaluator implementations remain Python;
 - arbitrary Python or unrestricted evaluator expressions are not embedded in
-  YAML.
+  JSON.
 
 This is explicitly a contributor-experience goal: a focused pull request should
 be able to add a reviewed fixture and one or more cases without changing the
-evaluation engine. The YAML schema should be introduced only after the current
-Python cases establish the stable vocabulary it needs to represent.
+evaluation engine. A new retrieval dataset can be run directly with
+`make eval-fixture FIXTURE_DATASET=evals/fixtures/<name>.json`; it does not need
+a Python dataset module or a new runner branch.
 
-This evaluation YAML is separate from the Akgentic catalog. The
+This evaluation JSON is separate from the Akgentic catalog. The
 `knowledge-akgents-production` namespace defines the reviewed runtime team and
 its agents, prompts, model defaults, and tools. The
 `knowledge-akgents-evaluation` namespace defines a separate team that
-cross-references those production agents. Evaluation YAML defines the inputs
+cross-references those production agents. Evaluation JSON defines the inputs
 and expected behavior applied to the selected team. Case-specific fixture
 cards remain evaluation-owned runtime bindings rather than durable catalog
 entries.
@@ -1987,7 +1989,7 @@ are recorded in [`qdrant-evals-follow-up.md`](qdrant-evals-follow-up.md).
 The remaining work should proceed one item at a time, with an approval pause
 between items:
 
-1. migrate ordinary evaluation cases to validated YAML;
+1. migrate ordinary evaluation cases to validated declarative fixture data;
 2. migrate team and tool composition to Akgentic catalog namespaces;
 3. improve observability by propagating trace context across Akgentic actor
    threads.
@@ -1997,20 +1999,19 @@ evaluation, additional operational thresholds, and further optional coverage
 remain deferred unless reprioritized.
 
 The first priority is now complete for the ordinary retrieval dataset. All 13
-retrieval case definitions moved from Python to
-`evals/cases/retrieval_only.yaml`. A strict Pydantic schema and safe PyYAML
-loader validate dataset version, unique case names, metadata, fixture paths,
-named vocabularies, and an allow-list of case evaluator configurations. Unknown
-fields or evaluator types are rejected, and fixture paths cannot be absolute or
-escape the `evals/` tree.
+retrieval cases and both knowledge variants live in the self-contained
+`evals/fixtures/retrieval_only.json` bundle. A strict Pydantic schema validates
+dataset version and task type, unique case names, named fixtures, knowledge
+records, metadata, vocabularies, and an allow-list of evaluator
+configurations. Unknown fields, evaluator types, fixture references, and
+vocabulary references are rejected.
 
-The Python dataset module now contains only shared execution policy and
-evaluator wiring: completion, routing, required/forbidden tools, search-call
-success, and conversion of validated definitions into Pydantic Evals cases.
-The existing builder API, case names, metadata, fixture selection, and
-evaluator behavior remain unchanged. Adding an ordinary retrieval question,
-paraphrase, fixture override, expected term set, or search limit no longer
-requires editing Python.
+The generic fixture loader owns shared retrieval policy: completion, routing,
+required/forbidden tools, search-call success, and conversion into Pydantic
+Evals cases. `evals/datasets/retrieval_only.py` is now only a compatibility
+wrapper selecting the built-in bundle. Adding another retrieval dataset
+requires only one JSON file and
+`make eval-fixture FIXTURE_DATASET=evals/fixtures/<name>.json`.
 
 The second priority is also complete, with a correction after reviewing the
 separate `akgentic-catalog` package. The initial investigation considered only
@@ -2066,6 +2067,17 @@ cases into one Pydantic Evals dataset and writes one native report to
 tool, and answer evaluators while shared event and span inventories are applied
 at dataset level.
 
+The first combined live production run passed Jettro and exposed two distinct
+Yuma findings. The answer correctly described Yuma as an "AI-transformation
+partner", but the older fixture-derived evaluator required the literal word
+"digital"; the rubric now requires "transformation" and "partner" plus one of
+the reviewed AI/digital-transformation phrasings. Separately, Web-Ingest made a
+second forced fetch with `chunks_per_source=10`, outside the tool limit, before
+recovering through web search. The one-fetch assertion remains intentionally
+strict. The production prompt now says to fetch each URL at most once, keep
+`chunks_per_source <= 5`, and use web search rather than forced refetching when
+the first live extraction omits requested details.
+
 Focused catalog, team, task-adapter, fixture-web, and FastAPI tests pass, as do
 Ruff, production mypy, all 108 project tests, and all 77 deterministic
 evaluation tests. A paid fixture-backed `jettro-profession` verification also
@@ -2075,8 +2087,8 @@ the connected observability tree with 14 spans, including model, agent, and
 tool spans. The native report is stored locally at
 `eval-reports/akgentic-catalog-verification.json`.
 
-The third priority is complete. The three selected roadmap items—YAML case
-migration, catalog-based team composition, and actor trace-context
+The third priority is complete. The three selected roadmap items—declarative
+fixture migration, catalog-based team composition, and actor trace-context
 propagation—are now implemented. The external-integration runner path is also
 available through the production namespace, but no paid production-team run
 has been executed as part of this refactor. Report comparison, hosted CI,
@@ -2086,24 +2098,17 @@ shared-source replacement coverage remain optional unless reprioritized.
 The implemented dependency split is explicit:
 
 ```toml
-[project]
-dependencies = [
-    "pyyaml>=6,<7",
-]
-
 [dependency-groups]
 eval = [
     "pydantic-evals[logfire]>=2.43,<3",
 ]
-dev = [
-    "types-pyyaml>=6,<7",
-]
 ```
 
-PyYAML is a production dependency because application startup loads the team
-catalog. Pydantic Evals remains evaluation-only, while the PyYAML type stubs are
-development-only. Pydantic Evals should remain compatible with the Pydantic AI
-version selected by Akgentic rather than relying on a transitive installation.
+The application uses the YAML support declared by `akgentic-catalog`; the
+evaluation fixture loader itself uses the Python standard library JSON parser
+and needs no YAML dependency or type stubs. Pydantic Evals remains
+evaluation-only and should remain compatible with the Pydantic AI version
+selected by Akgentic rather than relying on a transitive installation.
 
 Suggested commands:
 

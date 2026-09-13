@@ -15,8 +15,14 @@ Evaluation data describes scenarios and expected outcomes:
 - human labels used to calibrate judges;
 - metadata such as `canonical`, `paraphrase`, or `negative-control`.
 
-This data currently lives in Python under `evals/datasets/` and in JSON or text
-files under `evals/fixtures/`.
+Ordinary retrieval datasets live as self-contained JSON fixture bundles under
+`evals/fixtures/`. One file contains named knowledge fixtures, cases,
+vocabularies, metadata, and allow-listed evaluator settings. Adding another
+retrieval dataset does not require a Python module or runner registration.
+
+Specialized multi-turn ingestion, failure, and change-detection scenarios still
+live under `evals/datasets/` because their ordered tool-state transitions are
+not yet part of the generic fixture schema.
 
 ## Knowledge Akgents evaluation logic
 
@@ -51,14 +57,14 @@ The framework runs evaluations, but it does not define what a correct
 Knowledge Akgents answer or tool call looks like. Those rules belong to the
 case data and repository-specific evaluators.
 
-## Catalog and evaluation cases
+## Catalog and fixture datasets
 
-The Akgentic catalog and evaluation-case YAML solve different problems:
+The Akgentic catalog and evaluation fixture JSON solve different problems:
 
 - `akgentic-catalog` YAML entries define the team, agents, prompts, shared
   model defaults, and tools;
-- evaluation YAML defines questions, fixtures, expected behavior, and
-  metadata;
+- evaluation JSON defines reviewed knowledge, questions, expected behavior,
+  and metadata;
 - Python will continue to contain task adapters and reusable evaluators;
 - Pydantic Evals will continue to execute the resulting cases and reports.
 

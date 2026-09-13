@@ -15,4 +15,5 @@ def test_production_e2e_dataset_combines_jettro_and_yuma() -> None:
     ]
     assert all(len(case.inputs.ordered_turns()) == 3 for case in dataset.cases)
     assert all(case.evaluators for case in dataset.cases)
+    assert all(case.metadata["mode"] == "production-live-multi-turn" for case in dataset.cases)
     assert dataset.evaluators == []
