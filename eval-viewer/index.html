@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Knowledge Akgents · Evaluation reports</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="alternate icon" href="favicon.ico" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Knowledge Akgents</p>
+        <h1>Evaluation reports</h1>
+      </div>
+      <div class="file-actions">
+        <label class="button primary" for="report-files">Open report JSON</label>
+        <input id="report-files" type="file" accept=".json,application/json" multiple />
+      </div>
+    </header>
+
+    <div class="privacy-note">
+      Reports are read locally in your browser and are not uploaded.
+    </div>
+
+    <main class="workspace">
+      <aside class="report-sidebar">
+        <div class="sidebar-heading">
+          <div>
+            <p class="eyebrow">Loaded files</p>
+            <h2>Runs</h2>
+          </div>
+          <span id="report-count" class="count">0</span>
+        </div>
+        <div id="drop-zone" class="drop-zone">
+          Drop one or more native Pydantic Evals report files here
+        </div>
+        <div id="report-list" class="report-list"></div>
+      </aside>
+
+      <section id="welcome" class="welcome">
+        <div class="welcome-card">
+          <p class="eyebrow">No report selected</p>
+          <h2>Inspect an evaluation run</h2>
+          <p>
+            Open JSON produced by <code>--save-report</code> to browse summary
+            statistics, failures, assertions, metrics, inputs, and outputs.
+          </p>
+          <label class="button primary" for="report-files">Choose reports</label>
+        </div>
+      </section>
+
+      <section id="report-view" class="report-view hidden">
+        <div class="report-header">
+          <div>
+            <p id="report-file-name" class="eyebrow"></p>
+            <h2 id="report-name"></h2>
+            <p id="report-meta" class="muted"></p>
+          </div>
+        </div>
+
+        <div id="summary-cards" class="summary-cards"></div>
+
+        <div class="case-toolbar">
+          <input id="case-search" type="search" placeholder="Filter cases by name…" />
+          <select id="case-status" aria-label="Filter by status">
+            <option value="all">All cases</option>
+            <option value="failed">Failed cases</option>
+            <option value="passed">Passed cases</option>
+          </select>
+        </div>
+
+        <div class="case-workspace">
+          <div id="case-list" class="case-list"></div>
+          <article id="case-detail" class="case-detail"></article>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

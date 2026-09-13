@@ -11,6 +11,8 @@ to extend it.
   LLM judges.
 - [Running evaluations](running-evaluations/help.md): deterministic checks,
   paid runs, repetitions, reports, and Logfire.
+- [Evaluation report viewer](evaluation-report-viewer/help.md): inspect saved
+  native reports in a local web interface.
 
 The longer-term design and experiment history remain in
 [`evals-plan.md`](../evals-plan.md).

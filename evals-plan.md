@@ -1507,6 +1507,40 @@ was isolated nondeterministic variance rather than a recurring prompt defect.
 No prompt change or relaxation of the two-search contract is warranted from
 this sample.
 
+The next Phase 6 dataset increment defines three additional fixture-backed
+retrieval cases, pending their first paid execution:
+
+- a multi-entity synthesis question combining Jettro's profession with Yuma's
+  purpose;
+- a filtered-list question selecting the Yuma founders whose names contain
+  Consulting or Consultants;
+- a partially answerable question requiring Jettro's known profession, an
+  explicit statement that his favorite database is unavailable, and ingestion
+  guidance.
+
+These cases reuse the reviewed pilot fixture and existing evaluator vocabulary.
+They deliberately add new behavior shapes without adding new source data or
+new evaluator implementations.
+
+The first approved run produced correct answers for all three new cases. The
+multi-entity case passed with two searches and 10 model requests. The filtered
+Yuma-founder case passed with three searches and six model requests. The
+partial-knowledge case used one search and correctly returned Jettro's
+profession, stated that the favorite database was not present, and recommended
+`@WebIngest`; it initially scored 91.7% because the accepted missing-knowledge
+phrases did not include "not present." That phrase is now part of one shared
+missing-knowledge vocabulary used by both negative controls. This is an
+evaluator vocabulary correction, not an application change.
+
+The approved judged rerun passed 100% for all three cases, including all six
+groundedness and answer-relevance decisions. Each case used one successful
+`search_graph` call and produced no actor or tool errors. The multi-entity case
+used four model requests and 6,166 input tokens; the filtered-list case used
+four requests and 6,163 input tokens; the partial-knowledge case used four
+requests and 5,916 input tokens. This completes the Phase 6 increment and shows
+that the existing judge rubrics generalize beyond the original single-fact and
+complete-list questions.
+
 Create a small human-labeled set for groundedness, extraction quality, and answer
 relevance. Compare judge output and reasons with those labels.
 
@@ -1546,6 +1580,14 @@ candidate against a prior native Pydantic Evals report through
 `eval-reports/` directory because they may contain prompts, answers, fixture
 paths, and tool arguments. Stable conclusions and thresholds belong in source
 control; raw execution reports do not.
+
+A local static report viewer now provides a richer inspection path than terminal
+tables or raw JSON. It accepts one or more native Pydantic Evals report files
+through the browser, keeps their contents local, and presents report summaries,
+case filtering, assertion results and reasons, measurements, inputs, outputs,
+metadata, evaluator failures, and raw case JSON. The first version intentionally
+does not compare reports; side-by-side and baseline-delta views are a separate
+follow-up built on the same report model.
 
 Add documented commands for:
 

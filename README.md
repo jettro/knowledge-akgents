@@ -101,7 +101,7 @@ but do not use Tavily or export to Logfire by default:
 make eval-ingestion        # one Jettro ingestion case
 make eval-jettro           # Jettro ingest + two retrieval turns
 make eval-yuma             # Yuma ingest + two retrieval turns
-make eval-retrieval        # nine retrieval and missing-knowledge cases
+make eval-retrieval        # twelve retrieval and missing-knowledge cases
 make eval-variance         # retrieval cases repeated three times
 make eval-judge            # static two-dimensional judge calibration
 make eval-judge-stability  # judge calibration repeated three times
@@ -129,6 +129,17 @@ make eval-retrieval EVAL_FLAGS="--save-report eval-reports/retrieval-baseline.js
 make eval-retrieval EVAL_FLAGS="--baseline eval-reports/retrieval-baseline.json"
 ```
 
+Inspect one or more saved reports in the local web viewer:
+
+```bash
+make eval-viewer
+# open http://127.0.0.1:8765
+```
+
+The viewer reads selected files locally in the browser. See
+[`docs/evaluation-report-viewer/help.md`](docs/evaluation-report-viewer/help.md)
+for its available views and data-sensitivity notes.
+
 `eval-reports/` is gitignored because reports can contain prompts, answers, and
 tool arguments. Commit curated conclusions or thresholds instead of raw
 execution data.
@@ -146,6 +157,7 @@ scheduled, not run on every pull request.
 src/knowledge_akgents/   settings, tools, agents, events bridge, team wiring, FastAPI app
                          (repository.py tracks imported URLs in data/urls.json)
 evals/                   Pydantic Evals datasets, fixtures, collectors, and runners
+eval-viewer/             local static viewer for saved evaluation reports
 docs/                    contributor help organized by topic
 frontend/                static Human-Proxy UI + nginx config
 docker/                  backend & web Dockerfiles

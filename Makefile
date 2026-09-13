@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help sync upgrade run web lint format typecheck test test-evals eval-ingestion \
+.PHONY: help sync upgrade run web eval-viewer lint format typecheck test test-evals eval-ingestion \
 	eval-jettro eval-yuma eval-retrieval eval-variance eval-judge \
 	eval-judge-stability up down logs build clean
 
@@ -22,6 +22,9 @@ run: ## Run the backend API locally (reload)
 
 web: ## Serve the static frontend locally on :8080 (use ?backend=localhost:8000)
 	uv run python -m http.server 8080 --directory frontend
+
+eval-viewer: ## Serve the local evaluation report viewer on :8765
+	uv run python -m http.server 8765 --bind 127.0.0.1 --directory eval-viewer
 
 lint: ## Lint with ruff
 	uv run ruff check .

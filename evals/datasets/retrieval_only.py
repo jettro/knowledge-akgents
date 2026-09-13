@@ -26,6 +26,21 @@ RETRIEVAL_ROUTE = (
     ("@Knowledge", "@Manager"),
     ("@Manager", "@Human"),
 )
+MISSING_KNOWLEDGE_TERMS = (
+    "not in the knowledge base",
+    "does not contain",
+    "doesn't contain",
+    "does not specify",
+    "doesn't specify",
+    "doesn’t specify",
+    "does not state",
+    "doesn't state",
+    "doesn’t state",
+    "not present",
+    "no information",
+    "not available",
+    "nothing relevant",
+)
 
 
 def build_retrieval_only_dataset(
@@ -113,6 +128,22 @@ def build_retrieval_only_dataset(
                 timeout_seconds,
                 "paraphrase",
             ),
+            _case(
+                "jettro-profession-and-yuma-purpose",
+                "What is Jettro Coenradie's profession, and what does Yuma do?",
+                ("software architect", "digital", "transformation", "partner"),
+                fixture_path,
+                timeout_seconds,
+                "multi-entity",
+            ),
+            _case(
+                "yuma-consulting-founders",
+                "Which companies that formed Yuma have Consulting or Consultants in their name?",
+                ("Aprico", "B12 Consulting"),
+                fixture_path,
+                timeout_seconds,
+                "filtered-list",
+            ),
             Case(
                 name="jettro-unknown-favorite-database",
                 inputs=TeamCaseInput(
@@ -128,26 +159,40 @@ def build_retrieval_only_dataset(
                 evaluators=(
                     HumanResponseContainsAnyTerm(
                         response_index=0,
-                        accepted_terms=(
-                            "not in the knowledge base",
-                            "does not contain",
-                            "doesn't contain",
-                            "does not specify",
-                            "doesn't specify",
-                            "doesn’t specify",
-                            "does not state",
-                            "doesn't state",
-                            "doesn’t state",
-                            "no information",
-                            "not available",
-                            "nothing relevant",
-                        ),
+                        accepted_terms=MISSING_KNOWLEDGE_TERMS,
                     ),
                     HumanResponseContainsTerms(
                         response_index=0,
                         required_terms=("ingest",),
                     ),
                     ToolCallCount(tool_name="search_graph", minimum=1, maximum=2),
+                ),
+            ),
+            Case(
+                name="jettro-profession-and-unknown-favorite-database",
+                inputs=TeamCaseInput(
+                    message=(
+                        "What is Jettro Coenradie's profession and what is his "
+                        "favorite database?"
+                    ),
+                    timeout_seconds=timeout_seconds,
+                    knowledge_fixture_path=fixture_path,
+                ),
+                metadata={
+                    "mode": "fixed-knowledge-retrieval-only",
+                    "fixture_captured": "2026-09-12",
+                    "prompt_variant": "partial-knowledge-negative-control",
+                },
+                evaluators=(
+                    HumanResponseContainsTerms(
+                        response_index=0,
+                        required_terms=("software architect", "ingest"),
+                    ),
+                    HumanResponseContainsAnyTerm(
+                        response_index=0,
+                        accepted_terms=MISSING_KNOWLEDGE_TERMS,
+                    ),
+                    ToolCallCount(tool_name="search_graph", minimum=1, maximum=3),
                 ),
             ),
         ],
