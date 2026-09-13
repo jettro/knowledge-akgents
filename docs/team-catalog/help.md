@@ -70,6 +70,15 @@ Only ingestion and ingestion-plus-retrieval scenarios support the production
 team. Retrieval-only and synthetic-failure scenarios require fixture tools and
 therefore remain evaluation-team scenarios.
 
+Run both production end-to-end cases and save one report with:
+
+```bash
+make eval-production-e2e
+```
+
+The default output is `eval-reports/production-e2e.json`. Set `EVAL_REPORT` to
+choose another path.
+
 ## Application model allowlist
 
 The web tool entry uses the application model type

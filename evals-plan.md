@@ -2060,6 +2060,12 @@ agents make paid model calls. Persistent Qdrant remains blocked unless
 `--allow-persistent-store` is explicit. This separates production
 configuration from production mutable data.
 
+`make eval-production-e2e` combines the Jettro and Yuma ingestion-plus-query
+cases into one Pydantic Evals dataset and writes one native report to
+`eval-reports/production-e2e.json` by default. Each case retains its own route,
+tool, and answer evaluators while shared event and span inventories are applied
+at dataset level.
+
 Focused catalog, team, task-adapter, fixture-web, and FastAPI tests pass, as do
 Ruff, production mypy, all 108 project tests, and all 77 deterministic
 evaluation tests. A paid fixture-backed `jettro-profession` verification also

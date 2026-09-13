@@ -134,6 +134,19 @@ make eval-production-jettro    # live Jettro ingest + retrieval
 make eval-production-yuma      # live Yuma ingest + retrieval
 ```
 
+Run both end-to-end cases and export them into one report:
+
+```bash
+make eval-production-e2e
+# writes eval-reports/production-e2e.json
+```
+
+Override the output path when needed:
+
+```bash
+make eval-production-e2e EVAL_REPORT=eval-reports/production-e2e-2026-09-13.json
+```
+
 These targets do not use production Qdrant merely because they load the
 production namespace. They explicitly clear `AKGENTIC_QDRANT_URL`, use a
 temporary URL repository per case, and leave Logfire export disabled unless

@@ -4,10 +4,12 @@
 	eval-judge-stability eval-prompt-injection eval-no-useful-content \
 	eval-unreachable-url eval-routing eval-change-aware-ingestion \
 	eval-production-ingestion eval-production-jettro eval-production-yuma \
+	eval-production-e2e \
 	up down logs build clean
 
 EVAL_TIMEOUT ?= 180
 EVAL_FLAGS ?=
+EVAL_REPORT ?= eval-reports/production-e2e.json
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -95,6 +97,12 @@ eval-production-yuma: ## Run live Yuma E2E with the production catalog team
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
 		--catalog-team production --scenario yuma-multi-turn \
 		--timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-production-e2e: ## Run Jettro + Yuma production E2E and save one report
+	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \
+		--catalog-team production --scenario production-e2e \
+		--timeout $(EVAL_TIMEOUT) --verbose-output \
+		--save-report $(EVAL_REPORT) $(EVAL_FLAGS)
 
 eval-retrieval: ## Run the paid retrieval and missing-knowledge cases once
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.observability_spike \

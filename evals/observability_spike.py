@@ -22,6 +22,7 @@ from evals.datasets.jettro_scenario import build_jettro_scenario_dataset
 from evals.datasets.no_useful_content_scenario import (
     build_no_useful_content_scenario_dataset,
 )
+from evals.datasets.production_e2e import build_production_e2e_dataset
 from evals.datasets.prompt_injection_scenario import (
     build_prompt_injection_scenario_dataset,
 )
@@ -124,6 +125,7 @@ def _parse_args() -> argparse.Namespace:
             "ingestion",
             "jettro-multi-turn",
             "yuma-multi-turn",
+            "production-e2e",
             "retrieval-only",
             "prompt-injection",
             "no-useful-content",
@@ -193,12 +195,15 @@ def main() -> None:
         "ingestion",
         "jettro-multi-turn",
         "yuma-multi-turn",
+        "production-e2e",
     }:
         raise SystemExit(
             "The production catalog team is supported only for ingestion, "
             "jettro-multi-turn, and yuma-multi-turn. Other scenarios depend on "
             "synthetic fixture failures or preloaded fixture knowledge."
         )
+    if args.scenario == "production-e2e" and args.catalog_team != "production":
+        raise SystemExit("The production-e2e scenario requires --catalog-team production.")
 
     logfire.configure(
         send_to_logfire=args.send_to_logfire,
@@ -212,6 +217,8 @@ def main() -> None:
         dataset = build_jettro_scenario_dataset(args.timeout)
     elif args.scenario == "yuma-multi-turn":
         dataset = build_yuma_scenario_dataset(args.timeout)
+    elif args.scenario == "production-e2e":
+        dataset = build_production_e2e_dataset(args.timeout)
     elif args.scenario == "prompt-injection":
         dataset = build_prompt_injection_scenario_dataset(args.timeout)
     elif args.scenario == "no-useful-content":
