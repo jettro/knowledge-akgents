@@ -1,0 +1,171 @@
+{
+  "$schema": "./schema.json",
+  "version": 2,
+  "task": "retrieval",
+  "name": "knowledge-akgents/rag4j-documentation",
+  "knowledge": {
+    "source": "running_system"
+  },
+  "default_metadata": {
+    "source_url": "https://rag4j.org/documentation/",
+    "purpose": "post-ingestion-acceptance"
+  },
+  "vocabularies": {
+    "missing_knowledge": [
+      "not in the knowledge base",
+      "does not contain",
+      "doesn't contain",
+      "does not specify",
+      "doesn't specify",
+      "does not state",
+      "doesn't state",
+      "does not require",
+      "doesn't require",
+      "not mentioned",
+      "no relational database",
+      "no information"
+    ]
+  },
+  "cases": [
+    {
+      "name": "rag-system-components",
+      "message": "What are the three main parts of the RAG system described by RAG4j/p?",
+      "metadata": {
+        "topic": "overview",
+        "prompt_variant": "canonical"
+      },
+      "evaluators": [
+        {
+          "type": "tool_evidence_contains_terms",
+          "required_terms": ["retriever", "generator", "quality component"]
+        },
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["retrieval", "generation", "quality"]
+        }
+      ]
+    },
+    {
+      "name": "retrieval-strategy-difference",
+      "message": "What is the difference between the Top-N and window retrieval strategies?",
+      "metadata": {
+        "topic": "retrieval",
+        "prompt_variant": "comparison"
+      },
+      "evaluators": [
+        {
+          "type": "tool_evidence_contains_terms",
+          "required_terms": ["Top-N", "window", "same document"]
+        },
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["Top-N", "window", "same document"]
+        }
+      ]
+    },
+    {
+      "name": "indexing-pipeline",
+      "message": "Which components does RAG4j/p use to load, split, embed, and store a corpus?",
+      "metadata": {
+        "topic": "retrieval",
+        "prompt_variant": "multi-fact"
+      },
+      "evaluators": [
+        {
+          "type": "tool_evidence_contains_terms",
+          "required_terms": ["IndexingService", "ContentReader", "Splitter", "Embedder", "ContentStore"]
+        },
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["IndexingService", "ContentReader", "Splitter", "Embedder", "ContentStore"]
+        }
+      ]
+    },
+    {
+      "name": "content-store-options",
+      "message": "Which ContentStore implementations are documented by RAG4j/p?",
+      "metadata": {
+        "topic": "retrieval",
+        "prompt_variant": "canonical"
+      },
+      "evaluators": [
+        {
+          "type": "tool_evidence_contains_terms",
+          "required_terms": ["InternalContentStore", "WeaviateContentStore"]
+        },
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["InternalContentStore", "WeaviateContentStore"]
+        }
+      ]
+    },
+    {
+      "name": "embedding-options",
+      "message": "Which local and OpenAI embedders does the documentation mention?",
+      "metadata": {
+        "topic": "retrieval",
+        "prompt_variant": "cross-language"
+      },
+      "evaluators": [
+        {
+          "type": "tool_evidence_contains_terms",
+          "required_terms": ["AllMiniLmL6V2QEmbedder", "OnnxEmbedder", "OpenAIEmbedder"]
+        },
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["AllMiniLmL6V2QEmbedder", "OnnxEmbedder", "OpenAIEmbedder"]
+        }
+      ]
+    },
+    {
+      "name": "rag-quality-metrics",
+      "message": "What three metrics does RAG4j/p use to determine overall RAG quality?",
+      "metadata": {
+        "topic": "quality",
+        "prompt_variant": "canonical"
+      },
+      "evaluators": [
+        {
+          "type": "tool_evidence_contains_terms",
+          "required_terms": ["precision", "Contextual Accuracy", "Answer Completeness"]
+        },
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["precision", "Contextual Accuracy", "Answer Completeness"]
+        }
+      ]
+    },
+    {
+      "name": "quality-services",
+      "message": "Which two services implement quality evaluation, and what does each evaluate?",
+      "metadata": {
+        "topic": "quality",
+        "prompt_variant": "comparison"
+      },
+      "evaluators": [
+        {
+          "type": "tool_evidence_contains_terms",
+          "required_terms": ["RetrievalQualityService", "AnswerQualityService"]
+        },
+        {
+          "type": "human_response_contains_terms",
+          "required_terms": ["RetrievalQualityService", "AnswerQualityService"]
+        }
+      ]
+    },
+    {
+      "name": "missing-relational-database",
+      "message": "Which relational database does RAG4j/p require for its ContentStore?",
+      "metadata": {
+        "topic": "negative-control",
+        "prompt_variant": "missing-knowledge"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_any_term",
+          "accepted_terms_ref": "missing_knowledge"
+        }
+      ]
+    }
+  ]
+}

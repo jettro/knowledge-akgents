@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from evals.datasets.routing import build_routing_dataset
+from evals.scenarios.routing import build_routing_dataset
 from evals.evaluators.events import DidNotInvolveActors, FollowedMessageRoute
 
 

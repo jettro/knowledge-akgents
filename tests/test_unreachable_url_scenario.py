@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from evals.datasets.unreachable_url_scenario import (
+from evals.scenarios.unreachable_url import (
     FAILURE_MESSAGE,
     UNREACHABLE_URL,
     build_unreachable_url_scenario_dataset,

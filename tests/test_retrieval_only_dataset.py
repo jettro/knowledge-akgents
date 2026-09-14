@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from evals.datasets.retrieval_only import (
+from evals.scenarios.retrieval_only import (
     DATASET_PATH,
     MISSING_KNOWLEDGE_TERMS,
     build_retrieval_only_dataset,

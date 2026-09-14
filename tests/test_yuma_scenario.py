@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from evals.datasets.yuma_scenario import (
+from evals.scenarios.yuma_scenario import (
     FIXTURE_PATH,
     YUMA_BACKGROUND_URL,
     build_yuma_scenario_dataset,

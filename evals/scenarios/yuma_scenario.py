@@ -1,4 +1,4 @@
-"""End-to-end Yuma ingestion and retrieval scenario."""
+"""Executable end-to-end Yuma ingestion and retrieval scenario."""
 
 from __future__ import annotations
 

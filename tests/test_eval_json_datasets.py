@@ -6,9 +6,10 @@ import json
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
 from pydantic import ValidationError
 
-from evals.datasets.json_loader import (
+from evals.harness.dataset_loader import (
     build_json_dataset,
     load_dataset_definition,
 )
@@ -16,20 +17,23 @@ from evals.datasets.json_loader import (
 
 def _definition() -> dict:
     return {
-        "version": 1,
+        "version": 2,
         "task": "retrieval",
         "name": "example/dataset",
-        "default_fixture": "example",
-        "fixtures": {
-            "example": {
-                "records": [
-                    {
-                        "name": "Jane Doe",
-                        "entity_type": "Person",
-                        "description": "Jane Doe is a software engineer.",
-                    }
-                ]
-            }
+        "knowledge": {
+            "source": "fixtures",
+            "default_fixture": "example",
+            "fixtures": {
+                "example": {
+                    "records": [
+                        {
+                            "name": "Jane Doe",
+                            "entity_type": "Person",
+                            "description": "Jane Doe is a software engineer.",
+                        }
+                    ]
+                }
+            },
         },
         "vocabularies": {"missing": ["unknown", "unavailable"]},
         "cases": [
@@ -47,6 +51,10 @@ def _definition() -> dict:
                         "tool_name": "search_graph",
                         "minimum": 1,
                         "maximum": 2,
+                    },
+                    {
+                        "type": "tool_evidence_contains_terms",
+                        "required_terms": ["software engineer"],
                     },
                 ],
             }
@@ -66,12 +74,24 @@ def test_loader_accepts_allow_listed_fixture_case_and_evaluator_fields(
     path = _write_json(tmp_path, _definition())
 
     definition = load_dataset_definition(path)
-    dataset = build_json_dataset(path, timeout_seconds=1)
+    loaded = build_json_dataset(path, timeout_seconds=1)
 
     assert definition.name == "example/dataset"
     assert definition.cases[0].name == "example"
     assert definition.vocabularies["missing"] == ("unknown", "unavailable")
-    assert dataset.cases[0].inputs.knowledge_fixture.records[0].name == "Jane Doe"
+    assert loaded.execution_target == "local_evaluation_team"
+    assert loaded.dataset.cases[0].inputs.knowledge_fixture.records[0].name == "Jane Doe"
+    assert len(loaded.dataset.cases[0].evaluators) == 3
+
+
+def test_loader_selects_running_system_for_real_knowledge(tmp_path: Path) -> None:
+    value = _definition()
+    value["knowledge"] = {"source": "running_system"}
+
+    loaded = build_json_dataset(_write_json(tmp_path, value), timeout_seconds=1)
+
+    assert loaded.execution_target == "running_system"
+    assert loaded.dataset.cases[0].inputs.knowledge_fixture is None
 
 
 def test_loader_rejects_unknown_fields(tmp_path: Path) -> None:
@@ -104,3 +124,17 @@ def test_loader_rejects_missing_fixture_reference(tmp_path: Path) -> None:
 
     with pytest.raises(ValidationError, match="unknown fixture"):
         load_dataset_definition(_write_json(tmp_path, value))
+
+
+def test_published_schema_accepts_all_datasets() -> None:
+    schema_path = Path("evals/datasets/schema.json")
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    Draft202012Validator.check_schema(schema)
+    validator = Draft202012Validator(schema)
+
+    for dataset_path in Path("evals/datasets").glob("*.json"):
+        if dataset_path == schema_path:
+            continue
+        dataset = json.loads(dataset_path.read_text(encoding="utf-8"))
+        validator.validate(dataset)
+        load_dataset_definition(dataset_path)

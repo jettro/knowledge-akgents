@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pydantic_evals.evaluators import LLMJudge
 
-from evals.datasets.judge_calibration import (
+from evals.scenarios.judge_calibration import (
     ANSWER_RELEVANCE_RUBRIC,
     GROUNDEDNESS_RUBRIC,
     build_judge_calibration_dataset,

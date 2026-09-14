@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "message"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "message": {"type": "string", "minLength": 1},
+        "fixture": {"type": "string", "minLength": 1},
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        },
+        "evaluators": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {"$ref": "#/$defs/containsTerms"},
+              {"$ref": "#/$defs/containsAnyTerm"},
+              {"$ref": "#/$defs/toolCallCount"},
+              {"$ref": "#/$defs/toolEvidenceContainsTerms"}
+            ]
+          }
+        }
+      }
+    },
+    "containsTerms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "required_terms"],
+      "properties": {
+        "type": {"const": "human_response_contains_terms"},
+        "response_index": {"type": "integer", "minimum": 0, "default": 0},
+        "required_terms": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "containsAnyTerm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {"const": "human_response_contains_any_term"},
+        "response_index": {"type": "integer", "minimum": 0, "default": 0},
+        "accepted_terms": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"}
+        },
+        "accepted_terms_ref": {"type": "string", "minLength": 1}
+      },
+      "oneOf": [
+        {"required": ["accepted_terms"]},
+        {"required": ["accepted_terms_ref"]}
+      ]
+    },
+    "toolCallCount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "tool_name", "minimum"],
+      "properties": {
+        "type": {"const": "tool_call_count"},
+        "tool_name": {"type": "string", "minLength": 1},
+        "minimum": {"type": "integer", "minimum": 0},
+        "maximum": {"type": "integer", "minimum": 0}
+      }
+    },
+    "toolEvidenceContainsTerms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "required_terms"],
+      "properties": {
+        "type": {"const": "tool_evidence_contains_terms"},
+        "tool_name": {
+          "type": "string",
+          "minLength": 1,
+          "default": "search_graph"
+        },
+        "required_terms": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string"}
+        }
+      }
+    },
+    "knowledgeRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "entity_type", "description"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "entity_type": {"type": "string", "minLength": 1},
+        "description": {"type": "string", "minLength": 1}
+      }
+    },
+    "fixtureKnowledge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "default_fixture", "fixtures"],
+      "properties": {
+        "source": {"const": "fixtures"},
+        "default_fixture": {"type": "string", "minLength": 1},
+        "fixtures": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["records"],
+            "properties": {
+              "records": {
+                "type": "array",
+                "items": {"$ref": "#/$defs/knowledgeRecord"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "runningSystemKnowledge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source"],
+      "properties": {
+        "source": {"const": "running_system"}
+      }
+    }
+  },
+  "title": "Knowledge Akgents evaluation dataset",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "task", "name", "knowledge", "cases"],
+  "properties": {
+    "$schema": {"type": "string"},
+    "version": {"const": 2},
+    "task": {"const": "retrieval"},
+    "name": {"type": "string", "minLength": 1},
+    "knowledge": {
+      "oneOf": [
+        {"$ref": "#/$defs/fixtureKnowledge"},
+        {"$ref": "#/$defs/runningSystemKnowledge"}
+      ]
+    },
+    "default_metadata": {
+      "type": "object",
+      "additionalProperties": {"type": "string"}
+    },
+    "vocabularies": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "items": {"type": "string"}
+      }
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/case"}
+    }
+  }
+}

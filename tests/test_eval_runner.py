@@ -12,10 +12,10 @@ from akgentic.core.messages.orchestrator import ErrorMessage, EventMessage, Sent
 from akgentic.llm import LlmMessageEvent, LlmUsageEvent, ToolCallEvent, ToolReturnEvent
 from pydantic_ai.messages import ModelRequest, ToolReturnPart
 
-from evals.datasets.retrieval_only import build_retrieval_only_dataset
 from evals.harness.cli import positive_int
 from evals.harness.collector import EvaluationEventCollector
 from evals.runners.evaluate import _select_case
+from evals.scenarios.retrieval_only import build_retrieval_only_dataset
 
 
 def _address(name: str, *, is_user_proxy: bool = False) -> ActorAddressProxy:

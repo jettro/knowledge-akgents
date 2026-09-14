@@ -12,28 +12,32 @@ import logfire
 from pydantic_evals import Dataset
 from pydantic_evals.evaluators import Evaluator, EvaluatorContext, EvaluatorOutput
 
-from evals.datasets.change_aware_ingestion import build_change_aware_ingestion_dataset
-from evals.datasets.jettro_ingestion import build_jettro_ingestion_dataset
-from evals.datasets.jettro_scenario import build_jettro_scenario_dataset
-from evals.datasets.json_loader import build_json_dataset
-from evals.datasets.no_useful_content_scenario import (
-    build_no_useful_content_scenario_dataset,
-)
-from evals.datasets.production_e2e import build_production_e2e_dataset
-from evals.datasets.prompt_injection_scenario import (
-    build_prompt_injection_scenario_dataset,
-)
-from evals.datasets.retrieval_only import build_retrieval_only_dataset
-from evals.datasets.routing import build_routing_dataset
-from evals.datasets.unreachable_url_scenario import (
-    build_unreachable_url_scenario_dataset,
-)
-from evals.datasets.yuma_scenario import build_yuma_scenario_dataset
 from evals.evaluators.live import LiveRetrievalJudges
 from evals.harness.cli import positive_int
+from evals.harness.dataset_loader import build_json_dataset
 from evals.harness.models import TeamCaseInput, TeamCaseOutput
 from evals.harness.reporting import load_report, save_report
+from evals.harness.running_system import (
+    require_running_system,
+    run_running_system_case,
+)
 from evals.harness.tasks import run_team_case
+from evals.scenarios.change_aware_ingestion import build_change_aware_ingestion_dataset
+from evals.scenarios.jettro_ingestion import build_jettro_ingestion_dataset
+from evals.scenarios.jettro_scenario import build_jettro_scenario_dataset
+from evals.scenarios.no_useful_content import (
+    build_no_useful_content_scenario_dataset,
+)
+from evals.scenarios.production_e2e import build_production_e2e_dataset
+from evals.scenarios.prompt_injection import (
+    build_prompt_injection_scenario_dataset,
+)
+from evals.scenarios.retrieval_only import build_retrieval_only_dataset
+from evals.scenarios.routing import build_routing_dataset
+from evals.scenarios.unreachable_url import (
+    build_unreachable_url_scenario_dataset,
+)
+from evals.scenarios.yuma_scenario import build_yuma_scenario_dataset
 from knowledge_akgents.settings import settings
 
 
@@ -110,7 +114,12 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--allow-persistent-store",
         action="store_true",
-        help="Allow the spike to write to the configured persistent Qdrant store.",
+        help="Allow a Python scenario to use the configured persistent Qdrant store.",
+    )
+    parser.add_argument(
+        "--system-url",
+        default="http://localhost:8000",
+        help="Base URL of the running application used by running_system datasets.",
     )
     parser.add_argument(
         "--verbose-output",
@@ -137,10 +146,10 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--catalog-team",
         choices=("evaluation", "production"),
-        default="evaluation",
+        default=None,
         help=(
-            "Use the fixture-capable evaluation team or the exact production "
-            "catalog team with isolated runtime state."
+            "Select a team for Python scenarios. JSON datasets derive the team "
+            "from knowledge.source and reject conflicting overrides."
         ),
     )
     parser.add_argument(
@@ -192,12 +201,33 @@ def main() -> None:
     missing = [name for name, value in (("OPENAI_API_KEY", settings.openai_api_key),) if not value]
     if missing:
         raise SystemExit(f"Missing required live-evaluation settings: {', '.join(missing)}")
-    if settings.qdrant_enabled and not args.allow_persistent_store:
+
+    loaded_json = (
+        build_json_dataset(args.dataset, args.timeout)
+        if args.dataset is not None
+        else None
+    )
+    if loaded_json is not None and args.catalog_team is not None:
+        raise SystemExit(
+            "JSON datasets select their execution target through knowledge.source; "
+            "remove --catalog-team."
+        )
+    catalog_team = args.catalog_team or "evaluation"
+    uses_running_system = (
+        loaded_json is not None
+        and loaded_json.execution_target == "running_system"
+    )
+    if uses_running_system:
+        try:
+            require_running_system(args.system_url)
+        except ValueError as exc:
+            raise SystemExit(str(exc)) from exc
+    if not uses_running_system and settings.qdrant_enabled and not args.allow_persistent_store:
         raise SystemExit(
             "Persistent Qdrant is configured. Run with AKGENTIC_QDRANT_URL='' "
-            "for an isolated in-memory spike, or explicitly pass --allow-persistent-store."
+            "for an isolated scenario, or explicitly pass --allow-persistent-store."
         )
-    if args.catalog_team == "production" and args.scenario not in {
+    if args.dataset is None and catalog_team == "production" and args.scenario not in {
         "ingestion",
         "jettro-multi-turn",
         "yuma-multi-turn",
@@ -208,9 +238,7 @@ def main() -> None:
             "jettro-multi-turn, and yuma-multi-turn. Other scenarios depend on "
             "synthetic fixture failures or preloaded fixture knowledge."
         )
-    if args.dataset is not None and args.catalog_team == "production":
-        raise SystemExit("JSON datasets require --catalog-team evaluation.")
-    if args.scenario == "production-e2e" and args.catalog_team != "production":
+    if args.scenario == "production-e2e" and catalog_team != "production":
         raise SystemExit("The production-e2e scenario requires --catalog-team production.")
 
     logfire.configure(
@@ -221,8 +249,8 @@ def main() -> None:
     )
     logfire.instrument_pydantic_ai()
 
-    if args.dataset is not None:
-        dataset = build_json_dataset(args.dataset, args.timeout)
+    if loaded_json is not None:
+        dataset = loaded_json.dataset
     elif args.scenario == "jettro-multi-turn":
         dataset = build_jettro_scenario_dataset(args.timeout)
     elif args.scenario == "yuma-multi-turn":
@@ -259,8 +287,18 @@ def main() -> None:
     run_name = (
         args.dataset.stem if args.dataset is not None else args.scenario
     )
+    task = (
+        partial(run_running_system_case, system_url=args.system_url)
+        if uses_running_system
+        else partial(run_team_case, catalog_team=catalog_team)
+    )
+    execution_target = (
+        loaded_json.execution_target
+        if loaded_json is not None
+        else f"local_{catalog_team}_team"
+    )
     report = dataset.evaluate_sync(
-        partial(run_team_case, catalog_team=args.catalog_team),
+        task,
         name=f"{run_name}-observability",
         max_concurrency=1,
         repeat=args.repeat,
@@ -270,7 +308,8 @@ def main() -> None:
             "purpose": "discover event and span contracts",
             "repeat": args.repeat,
             "live_judges": args.with_judges,
-            "catalog_team": args.catalog_team,
+            "execution_target": execution_target,
+            "system_url": args.system_url if uses_running_system else None,
             "dataset_path": str(args.dataset) if args.dataset is not None else None,
         },
     )

@@ -1,4 +1,4 @@
-"""Initial fixed-fixture ingestion case for Jettro's about page."""
+"""Executable fixed-fixture ingestion case for Jettro's about page."""
 
 from __future__ import annotations
 

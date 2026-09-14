@@ -1,4 +1,4 @@
-"""Fixed-fixture scenarios for unchanged and forced URL ingestion."""
+"""Executable fixed-fixture scenarios for unchanged and forced URL ingestion."""
 
 from __future__ import annotations
 

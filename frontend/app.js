@@ -58,6 +58,10 @@ function render(data) {
     case "urls_updated":
       void loadUrls();
       break;
+    case "tool_return":
+    case "tool_evidence":
+    case "llm_usage":
+      break;
     case "error":
       addMessage("error", "error", data.content);
       break;

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from evals.datasets.jettro_scenario import build_jettro_scenario_dataset
+from evals.scenarios.jettro_scenario import build_jettro_scenario_dataset
 from evals.evaluators.events import CompletedSuccessfully, ToolCallCount, ToolCallsSucceeded
 
 

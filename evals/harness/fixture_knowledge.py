@@ -8,7 +8,7 @@ from typing import Any
 
 from akgentic.tool.core import ToolCard
 from akgentic.tool.knowledge_graph.models import SearchQuery
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 _STOP_WORDS = {
     "a",
@@ -24,12 +24,16 @@ _STOP_WORDS = {
 
 
 class KnowledgeFixtureRecord(BaseModel):
-    name: str
-    entity_type: str
-    description: str
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(min_length=1)
+    entity_type: str = Field(min_length=1)
+    description: str = Field(min_length=1)
 
 
 class KnowledgeFixture(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     records: list[KnowledgeFixtureRecord]
 
 

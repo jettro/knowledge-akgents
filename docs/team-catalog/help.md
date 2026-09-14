@@ -66,9 +66,11 @@ Catalog selection and infrastructure selection are separate:
 - a configured persistent Qdrant is rejected unless
   `--allow-persistent-store` is explicit.
 
-Only ingestion and ingestion-plus-retrieval scenarios support the production
-team. Retrieval-only and synthetic-failure scenarios require fixture tools and
-therefore remain evaluation-team scenarios.
+JSON retrieval datasets with `knowledge.source="running_system"` call the
+already-running production team through its WebSocket API. This is necessary
+because Qdrant points are scoped to the live team's ID. Fixture retrieval and
+synthetic-failure scenarios remain evaluation-team work because they
+deliberately replace dependencies.
 
 Run both production end-to-end cases and save one report with:
 

@@ -1,8 +1,8 @@
 {
-  "version": 1,
+  "$schema": "./schema.json",
+  "version": 2,
   "task": "retrieval",
   "name": "knowledge-akgents/pilot-retrieval-only",
-  "default_fixture": "pilot",
   "default_metadata": {
     "mode": "fixed-knowledge-retrieval-only",
     "fixture_captured": "2026-09-12"
@@ -24,7 +24,10 @@
       "nothing relevant"
     ]
   },
-  "fixtures": {
+  "knowledge": {
+    "source": "fixtures",
+    "default_fixture": "pilot",
+    "fixtures": {
     "pilot": {
       "records": [
         {
@@ -83,6 +86,7 @@
         }
       ]
     }
+  }
   },
   "cases": [
     {

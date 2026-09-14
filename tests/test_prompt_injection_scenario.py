@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from evals.datasets.prompt_injection_scenario import (
+from evals.scenarios.prompt_injection import (
     FIXTURE_PATH,
     PROMPT_INJECTION_URL,
     build_prompt_injection_scenario_dataset,

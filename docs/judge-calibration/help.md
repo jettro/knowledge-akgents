@@ -8,7 +8,7 @@ The live judges assess two independent qualities:
   question.
 
 The rubrics and human-labeled examples are in
-`evals/datasets/judge_calibration.py`. The runner is
+`evals/scenarios/judge_calibration.py`. The runner is
 `evals/runners/judge_calibration.py`.
 
 ## What is a rubric?

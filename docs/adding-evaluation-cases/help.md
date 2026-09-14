@@ -1,47 +1,124 @@
-# Adding JSON datasets
+# Creating evaluation datasets
 
-Ordinary retrieval dataset definitions are self-contained JSON files under
-`evals/datasets/`. A definition contains:
+For a normal retrieval evaluation, you author one JSON file in
+`evals/datasets/`. You do not add Python, register a scenario, or implement a
+task runner.
 
-- one or more named knowledge fixtures;
-- questions and case metadata;
-- reusable vocabularies;
-- allow-listed evaluator settings.
+The file answers three questions:
 
-No Python module or scenario registration is required.
+1. Which knowledge should the production-like team query?
+2. Which questions should be asked?
+3. Which observable results make each answer acceptable?
 
-## Create a dataset
+Add `"$schema": "./schema.json"` for editor validation and completion.
 
-Create a file such as `evals/datasets/people.json`:
+## Evaluate a real, already-ingested page
+
+If the page is already present in the application's Qdrant collection, select
+the existing store:
 
 ```json
 {
-  "version": 1,
+  "$schema": "./schema.json",
+  "version": 2,
   "task": "retrieval",
-  "name": "knowledge-akgents/people",
-  "default_fixture": "people",
-  "default_metadata": {
-    "source": "reviewed-example"
+  "name": "knowledge-akgents/new-page",
+  "knowledge": {
+    "source": "running_system"
   },
-  "vocabularies": {},
-  "fixtures": {
-    "people": {
-      "records": [
+  "default_metadata": {
+    "source_url": "https://example.com/about",
+    "purpose": "post-ingestion-acceptance"
+  },
+  "cases": [
+    {
+      "name": "organization-purpose",
+      "message": "What does Example Company do?",
+      "evaluators": [
         {
-          "name": "Jane Doe",
-          "entity_type": "Person",
-          "description": "Jane Doe is a software engineer."
+          "type": "human_response_contains_terms",
+          "required_terms": ["reviewed", "expected", "terms"]
         }
       ]
+    },
+    {
+      "name": "organization-purpose-paraphrase",
+      "message": "How does Example Company help its customers?",
+      "metadata": {
+        "prompt_variant": "paraphrase"
+      },
+      "evaluators": [
+        {
+          "type": "human_response_contains_any_term",
+          "accepted_terms": ["accepted phrase", "equivalent wording"]
+        }
+      ]
+    }
+  ]
+}
+```
+
+`running_system` means:
+
+- call the already-running Knowledge Akgents backend over `/ws/chat`;
+- use the live production team that owns the ingested Qdrant points;
+- call its real `search_graph` tool;
+- do not preload or replace knowledge;
+- do not call Tavily or ingest the page during the evaluation.
+
+Run it with:
+
+```bash
+make eval-live-dataset \
+  DATASET=evals/datasets/new_page.json \
+  EVAL_FLAGS="--save-report eval-reports/new-page.json"
+```
+
+The application must already be running and the page must already be ingested.
+Retrieval cases are read-only: shared dataset evaluators fail if the team calls
+`update_graph` or the web tool.
+
+The default backend is `http://localhost:8000`. Override it when needed:
+
+```bash
+make eval-live-dataset \
+  DATASET=evals/datasets/new_page.json \
+  SYSTEM_URL=https://knowledge.example.com
+```
+
+Run this evaluation while the application is otherwise idle. The current
+WebSocket bridge broadcasts team events to connected clients, so concurrent
+chat traffic could be included in the evidence stream.
+
+## Evaluate against controlled records
+
+Use fixtures when you want repeatable agent tests without depending on Qdrant:
+
+```json
+{
+  "$schema": "./schema.json",
+  "version": 2,
+  "task": "retrieval",
+  "name": "knowledge-akgents/people",
+  "knowledge": {
+    "source": "fixtures",
+    "default_fixture": "people",
+    "fixtures": {
+      "people": {
+        "records": [
+          {
+            "name": "Jane Doe",
+            "entity_type": "Person",
+            "description": "Jane Doe is a software engineer."
+          }
+        ]
+      }
     }
   },
   "cases": [
     {
       "name": "jane-role",
       "message": "What role does Jane Doe have?",
-      "metadata": {
-        "prompt_variant": "canonical"
-      },
       "evaluators": [
         {
           "type": "human_response_contains_terms",
@@ -53,78 +130,64 @@ Create a file such as `evals/datasets/people.json`:
 }
 ```
 
-`default_fixture` names the fixture used by cases that omit `fixture`. A case
-can select another fixture declared in the same file:
-
-```json
-{
-  "name": "conflicting-answer",
-  "message": "Which database does Alex prefer?",
-  "fixture": "conflicting-database",
-  "evaluators": []
-}
-```
-
-Here, **dataset** follows Pydantic Evals terminology: it groups cases and
-shared evaluators. The `fixtures` object is project-specific controlled input
-data used to populate the fake knowledge tool for a case. Pydantic Evals does
-not define that fixture format.
-
-Keeping the named fixtures inside the dataset JSON puts the cases and exact
-knowledge they use in one reviewable artifact. There are no fixture paths to
-resolve and no external files that can silently drift away from the dataset.
-
-## Available evaluator settings
-
-Case-level evaluators currently support:
-
-- `human_response_contains_terms`;
-- `human_response_contains_any_term`;
-- `tool_call_count`.
-
-Reusable alternative wording can be declared under `vocabularies` and selected
-with `accepted_terms_ref`.
-
-Every retrieval fixture dataset automatically checks that:
-
-- the team completes with a human response;
-- the expected Manager-to-Knowledge route is followed;
-- `search_graph` is called successfully;
-- web ingestion and graph updates are not called.
-
-The JSON is validated strictly with Pydantic. Unknown fields, unknown evaluator
-types, duplicate case names, missing fixture names, missing vocabulary
-references, invalid records, and invalid call-count ranges are rejected.
-Arbitrary Python and evaluator expressions are never loaded from the file.
-
-## Run the dataset
-
-Run any fixture bundle with:
+Run controlled data with:
 
 ```bash
 make eval-dataset DATASET=evals/datasets/people.json
 ```
 
-Select one case or save a report through `EVAL_FLAGS`:
+This selects the evaluation catalog team and replaces only its read-only
+knowledge tool with the declared records.
 
-```bash
-make eval-dataset \
-  DATASET=evals/datasets/people.json \
-  EVAL_FLAGS="--case jane-role --save-report eval-reports/people.json"
-```
+## How results are evaluated
 
-The existing retrieval target is the same generic runner with
-`evals/datasets/retrieval_only.json` selected:
+Every JSON retrieval case automatically checks:
 
-```bash
-make eval-retrieval
-```
+- the team completed with a response to the human;
+- the message followed `Human → Manager → Knowledge → Manager → Human`;
+- `search_graph` was called at least once and returned successfully;
+- no web-fetch or graph-update tool was called;
+- tool-call arguments parsed correctly and actor execution did not fail.
 
-Live runs require credentials and make paid model calls. Run `make test-evals`
-first to validate fixture files and harness behavior without network or model
-calls.
+Case evaluators then check the answer-specific contract:
 
-When a requirement cannot be represented by the allow-listed JSON vocabulary,
-add or reuse a Python evaluator in `evals/evaluators/events.py`, extend its
-strict definition in `evals/datasets/json_loader.py`, and add loader rejection
-tests.
+| Evaluator | Use |
+|---|---|
+| `human_response_contains_terms` | Every listed term must occur in the answer |
+| `human_response_contains_any_term` | At least one reviewed alternative must occur |
+| `tool_evidence_contains_terms` | Required terms must occur in the real tool result |
+| `tool_call_count` | Constrain how often a named tool may be called |
+
+These are deterministic acceptance checks. Add `--with-judges` when you also
+want paid groundedness and answer-relevance judgments against the captured
+`search_graph` evidence.
+
+Judges complement rather than replace source-derived checks. A grounded answer
+that correctly says “the retrieved evidence does not contain that fact” may
+score well for groundedness and relevance while still failing the dataset's
+expected-fact assertion. That combination usually identifies an ingestion or
+retrieval gap rather than answer hallucination.
+
+The exported Pydantic Evals report contains each case input, answer, tool calls,
+tool results, assertion outcomes, reasons, usage measurements, and spans. Open
+it with `make eval-viewer`.
+
+## Designing useful cases for a new page
+
+Start with a small acceptance suite:
+
+1. A canonical question for each important fact.
+2. A paraphrase for the most important question.
+3. A multi-fact question that requires combining retrieved knowledge.
+4. A missing-fact question that should not be invented.
+5. A wording vocabulary when several answers are equally correct.
+
+Expected terms must come from facts you reviewed on the source page, not from
+the model's previous answer. A passing result means the complete team routed,
+searched, returned evidence, and produced an answer satisfying those reviewed
+expectations.
+
+When the JSON vocabulary cannot represent a requirement, add or reuse an
+evaluator in `evals/evaluators/` and extend the strict loader in
+`evals/harness/dataset_loader.py`. Multi-turn ingestion and controlled failure
+state machines belong in `evals/scenarios/`, not `evals/datasets/`.

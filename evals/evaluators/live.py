@@ -13,11 +13,11 @@ from pydantic_evals.evaluators import (
 )
 from pydantic_evals.evaluators.llm_as_a_judge import judge_input_output
 
-from evals.datasets.judge_calibration import (
+from evals.harness.models import TeamCaseInput, TeamCaseOutput
+from evals.scenarios.judge_calibration import (
     ANSWER_RELEVANCE_RUBRIC,
     GROUNDEDNESS_RUBRIC,
 )
-from evals.harness.models import TeamCaseInput, TeamCaseOutput
 
 
 class LiveJudgeInput(BaseModel):

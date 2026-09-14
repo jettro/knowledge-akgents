@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from evals.datasets.change_aware_ingestion import (
+from evals.scenarios.change_aware_ingestion import (
     CHANGE_AWARE_URL,
     build_change_aware_ingestion_dataset,
 )

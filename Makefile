@@ -5,12 +5,13 @@
 	eval-unreachable-url eval-routing eval-change-aware-ingestion \
 	eval-production-ingestion eval-production-jettro eval-production-yuma \
 	eval-production-e2e eval-dataset \
+	eval-live-dataset \
 	status reset-storage reset-and-up up down logs build clean
 
 EVAL_TIMEOUT ?= 180
 EVAL_FLAGS ?=
 EVAL_REPORT ?= eval-reports/production-e2e.json
-DATASET ?= evals/datasets/retrieval_only.json
+SYSTEM_URL ?= http://localhost:8000
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -51,7 +52,7 @@ test-evals: ## Run deterministic evaluation harness tests (no network/LLM)
 		tests/test_prompt_injection_scenario.py tests/test_no_useful_content_scenario.py \
 		tests/test_unreachable_url_scenario.py tests/test_routing_dataset.py \
 		tests/test_change_aware_web.py tests/test_change_aware_ingestion_dataset.py \
-		tests/test_trace_context.py
+		tests/test_trace_context.py tests/test_events.py tests/test_running_system.py
 
 eval-ingestion: ## Run the paid fixed-fixture Jettro ingestion evaluation
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
@@ -105,9 +106,16 @@ eval-production-e2e: ## Run Jettro + Yuma production E2E and save one report
 		--timeout $(EVAL_TIMEOUT) --verbose-output \
 		--save-report $(EVAL_REPORT) $(EVAL_FLAGS)
 
-eval-dataset: ## Run any self-contained project JSON dataset
+eval-dataset: DATASET ?= evals/datasets/retrieval_only.json
+eval-dataset: ## Run any controlled-fixture JSON dataset
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \
 		--dataset $(DATASET) --timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
+
+eval-live-dataset: ## Run JSON cases through the already-running application
+	@test -n "$(DATASET)" || (echo "Set DATASET=evals/datasets/<file>.json" && exit 2)
+	uv run python -m evals.runners.evaluate \
+		--dataset $(DATASET) --system-url $(SYSTEM_URL) \
+		--timeout $(EVAL_TIMEOUT) $(EVAL_FLAGS)
 
 eval-retrieval: ## Run the paid retrieval and missing-knowledge cases once
 	AKGENTIC_QDRANT_URL='' uv run python -m evals.runners.evaluate \

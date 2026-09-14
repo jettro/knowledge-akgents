@@ -145,6 +145,19 @@ Run any self-contained retrieval dataset definition without adding Python:
 make eval-dataset DATASET=evals/datasets/retrieval_only.json
 ```
 
+To evaluate facts already ingested into the configured production Qdrant
+collection, use a JSON dataset with
+`"knowledge": {"source": "running_system"}`:
+
+```bash
+make eval-live-dataset \
+  DATASET=evals/datasets/new_page.json \
+  EVAL_FLAGS="--save-report eval-reports/new-page.json"
+```
+
+This sends cases through the already-running production application and its
+real `search_graph` tool. It does not ingest the page; populate Qdrant first.
+
 Three additional targets load the exact production catalog team. They keep
 Qdrant and URL-ingestion state isolated, but use the production web tool and
 therefore make real Tavily calls as well as paid model calls:
@@ -226,8 +239,9 @@ src/knowledge_akgents/   settings, catalog loading, events bridge, team runtime,
 config/catalog/          production and evaluation akgentic-catalog namespaces
 evals/harness/           reusable application-to-Pydantic-Evals execution plumbing
 evals/evaluators/        Knowledge Akgents correctness and quality checks
-evals/datasets/          JSON definitions and Python scenarios to evaluate
+evals/datasets/          JSON case definitions, schema, and authoring README
 evals/fixtures/          controlled web-page content for specialized scenarios
+evals/scenarios/         Python orchestration for multi-turn and failure scenarios
 evals/runners/           command-line experiment entry points
 eval-viewer/             local static viewer for saved evaluation reports
 docs/                    contributor help organized by topic

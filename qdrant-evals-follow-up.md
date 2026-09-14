@@ -113,8 +113,8 @@ The relevant files are:
 - `evals/runners/evaluate.py` — persistent-store safety check;
 - `src/knowledge_akgents/team.py` — team and tool wiring;
 - `src/knowledge_akgents/tools.py` — production vector and graph tool cards;
-- `evals/datasets/jettro_scenario.py` — fixed-fixture end-to-end scenario;
-- `evals/datasets/yuma_scenario.py` — fixed-fixture end-to-end scenario.
+- `evals/scenarios/jettro_scenario.py` — fixed-fixture end-to-end scenario;
+- `evals/scenarios/yuma_scenario.py` — fixed-fixture end-to-end scenario.
 
 The retrieval-only dataset injects a fixture-backed `search_graph` tool and
 therefore does not exercise Qdrant. The Jettro and Yuma ingestion scenarios are

@@ -28,12 +28,29 @@ make eval-retrieval
 These commands require model credentials and make paid calls. The standard
 targets force in-memory knowledge storage and do not export to Logfire.
 
-Run any self-contained retrieval dataset definition without registering a
-Python scenario:
+Run a JSON dataset against controlled records:
 
 ```bash
 make eval-dataset DATASET=evals/datasets/people.json
 ```
+
+Run JSON cases through the already-running production application and its
+Qdrant-backed knowledge tool:
+
+```bash
+make eval-live-dataset \
+  DATASET=evals/datasets/new_page.json \
+  EVAL_FLAGS="--save-report eval-reports/new-page.json"
+```
+
+The dataset must declare `"knowledge": {"source": "running_system"}`. This
+path sends questions through the running application's WebSocket API. It does
+not ingest or preload knowledge and expects the required page to have been
+ingested already.
+
+Use `SYSTEM_URL=...` for a backend not running at `http://localhost:8000`.
+Avoid concurrent chat activity during the run because the current application
+event stream is broadcast rather than session-scoped.
 
 Select one case:
 
@@ -72,6 +89,19 @@ make eval-retrieval \
 
 Raw reports are gitignored because they can contain prompts, answers, retrieved
 evidence, and tool arguments.
+
+The command-line table is the immediate evaluation result. Each assertion is
+produced by either a shared behavioral evaluator (completion, route, real tool
+use, tool success, forbidden writes) or a case-specific answer evaluator from
+the JSON. Save the report when the result needs to be reviewed, compared, or
+shared locally:
+
+```bash
+make eval-live-dataset \
+  DATASET=evals/datasets/new_page.json \
+  EVAL_FLAGS="--save-report eval-reports/new-page.json"
+make eval-viewer
+```
 
 Logfire export is explicit:
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from evals.datasets.jettro_ingestion import build_jettro_ingestion_dataset
+from evals.scenarios.jettro_ingestion import build_jettro_ingestion_dataset
 from evals.evaluators.events import CalledRequiredTools, ToolCallsSucceeded
 
 

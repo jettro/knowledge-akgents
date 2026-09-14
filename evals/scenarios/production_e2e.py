@@ -1,4 +1,4 @@
-"""Combined Jettro and Yuma production end-to-end scenarios."""
+"""Executable combined Jettro and Yuma production end-to-end scenarios."""
 
 from __future__ import annotations
 
@@ -6,9 +6,9 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.datasets.jettro_scenario import build_jettro_scenario_dataset
-from evals.datasets.yuma_scenario import build_yuma_scenario_dataset
 from evals.harness.models import TeamCaseInput, TeamCaseOutput
+from evals.scenarios.jettro_scenario import build_jettro_scenario_dataset
+from evals.scenarios.yuma_scenario import build_yuma_scenario_dataset
 
 
 def build_production_e2e_dataset(

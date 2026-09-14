@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from evals.datasets.no_useful_content_scenario import (
+from evals.scenarios.no_useful_content import (
     FIXTURE_PATH,
     NO_USEFUL_CONTENT_URL,
     build_no_useful_content_scenario_dataset,

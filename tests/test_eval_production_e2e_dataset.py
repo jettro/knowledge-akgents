@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from evals.datasets.production_e2e import build_production_e2e_dataset
+from evals.scenarios.production_e2e import build_production_e2e_dataset
 
 
 def test_production_e2e_dataset_combines_jettro_and_yuma() -> None:

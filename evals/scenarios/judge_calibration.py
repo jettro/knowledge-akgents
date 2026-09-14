@@ -1,4 +1,4 @@
-"""Human-labeled cases for calibrating an LLM answer-quality judge."""
+"""Executable human-labeled cases for calibrating an answer-quality judge."""
 
 from __future__ import annotations
 

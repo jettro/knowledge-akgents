@@ -2008,7 +2008,7 @@ vocabulary references are rejected.
 
 The generic JSON dataset loader owns shared retrieval policy: completion, routing,
 required/forbidden tools, search-call success, and conversion into Pydantic
-Evals cases. `evals/datasets/retrieval_only.py` is now only a compatibility
+Evals cases. `evals/scenarios/retrieval_only.py` is now only a compatibility
 wrapper selecting the built-in definition. Adding another retrieval dataset
 requires only one JSON file and
 `make eval-dataset DATASET=evals/datasets/<name>.json`.
@@ -2109,6 +2109,34 @@ evaluation fixture loader itself uses the Python standard library JSON parser
 and needs no YAML dependency or type stubs. Pydantic Evals remains
 evaluation-only and should remain compatible with the Pydantic AI version
 selected by Akgentic rather than relying on a transitive installation.
+
+### Data-only datasets and running-system evaluation
+
+The public dataset authoring surface is now intentionally data-only.
+`evals/datasets/` contains JSON definitions, `schema.json`, and a short
+authoring README. Generic loading belongs to `evals/harness/dataset_loader.py`;
+Python state machines for multi-turn ingestion, controlled failures, routing,
+and judge calibration belong to `evals/scenarios/`.
+
+Version 2 JSON definitions select their knowledge boundary explicitly:
+
+- `knowledge.source="fixtures"` starts the evaluation team with controlled
+  records;
+- `knowledge.source="running_system"` sends questions through the live
+  application's WebSocket endpoint.
+
+The running-system path is required for evaluating already-ingested Qdrant
+content. A separately constructed production team receives a different team
+ID, while Qdrant points are team-scoped, so it would not reliably see the
+application's data. The live adapter records routes, tool calls, correlated
+returns, retrieved evidence, model usage, errors, and final responses from the
+application event stream. It does not replace the knowledge tool or ingest
+content.
+
+`evals/datasets/rag4j_documentation.json` is the first concrete acceptance
+dataset for this tier. It derives reviewed expected facts from
+`https://rag4j.org/documentation/` and separately evaluates retrieved
+`search_graph` evidence and final-answer wording.
 
 Suggested commands:
 

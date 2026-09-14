@@ -5,9 +5,10 @@ There are four distinct layers. Only three are implemented in this repository.
 | Layer | Location | Responsibility |
 |---|---|---|
 | Pydantic Evals framework | Installed `pydantic-evals` package | `Dataset`, `Case`, experiment execution, reports, spans, and evaluator APIs |
-| Knowledge Akgents harness | `evals/harness/` | Starts teams, injects controlled tools, collects events, loads JSON datasets, and saves reports |
+| Knowledge Akgents harness | `evals/harness/` | Starts teams, optionally injects controlled tools, collects events, loads JSON datasets, and saves reports |
 | Application evaluation policy | `evals/evaluators/` | Defines what correct Knowledge Akgents routing, tool usage, and answers mean |
-| Evaluation content | `evals/datasets/` and `evals/fixtures/` | Defines the cases and controlled source material to evaluate |
+| Evaluation content | `evals/datasets/` and `evals/fixtures/` | JSON case definitions and raw controlled web content |
+| Executable scenarios | `evals/scenarios/` | Python orchestration for multi-turn ingestion, failures, and state transitions |
 
 Command-line entry points live separately in `evals/runners/`.
 
@@ -23,15 +24,15 @@ Evaluation data describes scenarios and expected outcomes:
 - human labels used to calibrate judges;
 - metadata such as `canonical`, `paraphrase`, or `negative-control`.
 
-Ordinary retrieval dataset definitions live as self-contained JSON files under
-`evals/datasets/`. One file contains Pydantic Evals case data plus named
-knowledge fixtures, vocabularies, metadata, and allow-listed evaluator
-settings. Adding another retrieval dataset does not require a Python module or
-runner registration.
+`evals/datasets/` is deliberately data-only. It contains JSON case definitions,
+its JSON Schema, and a short authoring README. A dataset selects either
+controlled fixture records or an already-populated real knowledge store.
+Adding another retrieval dataset does not require a Python module or runner
+registration.
 
 Specialized multi-turn ingestion, failure, and change-detection scenarios still
-live under `evals/datasets/` because their ordered tool-state transitions are
-not yet part of the generic fixture schema.
+live under `evals/scenarios/` because their ordered tool-state transitions are
+executable orchestration rather than dataset content.
 
 In this repository, the terms mean:
 
@@ -50,6 +51,7 @@ This repository supplies the domain-specific behavior that Pydantic Evals does
 not know about:
 
 - `evals/harness/tasks.py` starts a `KnowledgeTeam` for a case;
+- `evals/harness/dataset_loader.py` validates JSON and selects fixture or real-store execution;
 - `evals/harness/catalog.py` selects the evaluation or production catalog team and
   applies deterministic fixture tools only to the evaluation team;
 - `evals/harness/collector.py` converts Akgentic events into a stable result;
@@ -61,7 +63,7 @@ not know about:
 
 Change `harness/` when execution or evidence collection changes. Change
 `evaluators/` when the definition of correct application behavior changes.
-Ordinary new cases should require changes only under `datasets/`.
+Ordinary new retrieval cases should require changes only under `datasets/`.
 
 ## Pydantic Evals framework
 
@@ -98,8 +100,13 @@ becoming part of the production team configuration.
 
 ## Evaluation tiers
 
-The default tier loads `knowledge-akgents-evaluation` and uses case fixtures.
-It is repeatable apart from model behavior and does not call Tavily.
+Fixture JSON loads `knowledge-akgents-evaluation` and replaces its read-only
+knowledge tool with controlled records. It is repeatable apart from model
+behavior and does not call Tavily.
+
+Running-system JSON sends questions through the live backend WebSocket. The
+already-running production team queries its own Qdrant-scoped data with the
+real `search_graph` tool. The page must already have been ingested.
 
 The production end-to-end tier loads
 `knowledge-akgents-production` unchanged. It uses temporary ingestion state and

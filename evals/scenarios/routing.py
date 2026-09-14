@@ -1,4 +1,4 @@
-"""Routing cases for manager and direct-specialist behavior."""
+"""Executable routing cases for manager and direct-specialist behavior."""
 
 from __future__ import annotations
 
@@ -6,10 +6,6 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.datasets.jettro_ingestion import FIXTURE_PATH as JETTRO_FIXTURE_PATH
-from evals.datasets.jettro_ingestion import JETTRO_ABOUT_URL
-from evals.datasets.json_loader import load_dataset_definition
-from evals.datasets.retrieval_only import DATASET_PATH
 from evals.evaluators.events import (
     CalledRequiredTools,
     CompletedSuccessfully,
@@ -21,9 +17,19 @@ from evals.evaluators.events import (
     ToolCallCount,
     ToolCallsSucceeded,
 )
+from evals.harness.dataset_loader import (
+    FixtureKnowledgeDefinition,
+    load_dataset_definition,
+)
 from evals.harness.models import TeamCaseInput, TeamCaseOutput
+from evals.scenarios.jettro_ingestion import FIXTURE_PATH as JETTRO_FIXTURE_PATH
+from evals.scenarios.jettro_ingestion import JETTRO_ABOUT_URL
+from evals.scenarios.retrieval_only import DATASET_PATH
 
-KNOWLEDGE_FIXTURE = load_dataset_definition(DATASET_PATH).fixtures["pilot"]
+_RETRIEVAL_DEFINITION = load_dataset_definition(DATASET_PATH)
+if not isinstance(_RETRIEVAL_DEFINITION.knowledge, FixtureKnowledgeDefinition):
+    raise ValueError("The routing scenario requires fixture knowledge")
+KNOWLEDGE_FIXTURE = _RETRIEVAL_DEFINITION.knowledge.fixtures["pilot"]
 
 
 def build_routing_dataset(
