@@ -62,14 +62,26 @@ make web                                     # static UI on :8080
 
 ### Imported URLs
 
-Every URL sent to `@WebIngest` is recorded in a small local cache — `data/urls.json` —
-separate from the knowledge graph itself. Alongside submission history, it stores a
-normalized hash of the last successfully ingested Tavily content. When a later fetch
-produces the same hash, `@WebIngest` skips extraction and graph updates. Ask explicitly to
-**force re-ingestion** to bypass that check. A new hash is committed only after the graph
-update succeeds, so a failed refresh does not replace the last known successful state.
-The frontend shows the submitted URLs in the **Imported URLs** panel (fetched from
-`GET /api/urls`).
+Every URL sent to `@WebIngest` is recorded under
+`data/teams/<runtime-team-id>/urls.json`, separate from the knowledge graph itself.
+Alongside submission history, it stores a normalized hash of the last successfully
+ingested Tavily content. When a later fetch produces the same hash, `@WebIngest` skips
+extraction and graph updates. Ask explicitly to **force re-ingestion** to bypass that
+check. A new hash is committed only after the graph update succeeds, so a failed refresh
+does not replace the last known successful state. The frontend shows the active team's
+submitted URLs in the **Imported URLs** panel (fetched from `GET /api/urls`).
+
+### Persistent teams
+
+The backend persists team lifecycle state, events, and agent snapshots with
+`TeamManager` and `YamlEventStore`. `data/active-team.json` records the selected runtime
+UUID. A normal restart stops and resumes that same team, so its Qdrant-scoped knowledge
+and imported URLs remain visible.
+
+The **Teams** screen separates reusable catalog definitions from persisted runtime
+instances. Select **Activate** to switch to an existing knowledge scope, or **Create
+instance** to start a separate scope from a catalog definition. Only one instance is
+active at a time, and the last active instance is loaded automatically after restart.
 
 The **Settings** page reports whether the runtime uses persistent Qdrant or the
 in-memory backend, whether the configured Qdrant endpoint is reachable, the
@@ -85,8 +97,9 @@ This is a hash of Tavily's query-filtered extracted text, not of the origin page
 The Tavily request still happens, and a materially different extraction query or result
 may cause reprocessing even when the underlying page did not change.
 
-Do not reset only `data/urls.json` or only Qdrant: that leaves ingestion history and
-stored knowledge inconsistent. For the Docker stack, clear both named volumes together:
+Do not reset only `data/teams/` or only Qdrant: that leaves team lifecycle, ingestion
+history, and stored knowledge inconsistent. For the Docker stack, clear both named
+volumes together:
 
 ```bash
 make status        # inspect backend, Qdrant, URL counts, and synchronization
@@ -234,8 +247,8 @@ scheduled, not run on every pull request.
 ## Project layout
 
 ```
-src/knowledge_akgents/   settings, catalog loading, events bridge, team runtime, FastAPI app
-                         (repository.py tracks imported URLs in data/urls.json)
+src/knowledge_akgents/   settings, catalog loading, events bridge, persistent team runtime,
+                         FastAPI app, and team-scoped imported URL tracking
 config/catalog/          production and evaluation akgentic-catalog namespaces
 evals/harness/           reusable application-to-Pydantic-Evals execution plumbing
 evals/evaluators/        Knowledge Akgents correctness and quality checks

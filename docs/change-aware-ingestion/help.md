@@ -7,7 +7,9 @@ request support, so the Tavily extraction request still occurs.
 
 ## Stored state
 
-`data/urls.json` keeps submission history separately from ingestion state:
+`data/teams/<runtime-team-id>/urls.json` keeps submission history separately
+from ingestion state. Each persisted team therefore has URL ownership records
+that match its Qdrant `team_id` scope:
 
 - when the URL was last submitted and checked;
 - the hash and timestamp of the last successful ingestion;
@@ -16,8 +18,8 @@ request support, so the Tavily extraction request still occurs.
 - entity names and relation triples attributed to the last successful version;
 - optional ETag and Last-Modified fields reserved for future retrieval support.
 
-Old `urls.json` files remain valid. Missing fields receive safe defaults when
-they are loaded.
+Missing fields in an existing team-scoped `urls.json` receive safe defaults
+when the file is loaded.
 
 ## Ingestion sequence
 

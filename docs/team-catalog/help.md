@@ -9,6 +9,11 @@ Both are loaded with `Catalog(YamlEntryRepository(...)).load_team(...)`, which
 returns the native Akgentic `TeamCard` consumed by `KnowledgeTeam` and
 `TeamFactory`. The application does not maintain a parallel catalog schema.
 
+Catalog namespaces are reusable team definitions, not persisted runtime
+instances. The plan for preserving runtime identity, resuming a team, and
+selecting among instances is documented in
+[Persistent and selectable teams](../persistent-teams/help.md).
+
 ## Namespace topology
 
 The production namespace contains:

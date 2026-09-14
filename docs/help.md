@@ -17,6 +17,9 @@ to extend it.
   content hashes, unchanged skips, commits, failures, and force requests work.
 - [Team catalog](team-catalog/help.md): `akgentic-catalog` entries,
   references, runtime bindings, and the Akgentic `TeamCard` boundary.
+- [Persistent and selectable teams](persistent-teams/help.md): how catalog
+  definitions map to persisted runtime instances, stable Qdrant identity, team
+  selection, and the proposed implementation sequence.
 - [Actor trace-context propagation](trace-context/help.md): how evaluation,
   OpenTelemetry, model, and tool spans remain connected across local actor
   threads.

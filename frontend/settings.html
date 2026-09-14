@@ -22,6 +22,10 @@
             <span class="tab-icon" aria-hidden="true">⌁</span>
             Settings
           </a>
+          <a data-backend-link href="teams.html">
+            <span class="tab-icon" aria-hidden="true">◎</span>
+            Teams
+          </a>
         </nav>
         <div id="api-status" class="status offline">checking…</div>
       </div>
@@ -62,6 +66,24 @@
             <div><dt>Graph points</dt><dd id="qdrant-points">—</dd></div>
           </dl>
           <p id="qdrant-error" class="card-note error-text" hidden></p>
+        </article>
+
+        <article class="settings-card">
+          <div class="card-heading">
+            <div class="card-title">
+              <span class="card-icon team-icon" aria-hidden="true">ID</span>
+              <div>
+                <p>Runtime</p>
+                <h3>Active team</h3>
+              </div>
+            </div>
+            <span id="team-status" class="pill neutral">loading</span>
+          </div>
+          <dl>
+            <div><dt>Definition</dt><dd id="team-namespace">—</dd></div>
+            <div><dt>Runtime ID</dt><dd id="team-id">—</dd></div>
+            <div><dt>Created</dt><dd id="team-created">—</dd></div>
+          </dl>
         </article>
 
         <article class="settings-card">

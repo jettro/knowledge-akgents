@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import uuid
 from typing import Any
+from uuid import uuid4
 
 from akgentic.core import ActorAddressProxy
 from akgentic.core.messages.orchestrator import EventMessage
@@ -77,3 +78,26 @@ def test_bridge_publishes_correlated_tool_and_usage_events() -> None:
     assert published[0]["tool_call_id"] == "call-1"
     assert published[1]["tool_call_id"] == "call-1"
     assert published[1]["success"] is True
+
+
+def test_bridge_suppresses_replayed_events_during_team_restore() -> None:
+    published: list[dict[str, Any]] = []
+    bridge = WebEventBridge(published.append)
+    team_id = uuid4()
+    message = EventMessage(
+        team_id=team_id,
+        sender=_address("@Knowledge"),
+        event=ToolCallEvent(
+            run_id="run-1",
+            tool_name="search_graph",
+            tool_call_id="call-1",
+            arguments="{}",
+        ),
+    )
+
+    bridge.set_restoring(team_id, True)
+    bridge.on_message(message)
+    bridge.set_restoring(team_id, False)
+    bridge.on_message(message)
+
+    assert [event["kind"] for event in published] == ["tool_call"]

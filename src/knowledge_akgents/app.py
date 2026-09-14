@@ -11,17 +11,19 @@ from collections.abc import AsyncIterator
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
+from uuid import UUID
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
-from knowledge_akgents.catalog import load_production_team_card
-from knowledge_akgents.repository import UrlRecord, UrlRepository
+from knowledge_akgents.catalog import list_team_definitions
+from knowledge_akgents.repository import UrlRecord
 from knowledge_akgents.settings import settings
 from knowledge_akgents.storage_status import storage_status
-from knowledge_akgents.team import KnowledgeTeam
+from knowledge_akgents.team import ManagedKnowledgeTeams, process_dict
 
 logging.basicConfig(level=logging.INFO, format="%(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("knowledge_akgents")
@@ -58,8 +60,7 @@ class ConnectionManager:
 
 
 manager = ConnectionManager()
-team = KnowledgeTeam(load_production_team_card())
-url_repository = UrlRepository(settings.urls_file)
+team = ManagedKnowledgeTeams(settings)
 
 _URL_RE = re.compile(r"https?://[^\s<>\"'\[\]{}]+")
 
@@ -96,18 +97,96 @@ async def api_info() -> JSONResponse:
             "model": settings.llm_model,
             "qdrant": settings.qdrant_enabled,
             "roster": team.roster(),
+            "team": process_dict(team.active_process, active=True),
         }
     )
 
 
 @app.get("/api/team")
 async def get_team() -> JSONResponse:
-    return JSONResponse({"members": team.roster()})
+    return JSONResponse(
+        {
+            "members": team.roster(),
+            "team": process_dict(team.active_process, active=True),
+        }
+    )
+
+
+class CreateTeamRequest(BaseModel):
+    catalog_namespace: str
+
+
+@app.get("/api/team-definitions")
+async def get_team_definitions() -> JSONResponse:
+    return JSONResponse({"definitions": list_team_definitions()})
+
+
+@app.get("/api/team-instances")
+async def get_team_instances() -> JSONResponse:
+    active_id = team.id
+    return JSONResponse(
+        {
+            "active_team_id": str(active_id),
+            "instances": [
+                process_dict(process, active=process.team_id == active_id)
+                for process in team.list_instances()
+            ],
+        }
+    )
+
+
+@app.post("/api/team-instances")
+async def create_team_instance(request: CreateTeamRequest) -> JSONResponse:
+    definitions = {
+        definition["namespace"] for definition in list_team_definitions()
+    }
+    if request.catalog_namespace not in definitions:
+        raise HTTPException(status_code=404, detail="Catalog team definition not found")
+    try:
+        process = await asyncio.to_thread(
+            team.create_and_activate,
+            request.catalog_namespace,
+        )
+    except Exception as exc:
+        logger.exception("Could not create team from %s", request.catalog_namespace)
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    manager.publish_threadsafe(
+        {
+            "kind": "team_changed",
+            "team": process_dict(process, active=True),
+            "roster": team.roster(),
+        }
+    )
+    return JSONResponse(process_dict(process, active=True), status_code=201)
+
+
+@app.post("/api/team-instances/{team_id}/activate")
+async def activate_team_instance(team_id: UUID) -> JSONResponse:
+    try:
+        process = await asyncio.to_thread(team.activate, team_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        logger.exception("Could not activate team %s", team_id)
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    manager.publish_threadsafe(
+        {
+            "kind": "team_changed",
+            "team": process_dict(process, active=True),
+            "roster": team.roster(),
+        }
+    )
+    return JSONResponse(process_dict(process, active=True))
 
 
 @app.get("/api/system/status")
 async def get_system_status() -> JSONResponse:
-    storage = await asyncio.to_thread(storage_status, settings, url_repository)
+    storage = await asyncio.to_thread(
+        storage_status,
+        settings,
+        team.url_repository,
+        team.id,
+    )
     return JSONResponse(
         {
             "service": "knowledge-akgents",
@@ -122,6 +201,7 @@ async def get_system_status() -> JSONResponse:
             },
             "storage": storage,
             "roster": team.roster(),
+            "team": process_dict(team.active_process, active=True),
         }
     )
 
@@ -129,14 +209,23 @@ async def get_system_status() -> JSONResponse:
 @app.get("/api/urls")
 async def get_urls() -> JSONResponse:
     """URLs previously submitted for ingestion, most recent first."""
-    return JSONResponse({"urls": [asdict(record) for record in url_repository.list()]})
+    return JSONResponse(
+        {"urls": [asdict(record) for record in team.url_repository.list()]}
+    )
 
 
 @app.websocket("/ws/chat")
 async def ws_chat(ws: WebSocket) -> None:
     await ws.accept()
     q = manager.register()
-    await ws.send_json({"kind": "system", "content": "connected", "roster": team.roster()})
+    await ws.send_json(
+        {
+            "kind": "system",
+            "content": "connected",
+            "roster": team.roster(),
+            "team": process_dict(team.active_process, active=True),
+        }
+    )
 
     async def pump_out() -> None:
         while True:
@@ -197,7 +286,7 @@ def _extract_urls(text: str) -> list[str]:
 def _track_url_single(url: str) -> UrlRecord | None:
     """Record a single URL and broadcast its import to connected web clients."""
     try:
-        record = url_repository.add(url)
+        record = team.url_repository.add(url)
         manager.publish_threadsafe({"kind": "url_imported", "record": asdict(record)})
         return record
     except Exception:  # pragma: no cover - defensive, must never break ingestion
@@ -240,5 +329,6 @@ else:
                 "model": settings.llm_model,
                 "qdrant": settings.qdrant_enabled,
                 "roster": team.roster(),
+                "team": process_dict(team.active_process, active=True),
             }
         )

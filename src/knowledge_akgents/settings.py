@@ -55,5 +55,16 @@ class Settings(BaseSettings):
     def urls_file(self) -> Path:
         return Path(self.data_dir) / "urls.json"
 
+    @property
+    def team_data_dir(self) -> Path:
+        return Path(self.data_dir) / "teams"
+
+    @property
+    def active_team_file(self) -> Path:
+        return Path(self.data_dir) / "active-team.json"
+
+    def urls_file_for(self, team_id: object) -> Path:
+        return self.team_data_dir / str(team_id) / "urls.json"
+
 
 settings = Settings()

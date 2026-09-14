@@ -8,6 +8,7 @@ from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit, urlunsplit
 from urllib.request import Request, urlopen
+from uuid import UUID
 
 from knowledge_akgents.repository import UrlRepository
 from knowledge_akgents.settings import Settings
@@ -24,7 +25,11 @@ class CollectionStatus:
     indexed_vectors_count: int | None = None
 
 
-def storage_status(settings: Settings, repository: UrlRepository) -> dict[str, Any]:
+def storage_status(
+    settings: Settings,
+    repository: UrlRepository,
+    team_id: UUID | None = None,
+) -> dict[str, Any]:
     """Return sanitized storage configuration, connectivity, and consistency hints."""
     records = repository.list()
     tracked_urls = len(records)
@@ -61,6 +66,7 @@ def storage_status(settings: Settings, repository: UrlRepository) -> dict[str, A
         collection = _get_collection_status(
             settings.akgentic_qdrant_url,
             settings.akgentic_qdrant_api_key,
+            team_id,
         )
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         return {
@@ -104,7 +110,11 @@ def storage_status(settings: Settings, repository: UrlRepository) -> dict[str, A
     }
 
 
-def _get_collection_status(url: str, api_key: str) -> CollectionStatus:
+def _get_collection_status(
+    url: str,
+    api_key: str,
+    team_id: UUID | None = None,
+) -> CollectionStatus:
     endpoint = f"{url.rstrip('/')}/collections/{KNOWLEDGE_GRAPH_COLLECTION}"
     headers = {"api-key": api_key} if api_key else {}
     request = Request(endpoint, headers=headers)
@@ -121,13 +131,48 @@ def _get_collection_status(url: str, api_key: str) -> CollectionStatus:
     result = payload.get("result")
     if not isinstance(result, dict):
         raise ValueError("Qdrant collection response did not contain a result object")
+    points_count = _get_team_points_count(url, api_key, team_id) if team_id else result.get(
+        "points_count"
+    )
     return CollectionStatus(
         name=KNOWLEDGE_GRAPH_COLLECTION,
         exists=True,
         status=_optional_string(result.get("status")),
-        points_count=_optional_int(result.get("points_count")),
+        points_count=_optional_int(points_count),
         indexed_vectors_count=_optional_int(result.get("indexed_vectors_count")),
     )
+
+
+def _get_team_points_count(url: str, api_key: str, team_id: UUID) -> int:
+    endpoint = f"{url.rstrip('/')}/collections/{KNOWLEDGE_GRAPH_COLLECTION}/points/count"
+    headers = {"Content-Type": "application/json"}
+    if api_key:
+        headers["api-key"] = api_key
+    body = json.dumps(
+        {
+            "exact": True,
+            "filter": {
+                "must": [
+                    {
+                        "key": "team_id",
+                        "match": {"value": str(team_id)},
+                    }
+                ]
+            },
+        }
+    ).encode()
+    request = Request(endpoint, data=body, headers=headers, method="POST")
+    try:
+        with urlopen(request, timeout=2) as response:
+            payload = json.loads(response.read())
+    except HTTPError as exc:
+        raise OSError(f"Qdrant returned HTTP {exc.code} while counting team points") from exc
+    except URLError as exc:
+        raise OSError(f"Could not connect to Qdrant: {exc.reason}") from exc
+    result = payload.get("result")
+    if not isinstance(result, dict) or not isinstance(result.get("count"), int):
+        raise ValueError("Qdrant point-count response did not contain a count")
+    return result["count"]
 
 
 def _synchronization_status(

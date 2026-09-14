@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from typing import Any
+from uuid import UUID
 
 from akgentic.core import EventSubscriber
 from akgentic.core.messages import Message
@@ -52,10 +53,16 @@ class WebEventBridge(EventSubscriber):
 
     def __init__(self, publish: Publish) -> None:
         self._publish = publish
+        self._restoring: set[UUID] = set()
 
     # --- EventSubscriber protocol -------------------------------------------------
     def set_restoring(self, team_id: Any, restoring: bool) -> None:  # noqa: FBT001
-        pass
+        if not isinstance(team_id, UUID):
+            return
+        if restoring:
+            self._restoring.add(team_id)
+        else:
+            self._restoring.discard(team_id)
 
     def on_stop(self, team_id: Any) -> None:
         pass
@@ -64,6 +71,8 @@ class WebEventBridge(EventSubscriber):
         pass
 
     def on_message(self, message: Message) -> None:
+        if message.team_id in self._restoring:
+            return
         sender = getattr(getattr(message, "sender", None), "name", None)
         if sender in _EXCLUDED_SENDERS:
             return

@@ -44,7 +44,11 @@ function addMessage(kind, who, content) {
 function render(data) {
   switch (data.kind) {
     case "system":
-      addMessage("system", null, `${data.content}${data.roster ? " · team: " + data.roster.join(", ") : ""}`);
+      addMessage(
+        "system",
+        null,
+        `${data.content}${data.team ? " · " + (data.team.catalog_namespace || data.team.name) : ""}${data.roster ? " · agents: " + data.roster.join(", ") : ""}`,
+      );
       break;
     case "message": {
       const arrow = data.recipient ? ` → ${data.recipient}` : "";
@@ -56,6 +60,10 @@ function render(data) {
       break;
     case "url_imported":
     case "urls_updated":
+      void loadUrls();
+      break;
+    case "team_changed":
+      addMessage("system", null, `Active team changed to ${data.team.catalog_namespace || data.team.name}.`);
       void loadUrls();
       break;
     case "tool_return":

@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
+from uuid import UUID
 
 
 def test_parse_plain_text() -> None:
@@ -70,7 +73,8 @@ def test_api_urls_endpoint(tmp_path: Any, monkeypatch: Any) -> None:
 
     temp_repo = UrlRepository(tmp_path / "urls.json")
     temp_repo.add("https://test.com/sample")
-    monkeypatch.setattr(app_module, "url_repository", temp_repo)
+    fake_team = _FakeManagedTeam(temp_repo)
+    monkeypatch.setattr(app_module, "team", fake_team)
 
     client = TestClient(app_module.app, raise_server_exceptions=False)
     response = client.get("/api/urls")
@@ -89,7 +93,7 @@ def test_system_status_endpoint(monkeypatch: Any) -> None:
     monkeypatch.setattr(
         app_module,
         "storage_status",
-        lambda settings, repository: {
+        lambda settings, repository, team_id: {
             "mode": "in_memory",
             "persistent": False,
             "qdrant": {"configured": False},
@@ -97,6 +101,7 @@ def test_system_status_endpoint(monkeypatch: Any) -> None:
             "synchronization": {"state": "not_verifiable"},
         },
     )
+    monkeypatch.setattr(app_module, "team", _FakeManagedTeam())
 
     client = TestClient(app_module.app, raise_server_exceptions=False)
     response = client.get("/api/system/status")
@@ -122,3 +127,66 @@ def test_cors_headers_present() -> None:
         },
     )
     assert response.headers.get("access-control-allow-origin") in ("*", "http://localhost:8080")
+
+
+def test_team_instances_endpoint_marks_active_team(monkeypatch: Any) -> None:
+    from fastapi.testclient import TestClient
+
+    from knowledge_akgents import app as app_module
+
+    fake_team = _FakeManagedTeam()
+    monkeypatch.setattr(app_module, "team", fake_team)
+    client = TestClient(app_module.app, raise_server_exceptions=False)
+
+    response = client.get("/api/team-instances")
+
+    assert response.status_code == 200
+    assert response.json()["instances"][0]["active"] is True
+
+
+def test_activate_team_instance(monkeypatch: Any) -> None:
+    from fastapi.testclient import TestClient
+
+    from knowledge_akgents import app as app_module
+
+    fake_team = _FakeManagedTeam()
+    monkeypatch.setattr(app_module, "team", fake_team)
+    client = TestClient(app_module.app, raise_server_exceptions=False)
+
+    response = client.post(f"/api/team-instances/{fake_team.id}/activate")
+
+    assert response.status_code == 200
+    assert response.json()["team_id"] == str(fake_team.id)
+    assert fake_team.activated == [fake_team.id]
+
+
+class _FakeProcess:
+    team_id = UUID("00000000-0000-0000-0000-000000000001")
+    catalog_namespace = "knowledge-akgents-production"
+    team_name = "knowledge-akgents-production"
+    team_description = None
+    status = type("Status", (), {"value": "running"})()
+    created_at = datetime.now(UTC)
+    updated_at = created_at
+
+
+class _FakeManagedTeam:
+    def __init__(self, repository: Any = None) -> None:
+        if repository is None:
+            from knowledge_akgents.repository import UrlRepository
+
+            repository = UrlRepository(Path("/tmp/not-read.json"))
+        self.url_repository = repository
+        self.id = _FakeProcess.team_id
+        self.active_process = _FakeProcess()
+        self.activated: list[UUID] = []
+
+    def roster(self) -> list[str]:
+        return ["@Manager"]
+
+    def list_instances(self) -> list[_FakeProcess]:
+        return [self.active_process]
+
+    def activate(self, team_id: UUID) -> _FakeProcess:
+        self.activated.append(team_id)
+        return self.active_process

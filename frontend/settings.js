@@ -62,6 +62,11 @@ function render(data) {
   setText("model-name", data.model.name);
   setText("model-configured", yesNo(data.model.configured));
   setText("web-configured", yesNo(data.web_search.configured));
+
+  setPill("team-status", data.team.status, data.team.status === "running" ? "good" : "warning");
+  setText("team-namespace", data.team.catalog_namespace || data.team.name);
+  setText("team-id", data.team.team_id);
+  setText("team-created", new Date(data.team.created_at).toLocaleString());
 }
 
 async function loadSettings() {

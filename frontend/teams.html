@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Teams · Knowledge Akgents</title>
+    <link rel="stylesheet" href="styles.css?v=4" />
+  </head>
+  <body class="settings-page">
+    <header class="app-header">
+      <div class="app-header-inner">
+        <a data-backend-link class="product-brand" href="/">
+          <span class="brand-mark" aria-hidden="true">K</span>
+          <span class="brand-name">Knowledge <strong>Akgents</strong></span>
+        </a>
+        <nav class="app-tabs" aria-label="Primary navigation">
+          <a data-backend-link href="/">
+            <span class="tab-icon" aria-hidden="true">◫</span>
+            Chat
+          </a>
+          <a data-backend-link href="settings.html">
+            <span class="tab-icon" aria-hidden="true">⌁</span>
+            Settings
+          </a>
+          <a data-backend-link class="active" href="teams.html">
+            <span class="tab-icon" aria-hidden="true">◎</span>
+            Teams
+          </a>
+        </nav>
+        <div id="api-status" class="status offline">checking…</div>
+      </div>
+    </header>
+
+    <main class="settings-main">
+      <div class="settings-heading">
+        <div>
+          <p class="eyebrow">Persistent runtime</p>
+          <h2>Team selection</h2>
+          <p>
+            Resume an existing knowledge scope or create a new instance from a
+            catalog definition.
+          </p>
+        </div>
+        <button id="teams-refresh" class="secondary-button" type="button">
+          <span aria-hidden="true">↻</span>
+          Refresh teams
+        </button>
+      </div>
+
+      <div id="teams-error" class="settings-error" hidden></div>
+
+      <section class="team-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Running identity</p>
+            <h3>Active team</h3>
+          </div>
+          <span id="active-team-status" class="pill neutral">loading</span>
+        </div>
+        <article id="active-team" class="active-team-card">
+          <p class="muted">Loading active team…</p>
+        </article>
+      </section>
+
+      <section class="team-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Saved knowledge scopes</p>
+            <h3>Team instances</h3>
+          </div>
+        </div>
+        <div id="team-instances" class="team-list" aria-live="polite"></div>
+      </section>
+
+      <section class="team-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Catalog blueprints</p>
+            <h3>Team definitions</h3>
+          </div>
+        </div>
+        <p class="section-copy">
+          Creating an instance starts with an empty team-specific knowledge scope.
+          Existing instances keep their own runtime ID and imported URLs.
+        </p>
+        <div id="team-definitions" class="team-list" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script type="module" src="teams.js?v=1"></script>
+  </body>
+</html>

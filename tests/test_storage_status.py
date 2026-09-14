@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
+from uuid import UUID
 
 from knowledge_akgents.repository import UrlRepository, hash_web_content
 from knowledge_akgents.settings import Settings
@@ -101,3 +102,34 @@ def test_nonempty_qdrant_and_ingested_urls_are_plausibly_synchronized(
     assert result["qdrant"]["reachable"] is True
     assert result["qdrant"]["collection"]["points_count"] == 12
     assert result["synchronization"]["state"] == "plausible"
+
+
+def test_qdrant_point_count_is_filtered_by_team(monkeypatch: Any) -> None:
+    import json
+
+    from knowledge_akgents.storage_status import _get_team_points_count
+
+    captured: dict[str, Any] = {}
+
+    class Response:
+        def __enter__(self) -> Response:
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return b'{"result": {"count": 7}}'
+
+    def fake_urlopen(request: Any, timeout: int) -> Response:
+        captured["url"] = request.full_url
+        captured["body"] = json.loads(request.data)
+        captured["timeout"] = timeout
+        return Response()
+
+    monkeypatch.setattr("knowledge_akgents.storage_status.urlopen", fake_urlopen)
+    team_id = UUID("00000000-0000-0000-0000-000000000123")
+
+    assert _get_team_points_count("http://qdrant:6333", "", team_id) == 7
+    assert captured["url"].endswith("/collections/knowledge_graph/points/count")
+    assert captured["body"]["filter"]["must"][0]["match"]["value"] == str(team_id)

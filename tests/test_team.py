@@ -7,6 +7,8 @@ key is injected before the team boots.
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 
@@ -72,3 +74,32 @@ def test_send_before_start_raises() -> None:
 
     with pytest.raises(RuntimeError):
         KnowledgeTeam(load_production_team_card()).send("hello")
+
+
+def test_active_team_store_round_trip(tmp_path) -> None:
+    from uuid import uuid4
+
+    from knowledge_akgents.team import ActiveTeamStore
+
+    path = tmp_path / "active-team.json"
+    store = ActiveTeamStore(path)
+    team_id = uuid4()
+
+    assert store.load() is None
+    store.save(team_id)
+
+    assert store.load() == team_id
+    assert json.loads(path.read_text()) == {"team_id": str(team_id)}
+
+
+def test_team_specific_url_paths_share_the_runtime_directory(tmp_path) -> None:
+    from uuid import uuid4
+
+    from knowledge_akgents.settings import Settings
+
+    settings = Settings(data_dir=str(tmp_path), _env_file=None)
+    team_id = uuid4()
+
+    assert settings.team_data_dir == tmp_path / "teams"
+    assert settings.active_team_file == tmp_path / "active-team.json"
+    assert settings.urls_file_for(team_id) == tmp_path / "teams" / str(team_id) / "urls.json"

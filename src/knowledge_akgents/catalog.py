@@ -9,6 +9,7 @@ from akgentic.agent import AgentConfig
 from akgentic.catalog import (
     Catalog,
     CatalogValidationError,
+    EntryQuery,
     YamlEntryRepository,
     allowed_prefixes,
     set_allowed_prefixes,
@@ -63,6 +64,21 @@ def load_production_agent_cards() -> dict[str, AgentCard]:
     """Return production cards keyed by configured agent name."""
     team_card = load_production_team_card()
     return team_card.agent_cards
+
+
+def list_team_definitions(*, root: Path = CATALOG_ROOT) -> list[dict[str, str]]:
+    """List catalog namespaces that contain a team definition."""
+    catalog = Catalog(YamlEntryRepository(root))
+    definitions = []
+    for entry in catalog.list(EntryQuery(kind="team")):
+        definitions.append(
+            {
+                "namespace": entry.namespace,
+                "name": entry.namespace,
+                "description": entry.description,
+            }
+        )
+    return sorted(definitions, key=lambda item: item["namespace"])
 
 
 def _bind_runtime_configuration(
