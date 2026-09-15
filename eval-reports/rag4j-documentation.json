@@ -1,0 +1,4395 @@
+{
+  "name": "rag4j_documentation-observability",
+  "cases": [
+    {
+      "name": "rag-system-components",
+      "inputs": {
+        "message": "What are the three main parts of the RAG system described by RAG4j/p?",
+        "target": null,
+        "turns": [],
+        "timeout_seconds": 240.0,
+        "fixture_source_url": null,
+        "fixture_path": null,
+        "fixture_paths": [],
+        "fixture_web_failure": null,
+        "knowledge_fixture": null,
+        "knowledge_fixture_path": null
+      },
+      "metadata": {
+        "source_url": "https://rag4j.org/documentation/",
+        "purpose": "post-ingestion-acceptance",
+        "topic": "overview",
+        "prompt_variant": "canonical",
+        "knowledge_source": "running_system"
+      },
+      "expected_output": null,
+      "output": {
+        "final_response": "RAG4j/p’s RAG system has three main parts: **retrieval**, **generation**, and **quality evaluation**. A question is used to retrieve relevant document chunks, those chunks are supplied as context to a generator, and the quality component evaluates both the retrieved chunks and the generated result.",
+        "human_responses": [
+          "RAG4j/p’s RAG system has three main parts: **retrieval**, **generation**, and **quality evaluation**. A question is used to retrieve relevant document chunks, those chunks are supplied as context to a generator, and the quality component evaluates both the retrieved chunks and the generated result."
+        ],
+        "completion_reason": "human_response",
+        "messages": [
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "What are the three main parts of the RAG system described by RAG4j/p?"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Knowledge",
+            "message_type": "request",
+            "content": "Please answer: What are the three main parts of the RAG system described by RAG4j/p? Use the shared knowledge base and return a concise answer with any relevant context."
+          },
+          {
+            "sender": "@Knowledge",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "RAG4j/p describes the RAG system as having three main parts: **retrieval**, **generation**, and **quality evaluation**. A user question is used to retrieve relevant document chunks, provide them as context to a generator, and assess the quality of the retrieved chunks and generated result. Sources: entity **Retrieval Augmented Generation (RAG)**; components **Retriever** and **Quality component**; relation **RAG4j/p —implements_components_for→ Retrieval Augmented Generation (RAG)** and **Quality component —evaluates→ Retrieval Augmented Generation (RAG)**."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "RAG4j/p’s RAG system has three main parts: **retrieval**, **generation**, and **quality evaluation**. A question is used to retrieve relevant document chunks, those chunks are supplied as context to a generator, and the quality component evaluates both the retrieved chunks and the generated result."
+          }
+        ],
+        "tool_calls": [
+          {
+            "run_id": "01a09e7b-76ac-7472-be97-bb46e21a5895",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_PF2WNedGXpIDgRMrC3Elvqb5",
+            "arguments_raw": "{}",
+            "arguments": {},
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09e7b-76ac-7472-be97-bb46e21a5895",
+            "tool_name": "read_mailbox",
+            "tool_call_id": "call_VXdoDJlF9DNHdTR1z7zfmfCb",
+            "arguments_raw": "{\"message_id\":\"? \"}",
+            "arguments": {
+              "message_id": "? "
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09e7b-76ac-7472-be97-bb46e21a5895",
+            "tool_name": "read_mailbox",
+            "tool_call_id": "call_0rSIRZYC4GlgGWBUc0H0g7fh",
+            "arguments_raw": "{\"message_id\":\"context-update-1\"}",
+            "arguments": {
+              "message_id": "context-update-1"
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09e7b-8f45-753a-98ab-c40dcf2b7e48",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_ticd5NM7Lx86qkD4dHvaOmZX",
+            "arguments_raw": "{\"query\":\"RAG4j/p three main parts of the RAG system\",\"top_k\":10,\"mode\":\"hybrid\",\"include_neighbors\":true,\"include_edges\":true}",
+            "arguments": {
+              "query": "RAG4j/p three main parts of the RAG system",
+              "top_k": 10,
+              "mode": "hybrid",
+              "include_neighbors": true,
+              "include_edges": true
+            },
+            "parse_error": null
+          }
+        ],
+        "tool_returns": [
+          {
+            "run_id": "01a09e7b-76ac-7472-be97-bb46e21a5895",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_PF2WNedGXpIDgRMrC3Elvqb5",
+            "success": true
+          },
+          {
+            "run_id": "01a09e7b-76ac-7472-be97-bb46e21a5895",
+            "tool_name": "read_mailbox",
+            "tool_call_id": "call_VXdoDJlF9DNHdTR1z7zfmfCb",
+            "success": true
+          },
+          {
+            "run_id": "01a09e7b-76ac-7472-be97-bb46e21a5895",
+            "tool_name": "read_mailbox",
+            "tool_call_id": "call_0rSIRZYC4GlgGWBUc0H0g7fh",
+            "success": true
+          },
+          {
+            "run_id": "01a09e7b-8f45-753a-98ab-c40dcf2b7e48",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_ticd5NM7Lx86qkD4dHvaOmZX",
+            "success": true
+          }
+        ],
+        "tool_evidence": [
+          {
+            "run_id": "01a09e7b-76ac-7472-be97-bb46e21a5895",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_PF2WNedGXpIDgRMrC3Elvqb5",
+            "content": "generated_at=datetime.datetime(2026, 9, 14, 5, 54, 48, 338787, tzinfo=datetime.timezone.utc) members=[] pending_summaries=0",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09e7b-76ac-7472-be97-bb46e21a5895",
+            "tool_name": "read_mailbox",
+            "tool_call_id": "call_VXdoDJlF9DNHdTR1z7zfmfCb",
+            "content": "Acknowledged — that message is yours for this run and will not arrive again as its own turn.",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09e7b-76ac-7472-be97-bb46e21a5895",
+            "tool_name": "read_mailbox",
+            "tool_call_id": "call_0rSIRZYC4GlgGWBUc0H0g7fh",
+            "content": "Acknowledged — that message is yours for this run and will not arrive again as its own turn.",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09e7b-8f45-753a-98ab-c40dcf2b7e48",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_ticd5NM7Lx86qkD4dHvaOmZX",
+            "content": "Search Results:\n  - [relation] RAG4j/p --[implements_components_for]--> Retrieval Augmented Generation (RAG) (score: 0.70)\n  - [relation] RAG4j/p --[has_variant]--> RAG4J (score: 0.61)\n  - [entity] RAG4J (software_project): The Java project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.56)\n  - [entity] RAG4j/p (software_project): A Java and Python project containing components needed to build Retrieval Augmented Generation systems; its Java project is RAG4J and Python project is RAG4P. (score: 0.56)\n  - [relation] RAG4j/p --[has_variant]--> RAG4P (score: 0.53)\n  - [entity] RAG4P (software_project): The Python project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.53)\n  - [entity] Retrieval Augmented Generation (RAG) (architecture): A system architecture described by RAG4j/p as comprising retrieval, generation, and quality evaluation. A user question is used to retrieve relevant chunks, provide context to a generator, and assess result quality. (score: 0.43)\n  - [entity] Quality component (component): RAG component that evaluates the quality of generated text and retrieved chunks in relation to the user's question, using three metrics for overall RAG quality. (score: 0.29)\n  - [entity] Retriever (component): RAG component responsible for retrieving relevant chunks from a large corpus of documents and supplying retrieval output for context construction. (score: 0.17)\n  - [relation] Quality component --[evaluates]--> Retrieval Augmented Generation (RAG) (score: 0.14)",
+            "outcome": "success"
+          }
+        ],
+        "llm_usage": [
+          {
+            "run_id": "01a09e7b-76ac-7472-be97-bb46e21a5895",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1311,
+            "output_tokens": 26,
+            "cache_read_tokens": 0,
+            "cache_write_tokens": 1308,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7b-76ac-7472-be97-bb46e21a5895",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1396,
+            "output_tokens": 20,
+            "cache_read_tokens": 1308,
+            "cache_write_tokens": 85,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7b-76ac-7472-be97-bb46e21a5895",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1448,
+            "output_tokens": 59,
+            "cache_read_tokens": 1393,
+            "cache_write_tokens": 52,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7b-76ac-7472-be97-bb46e21a5895",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1539,
+            "output_tokens": 76,
+            "cache_read_tokens": 1445,
+            "cache_write_tokens": 91,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7b-8f45-753a-98ab-c40dcf2b7e48",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1601,
+            "output_tokens": 61,
+            "cache_read_tokens": 0,
+            "cache_write_tokens": 1598,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7b-8f45-753a-98ab-c40dcf2b7e48",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2076,
+            "output_tokens": 180,
+            "cache_read_tokens": 1598,
+            "cache_write_tokens": 475,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7b-a2e0-7632-8dea-8718fd707bfc",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1765,
+            "output_tokens": 97,
+            "cache_read_tokens": 1536,
+            "cache_write_tokens": 226,
+            "requests": 1
+          }
+        ],
+        "errors": []
+      },
+      "metrics": {},
+      "attributes": {},
+      "scores": {
+        "message_count": {
+          "name": "message_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "human_response_count": {
+          "name": "human_response_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_call_count": {
+          "name": "tool_call_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_return_count": {
+          "name": "tool_return_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_evidence_count": {
+          "name": "tool_evidence_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_argument_parse_error_count": {
+          "name": "tool_argument_parse_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "uncorrelated_tool_call_count": {
+          "name": "uncorrelated_tool_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "failed_tool_return_count": {
+          "name": "failed_tool_return_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "empty_hire_members_call_count": {
+          "name": "empty_hire_members_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "actor_error_count": {
+          "name": "actor_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_response_count": {
+          "name": "llm_response_count",
+          "value": 7,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_request_count": {
+          "name": "llm_request_count",
+          "value": 7,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "input_token_count": {
+          "name": "input_token_count",
+          "value": 11136,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "output_token_count": {
+          "name": "output_token_count",
+          "value": 519,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_read_token_count": {
+          "name": "cache_read_token_count",
+          "value": 7280,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_write_token_count": {
+          "name": "cache_write_token_count",
+          "value": 3835,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "span_count": {
+          "name": "span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_span_count": {
+          "name": "tool_span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "labels": {
+        "span_names": {
+          "name": "span_names",
+          "value": "<none>",
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "assertions": {
+        "ToolEvidenceContainsTerms": {
+          "name": "ToolEvidenceContainsTerms",
+          "value": true,
+          "reason": "All required tool-evidence terms present",
+          "source": {
+            "name": "ToolEvidenceContainsTerms",
+            "arguments": {
+              "tool_name": "search_graph",
+              "required_terms": [
+                "retriever",
+                "generator",
+                "quality component"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "HumanResponseContainsTerms": {
+          "name": "HumanResponseContainsTerms",
+          "value": false,
+          "reason": "Missing required terms: ['retriever']",
+          "source": {
+            "name": "HumanResponseContainsTerms",
+            "arguments": {
+              "response_index": 0,
+              "required_terms": [
+                "retriever",
+                "generator",
+                "quality"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "received_final_response": {
+          "name": "received_final_response",
+          "value": true,
+          "reason": "completion_reason=human_response, human_responses=1",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "no_actor_errors": {
+          "name": "no_actor_errors",
+          "value": true,
+          "reason": "No actor errors",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "FollowedMessageRoute": {
+          "name": "FollowedMessageRoute",
+          "value": true,
+          "reason": "Observed route: [('@Human', '@Manager'), ('@Manager', '@Knowledge'), ('@Knowledge', '@Manager'), ('@Manager', '@Human')]",
+          "source": {
+            "name": "FollowedMessageRoute",
+            "arguments": [
+              [
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Knowledge"
+                ],
+                [
+                  "@Knowledge",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ]
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "search_graph": {
+          "name": "search_graph",
+          "value": true,
+          "reason": "Observed tools: ['read_mailbox', 'search_graph', 'team_activity']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_web_fetch_tool": {
+          "name": "did_not_call_web_fetch_tool",
+          "value": true,
+          "reason": "Observed tools: ['read_mailbox', 'search_graph', 'team_activity']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_update_graph": {
+          "name": "did_not_call_update_graph",
+          "value": true,
+          "reason": "Observed tools: ['read_mailbox', 'search_graph', 'team_activity']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 1 calls; expected at least 1",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "search_graph",
+              "minimum": 1
+            }
+          },
+          "evaluator_version": null
+        },
+        "tool_arguments_parseable": {
+          "name": "tool_arguments_parseable",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "tool_calls_succeeded": {
+          "name": "tool_calls_succeeded",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "groundedness": {
+          "name": "groundedness",
+          "value": true,
+          "reason": "The answer’s claims are directly supported by the evidence: the three parts are retrieval, generation, and quality evaluation, with the described flow and quality assessment matching the provided architecture and component descriptions.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        },
+        "answer_relevance": {
+          "name": "answer_relevance",
+          "value": true,
+          "reason": "The answer directly identifies all three required parts—retrieval, generation, and quality evaluation—and briefly explains their roles.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        }
+      },
+      "task_duration": 14.021147,
+      "total_duration": 17.90927,
+      "source_case_name": null,
+      "trace_id": "01a09e7b7418417057545f893e2526e8",
+      "span_id": "775347415343957e",
+      "evaluator_failures": []
+    },
+    {
+      "name": "retrieval-strategy-difference",
+      "inputs": {
+        "message": "What is the difference between the Top-N and window retrieval strategies?",
+        "target": null,
+        "turns": [],
+        "timeout_seconds": 240.0,
+        "fixture_source_url": null,
+        "fixture_path": null,
+        "fixture_paths": [],
+        "fixture_web_failure": null,
+        "knowledge_fixture": null,
+        "knowledge_fixture_path": null
+      },
+      "metadata": {
+        "source_url": "https://rag4j.org/documentation/",
+        "purpose": "post-ingestion-acceptance",
+        "topic": "retrieval",
+        "prompt_variant": "comparison",
+        "knowledge_source": "running_system"
+      },
+      "expected_output": null,
+      "output": {
+        "final_response": "The shared knowledge base does not specify the difference between the **Top-N** and **window** retrieval strategies. It only notes that `RetrievalStrategy` constructs context from retrieved chunks, with context size depending on chunk size, number of chunks, and strategy. Please provide a source URL for ingestion via @WebIngest so this distinction can be added.",
+        "human_responses": [
+          "The shared knowledge base does not specify the difference between the **Top-N** and **window** retrieval strategies. It only notes that `RetrievalStrategy` constructs context from retrieved chunks, with context size depending on chunk size, number of chunks, and strategy. Please provide a source URL for ingestion via @WebIngest so this distinction can be added."
+        ],
+        "completion_reason": "human_response",
+        "messages": [
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "What is the difference between the Top-N and window retrieval strategies?"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Knowledge",
+            "message_type": "request",
+            "content": "Please answer from the shared knowledge base: What is the difference between the Top-N and window retrieval strategies? Give a concise, clear comparison."
+          },
+          {
+            "sender": "@Knowledge",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "The shared knowledge base does not specify the difference between the **Top-N** and **window** retrieval strategies. It only states that **RetrievalStrategy** constructs context from retrieved chunks, with context size depending on chunk size, number of chunks, and strategy; **Retriever —uses→ RetrievalStrategy**. Please ingest a source via @WebIngest."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "The shared knowledge base does not specify the difference between the **Top-N** and **window** retrieval strategies. It only notes that `RetrievalStrategy` constructs context from retrieved chunks, with context size depending on chunk size, number of chunks, and strategy. Please provide a source URL for ingestion via @WebIngest so this distinction can be added."
+          }
+        ],
+        "tool_calls": [
+          {
+            "run_id": "01a09e7b-c3a3-72e5-b6b5-14f3793de985",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_hyOdWuQDdjlRQQCDU9eqLBTV",
+            "arguments_raw": "{\"query\":\"difference between Top-N and window retrieval strategies\",\"top_k\":10,\"mode\":\"hybrid\",\"include_neighbors\":true,\"include_edges\":true}",
+            "arguments": {
+              "query": "difference between Top-N and window retrieval strategies",
+              "top_k": 10,
+              "mode": "hybrid",
+              "include_neighbors": true,
+              "include_edges": true
+            },
+            "parse_error": null
+          }
+        ],
+        "tool_returns": [
+          {
+            "run_id": "01a09e7b-c3a3-72e5-b6b5-14f3793de985",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_hyOdWuQDdjlRQQCDU9eqLBTV",
+            "success": true
+          }
+        ],
+        "tool_evidence": [
+          {
+            "run_id": "01a09e7b-c3a3-72e5-b6b5-14f3793de985",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_hyOdWuQDdjlRQQCDU9eqLBTV",
+            "content": "Search Results:\n  - [relation] Retriever --[uses]--> RetrievalStrategy (score: 0.70)\n  - [entity] RetrievalStrategy (class): A RAG4J abstraction used to construct context from retrieved chunks; context size depends on chunk size, number of chunks, and strategy. (score: 0.43)\n  - [relation] Application --[calls]--> Retriever (score: 0.35)\n  - [entity] Retriever (component): RAG component responsible for retrieving relevant chunks from a large corpus of documents and supplying retrieval output for context construction. (score: 0.19)\n  - [relation] Retrieval Augmented Generation (RAG) --[contains_component]--> Retriever (score: 0.16)\n  - [entity] Retrieval Augmented Generation (RAG) (architecture): A system architecture described by RAG4j/p as comprising retrieval, generation, and quality evaluation. A user question is used to retrieve relevant chunks, provide context to a generator, and assess result quality. (score: 0.00)",
+            "outcome": "success"
+          }
+        ],
+        "llm_usage": [
+          {
+            "run_id": "01a09e7b-bc4d-7186-a15b-b4d2d485b7ee",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1900,
+            "output_tokens": 62,
+            "cache_read_tokens": 1762,
+            "cache_write_tokens": 135,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7b-c3a3-72e5-b6b5-14f3793de985",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2309,
+            "output_tokens": 57,
+            "cache_read_tokens": 2073,
+            "cache_write_tokens": 233,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7b-c3a3-72e5-b6b5-14f3793de985",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2599,
+            "output_tokens": 186,
+            "cache_read_tokens": 2306,
+            "cache_write_tokens": 290,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7b-dbdb-7583-8698-d4888b9d7a64",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2062,
+            "output_tokens": 106,
+            "cache_read_tokens": 1897,
+            "cache_write_tokens": 162,
+            "requests": 1
+          }
+        ],
+        "errors": []
+      },
+      "metrics": {},
+      "attributes": {},
+      "scores": {
+        "message_count": {
+          "name": "message_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "human_response_count": {
+          "name": "human_response_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_call_count": {
+          "name": "tool_call_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_return_count": {
+          "name": "tool_return_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_evidence_count": {
+          "name": "tool_evidence_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_argument_parse_error_count": {
+          "name": "tool_argument_parse_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "uncorrelated_tool_call_count": {
+          "name": "uncorrelated_tool_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "failed_tool_return_count": {
+          "name": "failed_tool_return_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "empty_hire_members_call_count": {
+          "name": "empty_hire_members_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "actor_error_count": {
+          "name": "actor_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_response_count": {
+          "name": "llm_response_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_request_count": {
+          "name": "llm_request_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "input_token_count": {
+          "name": "input_token_count",
+          "value": 8870,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "output_token_count": {
+          "name": "output_token_count",
+          "value": 411,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_read_token_count": {
+          "name": "cache_read_token_count",
+          "value": 8038,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_write_token_count": {
+          "name": "cache_write_token_count",
+          "value": 820,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "span_count": {
+          "name": "span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_span_count": {
+          "name": "tool_span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "labels": {
+        "span_names": {
+          "name": "span_names",
+          "value": "<none>",
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "assertions": {
+        "ToolEvidenceContainsTerms": {
+          "name": "ToolEvidenceContainsTerms",
+          "value": false,
+          "reason": "Missing search_graph evidence terms: ['Top-N', 'window', 'same document']",
+          "source": {
+            "name": "ToolEvidenceContainsTerms",
+            "arguments": {
+              "tool_name": "search_graph",
+              "required_terms": [
+                "Top-N",
+                "window",
+                "same document"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "HumanResponseContainsTerms": {
+          "name": "HumanResponseContainsTerms",
+          "value": false,
+          "reason": "Missing required terms: ['same document']",
+          "source": {
+            "name": "HumanResponseContainsTerms",
+            "arguments": {
+              "response_index": 0,
+              "required_terms": [
+                "Top-N",
+                "window",
+                "same document"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "received_final_response": {
+          "name": "received_final_response",
+          "value": true,
+          "reason": "completion_reason=human_response, human_responses=1",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "no_actor_errors": {
+          "name": "no_actor_errors",
+          "value": true,
+          "reason": "No actor errors",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "FollowedMessageRoute": {
+          "name": "FollowedMessageRoute",
+          "value": true,
+          "reason": "Observed route: [('@Human', '@Manager'), ('@Manager', '@Knowledge'), ('@Knowledge', '@Manager'), ('@Manager', '@Human')]",
+          "source": {
+            "name": "FollowedMessageRoute",
+            "arguments": [
+              [
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Knowledge"
+                ],
+                [
+                  "@Knowledge",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ]
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "search_graph": {
+          "name": "search_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_web_fetch_tool": {
+          "name": "did_not_call_web_fetch_tool",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_update_graph": {
+          "name": "did_not_call_update_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 1 calls; expected at least 1",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "search_graph",
+              "minimum": 1
+            }
+          },
+          "evaluator_version": null
+        },
+        "tool_arguments_parseable": {
+          "name": "tool_arguments_parseable",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "tool_calls_succeeded": {
+          "name": "tool_calls_succeeded",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "groundedness": {
+          "name": "groundedness",
+          "value": true,
+          "reason": "The answer accurately states that the provided evidence does not specify a distinction between Top-N and window strategies, while correctly summarizing the supported information about RetrievalStrategy and context construction. The request for a source URL is an operational suggestion and is not a factual claim requiring evidence.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        },
+        "answer_relevance": {
+          "name": "answer_relevance",
+          "value": true,
+          "reason": "The candidate directly addresses the question by explaining that the reviewed evidence does not specify a distinction between Top-N and window retrieval strategies, and it accurately connects this limitation to the available RetrievalStrategy information.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        }
+      },
+      "task_duration": 10.482511,
+      "total_duration": 14.849886,
+      "source_case_name": null,
+      "trace_id": "01a09e7b7418417057545f893e2526e8",
+      "span_id": "1be9513246890e51",
+      "evaluator_failures": []
+    },
+    {
+      "name": "indexing-pipeline",
+      "inputs": {
+        "message": "Which components does RAG4j/p use to load, split, embed, and store a corpus?",
+        "target": null,
+        "turns": [],
+        "timeout_seconds": 240.0,
+        "fixture_source_url": null,
+        "fixture_path": null,
+        "fixture_paths": [],
+        "fixture_web_failure": null,
+        "knowledge_fixture": null,
+        "knowledge_fixture_path": null
+      },
+      "metadata": {
+        "source_url": "https://rag4j.org/documentation/",
+        "purpose": "post-ingestion-acceptance",
+        "topic": "retrieval",
+        "prompt_variant": "multi-fact",
+        "knowledge_source": "running_system"
+      },
+      "expected_output": null,
+      "output": {
+        "final_response": "The shared knowledge base does not identify the RAG4j/p components used to load, split, embed, and store a corpus, or describe their roles. It only identifies the `Retriever` and `RetrievalStrategy`. Please provide a source URL for ingestion via @WebIngest so this information can be added.",
+        "human_responses": [
+          "The shared knowledge base does not identify the RAG4j/p components used to load, split, embed, and store a corpus, or describe their roles. It only identifies the `Retriever` and `RetrievalStrategy`. Please provide a source URL for ingestion via @WebIngest so this information can be added."
+        ],
+        "completion_reason": "human_response",
+        "messages": [
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "Which components does RAG4j/p use to load, split, embed, and store a corpus?"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Knowledge",
+            "message_type": "request",
+            "content": "Please answer from the shared knowledge base: Which components does RAG4j/p use to load, split, embed, and store a corpus? List the components and their roles concisely."
+          },
+          {
+            "sender": "@Knowledge",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "The shared knowledge base does not identify the components used by RAG4j/p to load, split, embed, and store a corpus, nor their roles. It only describes RAG4j/p as containing components for building RAG systems and identifies the Retriever and RetrievalStrategy. Please ingest a source via @WebIngest."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "The shared knowledge base does not identify the RAG4j/p components used to load, split, embed, and store a corpus, or describe their roles. It only identifies the `Retriever` and `RetrievalStrategy`. Please provide a source URL for ingestion via @WebIngest so this information can be added."
+          }
+        ],
+        "tool_calls": [
+          {
+            "run_id": "01a09e7b-fe9d-7510-bc72-30145ddb42fe",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_mTPAajYiYY0KvNyRlYr8TK6Y",
+            "arguments_raw": "{\"query\":\"RAG4j/p components load split embed store corpus\",\"top_k\":10,\"mode\":\"hybrid\",\"include_neighbors\":true,\"include_edges\":true}",
+            "arguments": {
+              "query": "RAG4j/p components load split embed store corpus",
+              "top_k": 10,
+              "mode": "hybrid",
+              "include_neighbors": true,
+              "include_edges": true
+            },
+            "parse_error": null
+          }
+        ],
+        "tool_returns": [
+          {
+            "run_id": "01a09e7b-fe9d-7510-bc72-30145ddb42fe",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_mTPAajYiYY0KvNyRlYr8TK6Y",
+            "success": true
+          }
+        ],
+        "tool_evidence": [
+          {
+            "run_id": "01a09e7b-fe9d-7510-bc72-30145ddb42fe",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_mTPAajYiYY0KvNyRlYr8TK6Y",
+            "content": "Search Results:\n  - [relation] RAG4j/p --[implements_components_for]--> Retrieval Augmented Generation (RAG) (score: 0.70)\n  - [entity] RAG4J (software_project): The Java project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.62)\n  - [relation] RAG4j/p --[has_variant]--> RAG4J (score: 0.53)\n  - [entity] RAG4P (software_project): The Python project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.53)\n  - [entity] RAG4j/p (software_project): A Java and Python project containing components needed to build Retrieval Augmented Generation systems; its Java project is RAG4J and Python project is RAG4P. (score: 0.50)\n  - [entity] Retriever (component): RAG component responsible for retrieving relevant chunks from a large corpus of documents and supplying retrieval output for context construction. (score: 0.42)\n  - [relation] RAG4j/p --[has_variant]--> RAG4P (score: 0.40)\n  - [entity] Retrieval Augmented Generation (RAG) (architecture): A system architecture described by RAG4j/p as comprising retrieval, generation, and quality evaluation. A user question is used to retrieve relevant chunks, provide context to a generator, and assess result quality. (score: 0.31)\n  - [entity] RetrievalStrategy (class): A RAG4J abstraction used to construct context from retrieved chunks; context size depends on chunk size, number of chunks, and strategy. (score: 0.28)\n  - [relation] Retrieval Augmented Generation (RAG) --[contains_component]--> Retriever (score: 0.26)",
+            "outcome": "success"
+          }
+        ],
+        "llm_usage": [
+          {
+            "run_id": "01a09e7b-f6d4-7461-9e4f-9f2580d2e85e",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2215,
+            "output_tokens": 73,
+            "cache_read_tokens": 2059,
+            "cache_write_tokens": 153,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7b-fe9d-7510-bc72-30145ddb42fe",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2850,
+            "output_tokens": 58,
+            "cache_read_tokens": 2596,
+            "cache_write_tokens": 251,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7b-fe9d-7510-bc72-30145ddb42fe",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3320,
+            "output_tokens": 109,
+            "cache_read_tokens": 2847,
+            "cache_write_tokens": 470,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-10bb-7622-9f2f-29cfb6c1529e",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2383,
+            "output_tokens": 101,
+            "cache_read_tokens": 2212,
+            "cache_write_tokens": 168,
+            "requests": 1
+          }
+        ],
+        "errors": []
+      },
+      "metrics": {},
+      "attributes": {},
+      "scores": {
+        "message_count": {
+          "name": "message_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "human_response_count": {
+          "name": "human_response_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_call_count": {
+          "name": "tool_call_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_return_count": {
+          "name": "tool_return_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_evidence_count": {
+          "name": "tool_evidence_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_argument_parse_error_count": {
+          "name": "tool_argument_parse_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "uncorrelated_tool_call_count": {
+          "name": "uncorrelated_tool_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "failed_tool_return_count": {
+          "name": "failed_tool_return_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "empty_hire_members_call_count": {
+          "name": "empty_hire_members_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "actor_error_count": {
+          "name": "actor_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_response_count": {
+          "name": "llm_response_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_request_count": {
+          "name": "llm_request_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "input_token_count": {
+          "name": "input_token_count",
+          "value": 10768,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "output_token_count": {
+          "name": "output_token_count",
+          "value": 341,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_read_token_count": {
+          "name": "cache_read_token_count",
+          "value": 9714,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_write_token_count": {
+          "name": "cache_write_token_count",
+          "value": 1042,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "span_count": {
+          "name": "span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_span_count": {
+          "name": "tool_span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "labels": {
+        "span_names": {
+          "name": "span_names",
+          "value": "<none>",
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "assertions": {
+        "ToolEvidenceContainsTerms": {
+          "name": "ToolEvidenceContainsTerms",
+          "value": false,
+          "reason": "Missing search_graph evidence terms: ['IndexingService', 'ContentReader', 'Splitter', 'Embedder', 'ContentStore']",
+          "source": {
+            "name": "ToolEvidenceContainsTerms",
+            "arguments": {
+              "tool_name": "search_graph",
+              "required_terms": [
+                "IndexingService",
+                "ContentReader",
+                "Splitter",
+                "Embedder",
+                "ContentStore"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "HumanResponseContainsTerms": {
+          "name": "HumanResponseContainsTerms",
+          "value": false,
+          "reason": "Missing required terms: ['IndexingService', 'ContentReader', 'Splitter', 'Embedder', 'ContentStore']",
+          "source": {
+            "name": "HumanResponseContainsTerms",
+            "arguments": {
+              "response_index": 0,
+              "required_terms": [
+                "IndexingService",
+                "ContentReader",
+                "Splitter",
+                "Embedder",
+                "ContentStore"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "received_final_response": {
+          "name": "received_final_response",
+          "value": true,
+          "reason": "completion_reason=human_response, human_responses=1",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "no_actor_errors": {
+          "name": "no_actor_errors",
+          "value": true,
+          "reason": "No actor errors",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "FollowedMessageRoute": {
+          "name": "FollowedMessageRoute",
+          "value": true,
+          "reason": "Observed route: [('@Human', '@Manager'), ('@Manager', '@Knowledge'), ('@Knowledge', '@Manager'), ('@Manager', '@Human')]",
+          "source": {
+            "name": "FollowedMessageRoute",
+            "arguments": [
+              [
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Knowledge"
+                ],
+                [
+                  "@Knowledge",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ]
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "search_graph": {
+          "name": "search_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_web_fetch_tool": {
+          "name": "did_not_call_web_fetch_tool",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_update_graph": {
+          "name": "did_not_call_update_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 1 calls; expected at least 1",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "search_graph",
+              "minimum": 1
+            }
+          },
+          "evaluator_version": null
+        },
+        "tool_arguments_parseable": {
+          "name": "tool_arguments_parseable",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "tool_calls_succeeded": {
+          "name": "tool_calls_succeeded",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "groundedness": {
+          "name": "groundedness",
+          "value": true,
+          "reason": "The evidence does not identify components for loading, splitting, embedding, or storing a corpus, and it does mention only Retriever and RetrievalStrategy among relevant RAG components. The request for a source URL is an operational suggestion and is not subject to the factual-evidence requirement.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        },
+        "answer_relevance": {
+          "name": "answer_relevance",
+          "value": true,
+          "reason": "The answer directly addresses the question by explaining that the reviewed evidence does not identify the components for loading, splitting, embedding, and storing a corpus, while noting the limited components it does identify.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        }
+      },
+      "task_duration": 8.805989,
+      "total_duration": 12.842899,
+      "source_case_name": null,
+      "trace_id": "01a09e7b7418417057545f893e2526e8",
+      "span_id": "9e1ccece859ddcde",
+      "evaluator_failures": []
+    },
+    {
+      "name": "content-store-options",
+      "inputs": {
+        "message": "Which ContentStore implementations are documented by RAG4j/p?",
+        "target": null,
+        "turns": [],
+        "timeout_seconds": 240.0,
+        "fixture_source_url": null,
+        "fixture_path": null,
+        "fixture_paths": [],
+        "fixture_web_failure": null,
+        "knowledge_fixture": null,
+        "knowledge_fixture_path": null
+      },
+      "metadata": {
+        "source_url": "https://rag4j.org/documentation/",
+        "purpose": "post-ingestion-acceptance",
+        "topic": "retrieval",
+        "prompt_variant": "canonical",
+        "knowledge_source": "running_system"
+      },
+      "expected_output": null,
+      "output": {
+        "final_response": "No `ContentStore` implementations are documented in the shared knowledge base. The available RAG4j/p entries identify the RAG4J and RAG4P variants, `Retriever`, and `RetrievalStrategy`, but not `ContentStore` implementations. Please provide a source URL for ingestion via @WebIngest so this information can be added.",
+        "human_responses": [
+          "No `ContentStore` implementations are documented in the shared knowledge base. The available RAG4j/p entries identify the RAG4J and RAG4P variants, `Retriever`, and `RetrievalStrategy`, but not `ContentStore` implementations. Please provide a source URL for ingestion via @WebIngest so this information can be added."
+        ],
+        "completion_reason": "human_response",
+        "messages": [
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "Which ContentStore implementations are documented by RAG4j/p?"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Knowledge",
+            "message_type": "request",
+            "content": "Please answer from the shared knowledge base: Which ContentStore implementations are documented by RAG4j/p? Provide a concise list and any relevant details."
+          },
+          {
+            "sender": "@Knowledge",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "No ContentStore implementations are documented in the shared knowledge base. The available RAG4j/p entries identify the RAG4J and RAG4P variants, Retriever, and RetrievalStrategy, but not ContentStore implementations. Please ingest a source via @WebIngest."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "No `ContentStore` implementations are documented in the shared knowledge base. The available RAG4j/p entries identify the RAG4J and RAG4P variants, `Retriever`, and `RetrievalStrategy`, but not `ContentStore` implementations. Please provide a source URL for ingestion via @WebIngest so this information can be added."
+          }
+        ],
+        "tool_calls": [
+          {
+            "run_id": "01a09e7c-2f78-7705-84c1-6fe9853bc0a7",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_WYLQwlBvbycirLauA0s7Pd6t",
+            "arguments_raw": "{\"query\":\"RAG4j/p documented ContentStore implementations\",\"top_k\":10,\"mode\":\"hybrid\",\"include_neighbors\":true,\"include_edges\":true}",
+            "arguments": {
+              "query": "RAG4j/p documented ContentStore implementations",
+              "top_k": 10,
+              "mode": "hybrid",
+              "include_neighbors": true,
+              "include_edges": true
+            },
+            "parse_error": null
+          }
+        ],
+        "tool_returns": [
+          {
+            "run_id": "01a09e7c-2f78-7705-84c1-6fe9853bc0a7",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_WYLQwlBvbycirLauA0s7Pd6t",
+            "success": true
+          }
+        ],
+        "tool_evidence": [
+          {
+            "run_id": "01a09e7c-2f78-7705-84c1-6fe9853bc0a7",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_WYLQwlBvbycirLauA0s7Pd6t",
+            "content": "Search Results:\n  - [entity] RAG4J (software_project): The Java project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.70)\n  - [relation] RAG4j/p --[implements_components_for]--> Retrieval Augmented Generation (RAG) (score: 0.68)\n  - [relation] RAG4j/p --[has_variant]--> RAG4J (score: 0.64)\n  - [entity] RetrievalStrategy (class): A RAG4J abstraction used to construct context from retrieved chunks; context size depends on chunk size, number of chunks, and strategy. (score: 0.55)\n  - [entity] RAG4j/p (software_project): A Java and Python project containing components needed to build Retrieval Augmented Generation systems; its Java project is RAG4J and Python project is RAG4P. (score: 0.47)\n  - [entity] RAG4P (software_project): The Python project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.46)\n  - [relation] RAG4j/p --[has_variant]--> RAG4P (score: 0.41)\n  - [entity] Retrieval Augmented Generation (RAG) (architecture): A system architecture described by RAG4j/p as comprising retrieval, generation, and quality evaluation. A user question is used to retrieve relevant chunks, provide context to a generator, and assess result quality. (score: 0.40)\n  - [relation] Retrieval Augmented Generation (RAG) --[contains_component]--> Retriever (score: 0.34)\n  - [entity] Retriever (component): RAG component responsible for retrieving relevant chunks from a large corpus of documents and supplying retrieval output for context construction. (score: 0.34)",
+            "outcome": "success"
+          }
+        ],
+        "llm_usage": [
+          {
+            "run_id": "01a09e7c-2907-7106-b7af-abd0feb843e4",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2522,
+            "output_tokens": 63,
+            "cache_read_tokens": 2380,
+            "cache_write_tokens": 139,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-2f78-7705-84c1-6fe9853bc0a7",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3485,
+            "output_tokens": 54,
+            "cache_read_tokens": 3317,
+            "cache_write_tokens": 165,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-2f78-7705-84c1-6fe9853bc0a7",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3951,
+            "output_tokens": 91,
+            "cache_read_tokens": 3482,
+            "cache_write_tokens": 466,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-3f43-7550-a9bb-230b72baf603",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2669,
+            "output_tokens": 104,
+            "cache_read_tokens": 2519,
+            "cache_write_tokens": 147,
+            "requests": 1
+          }
+        ],
+        "errors": []
+      },
+      "metrics": {},
+      "attributes": {},
+      "scores": {
+        "message_count": {
+          "name": "message_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "human_response_count": {
+          "name": "human_response_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_call_count": {
+          "name": "tool_call_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_return_count": {
+          "name": "tool_return_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_evidence_count": {
+          "name": "tool_evidence_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_argument_parse_error_count": {
+          "name": "tool_argument_parse_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "uncorrelated_tool_call_count": {
+          "name": "uncorrelated_tool_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "failed_tool_return_count": {
+          "name": "failed_tool_return_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "empty_hire_members_call_count": {
+          "name": "empty_hire_members_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "actor_error_count": {
+          "name": "actor_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_response_count": {
+          "name": "llm_response_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_request_count": {
+          "name": "llm_request_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "input_token_count": {
+          "name": "input_token_count",
+          "value": 12627,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "output_token_count": {
+          "name": "output_token_count",
+          "value": 312,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_read_token_count": {
+          "name": "cache_read_token_count",
+          "value": 11698,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_write_token_count": {
+          "name": "cache_write_token_count",
+          "value": 917,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "span_count": {
+          "name": "span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_span_count": {
+          "name": "tool_span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "labels": {
+        "span_names": {
+          "name": "span_names",
+          "value": "<none>",
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "assertions": {
+        "ToolEvidenceContainsTerms": {
+          "name": "ToolEvidenceContainsTerms",
+          "value": false,
+          "reason": "Missing search_graph evidence terms: ['InternalContentStore', 'WeaviateContentStore']",
+          "source": {
+            "name": "ToolEvidenceContainsTerms",
+            "arguments": {
+              "tool_name": "search_graph",
+              "required_terms": [
+                "InternalContentStore",
+                "WeaviateContentStore"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "HumanResponseContainsTerms": {
+          "name": "HumanResponseContainsTerms",
+          "value": false,
+          "reason": "Missing required terms: ['InternalContentStore', 'WeaviateContentStore']",
+          "source": {
+            "name": "HumanResponseContainsTerms",
+            "arguments": {
+              "response_index": 0,
+              "required_terms": [
+                "InternalContentStore",
+                "WeaviateContentStore"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "received_final_response": {
+          "name": "received_final_response",
+          "value": true,
+          "reason": "completion_reason=human_response, human_responses=1",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "no_actor_errors": {
+          "name": "no_actor_errors",
+          "value": true,
+          "reason": "No actor errors",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "FollowedMessageRoute": {
+          "name": "FollowedMessageRoute",
+          "value": true,
+          "reason": "Observed route: [('@Human', '@Manager'), ('@Manager', '@Knowledge'), ('@Knowledge', '@Manager'), ('@Manager', '@Human')]",
+          "source": {
+            "name": "FollowedMessageRoute",
+            "arguments": [
+              [
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Knowledge"
+                ],
+                [
+                  "@Knowledge",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ]
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "search_graph": {
+          "name": "search_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_web_fetch_tool": {
+          "name": "did_not_call_web_fetch_tool",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_update_graph": {
+          "name": "did_not_call_update_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 1 calls; expected at least 1",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "search_graph",
+              "minimum": 1
+            }
+          },
+          "evaluator_version": null
+        },
+        "tool_arguments_parseable": {
+          "name": "tool_arguments_parseable",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "tool_calls_succeeded": {
+          "name": "tool_calls_succeeded",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "groundedness": {
+          "name": "groundedness",
+          "value": true,
+          "reason": "The answer accurately states that the provided evidence does not identify any ContentStore implementations and correctly summarizes the relevant RAG4j/p entries. The request for a source URL is an operational suggestion and is not subject to the evidence-support requirement.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        },
+        "answer_relevance": {
+          "name": "answer_relevance",
+          "value": true,
+          "reason": "The response directly addresses the question by stating that the reviewed knowledge base does not document any ContentStore implementations and ties that conclusion to the listed RAG4j/p entries.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        }
+      },
+      "task_duration": 8.359713,
+      "total_duration": 13.662365,
+      "source_case_name": null,
+      "trace_id": "01a09e7b7418417057545f893e2526e8",
+      "span_id": "6eeb4d6f10653ece",
+      "evaluator_failures": []
+    },
+    {
+      "name": "embedding-options",
+      "inputs": {
+        "message": "Which local and OpenAI embedders does the documentation mention?",
+        "target": null,
+        "turns": [],
+        "timeout_seconds": 240.0,
+        "fixture_source_url": null,
+        "fixture_path": null,
+        "fixture_paths": [],
+        "fixture_web_failure": null,
+        "knowledge_fixture": null,
+        "knowledge_fixture_path": null
+      },
+      "metadata": {
+        "source_url": "https://rag4j.org/documentation/",
+        "purpose": "post-ingestion-acceptance",
+        "topic": "retrieval",
+        "prompt_variant": "cross-language",
+        "knowledge_source": "running_system"
+      },
+      "expected_output": null,
+      "output": {
+        "final_response": "The shared knowledge base does not document the names of RAG4j/p’s local or OpenAI embedders. It mentions `RAG4J`, `RAG4P`, and an `OpenaiAnswerGenerator` for answer generation, but not embedding. Please provide a source URL for ingestion via @WebIngest so this information can be added.",
+        "human_responses": [
+          "The shared knowledge base does not document the names of RAG4j/p’s local or OpenAI embedders. It mentions `RAG4J`, `RAG4P`, and an `OpenaiAnswerGenerator` for answer generation, but not embedding. Please provide a source URL for ingestion via @WebIngest so this information can be added."
+        ],
+        "completion_reason": "human_response",
+        "messages": [
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "Which local and OpenAI embedders does the documentation mention?"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Knowledge",
+            "message_type": "request",
+            "content": "Please answer from the shared knowledge base: Which local and OpenAI embedders does the RAG4j/p documentation mention? Give the names and distinguish local vs OpenAI."
+          },
+          {
+            "sender": "@Knowledge",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "The shared knowledge base does not document the names of RAG4j/p’s local or OpenAI embedders. It only identifies RAG4J and RAG4P as the project variants and mentions an OpenaiAnswerGenerator for answer generation, not embedding. Please ingest a source via @WebIngest."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "The shared knowledge base does not document the names of RAG4j/p’s local or OpenAI embedders. It mentions `RAG4J`, `RAG4P`, and an `OpenaiAnswerGenerator` for answer generation, but not embedding. Please provide a source URL for ingestion via @WebIngest so this information can be added."
+          }
+        ],
+        "tool_calls": [
+          {
+            "run_id": "01a09e7c-66df-76a1-a0a2-ab9df447f414",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_ILrqIya5rVUBjNjKDHA67pjB",
+            "arguments_raw": "{\"query\":\"RAG4j/p local OpenAI embedders names\",\"top_k\":10,\"mode\":\"hybrid\",\"include_neighbors\":true,\"include_edges\":true}",
+            "arguments": {
+              "query": "RAG4j/p local OpenAI embedders names",
+              "top_k": 10,
+              "mode": "hybrid",
+              "include_neighbors": true,
+              "include_edges": true
+            },
+            "parse_error": null
+          }
+        ],
+        "tool_returns": [
+          {
+            "run_id": "01a09e7c-66df-76a1-a0a2-ab9df447f414",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_ILrqIya5rVUBjNjKDHA67pjB",
+            "success": true
+          }
+        ],
+        "tool_evidence": [
+          {
+            "run_id": "01a09e7c-66df-76a1-a0a2-ab9df447f414",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_ILrqIya5rVUBjNjKDHA67pjB",
+            "content": "Search Results:\n  - [entity] RAG4P (software_project): The Python project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.70)\n  - [entity] RAG4J (software_project): The Java project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.69)\n  - [relation] RAG4j/p --[implements_components_for]--> Retrieval Augmented Generation (RAG) (score: 0.65)\n  - [entity] RAG4j/p (software_project): A Java and Python project containing components needed to build Retrieval Augmented Generation systems; its Java project is RAG4J and Python project is RAG4P. (score: 0.62)\n  - [relation] RAG4j/p --[has_variant]--> RAG4J (score: 0.58)\n  - [relation] RAG4j/p --[has_variant]--> RAG4P (score: 0.55)\n  - [entity] Retrieval Augmented Generation (RAG) (architecture): A system architecture described by RAG4j/p as comprising retrieval, generation, and quality evaluation. A user question is used to retrieve relevant chunks, provide context to a generator, and assess result quality. (score: 0.35)\n  - [entity] RetrievalStrategy (class): A RAG4J abstraction used to construct context from retrieved chunks; context size depends on chunk size, number of chunks, and strategy. (score: 0.31)\n  - [entity] Retriever (component): RAG component responsible for retrieving relevant chunks from a large corpus of documents and supplying retrieval output for context construction. (score: 0.24)\n  - [relation] AnswerGenerator --[implemented_by]--> OpenaiAnswerGenerator (score: 0.19)",
+            "outcome": "success"
+          }
+        ],
+        "llm_usage": [
+          {
+            "run_id": "01a09e7c-5eab-7582-b860-dbc7613f8fbf",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2812,
+            "output_tokens": 69,
+            "cache_read_tokens": 2666,
+            "cache_write_tokens": 143,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-66df-76a1-a0a2-ab9df447f414",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 4104,
+            "output_tokens": 58,
+            "cache_read_tokens": 3948,
+            "cache_write_tokens": 153,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-66df-76a1-a0a2-ab9df447f414",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 4571,
+            "output_tokens": 100,
+            "cache_read_tokens": 4101,
+            "cache_write_tokens": 467,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-76a8-75bd-a184-c6138d933aab",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2974,
+            "output_tokens": 106,
+            "cache_read_tokens": 2809,
+            "cache_write_tokens": 162,
+            "requests": 1
+          }
+        ],
+        "errors": []
+      },
+      "metrics": {},
+      "attributes": {},
+      "scores": {
+        "message_count": {
+          "name": "message_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "human_response_count": {
+          "name": "human_response_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_call_count": {
+          "name": "tool_call_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_return_count": {
+          "name": "tool_return_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_evidence_count": {
+          "name": "tool_evidence_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_argument_parse_error_count": {
+          "name": "tool_argument_parse_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "uncorrelated_tool_call_count": {
+          "name": "uncorrelated_tool_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "failed_tool_return_count": {
+          "name": "failed_tool_return_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "empty_hire_members_call_count": {
+          "name": "empty_hire_members_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "actor_error_count": {
+          "name": "actor_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_response_count": {
+          "name": "llm_response_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_request_count": {
+          "name": "llm_request_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "input_token_count": {
+          "name": "input_token_count",
+          "value": 14461,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "output_token_count": {
+          "name": "output_token_count",
+          "value": 333,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_read_token_count": {
+          "name": "cache_read_token_count",
+          "value": 13524,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_write_token_count": {
+          "name": "cache_write_token_count",
+          "value": 925,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "span_count": {
+          "name": "span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_span_count": {
+          "name": "tool_span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "labels": {
+        "span_names": {
+          "name": "span_names",
+          "value": "<none>",
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "assertions": {
+        "ToolEvidenceContainsTerms": {
+          "name": "ToolEvidenceContainsTerms",
+          "value": false,
+          "reason": "Missing search_graph evidence terms: ['AllMiniLmL6V2QEmbedder', 'OnnxEmbedder', 'OpenAIEmbedder']",
+          "source": {
+            "name": "ToolEvidenceContainsTerms",
+            "arguments": {
+              "tool_name": "search_graph",
+              "required_terms": [
+                "AllMiniLmL6V2QEmbedder",
+                "OnnxEmbedder",
+                "OpenAIEmbedder"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "HumanResponseContainsTerms": {
+          "name": "HumanResponseContainsTerms",
+          "value": false,
+          "reason": "Missing required terms: ['AllMiniLmL6V2QEmbedder', 'OnnxEmbedder', 'OpenAIEmbedder']",
+          "source": {
+            "name": "HumanResponseContainsTerms",
+            "arguments": {
+              "response_index": 0,
+              "required_terms": [
+                "AllMiniLmL6V2QEmbedder",
+                "OnnxEmbedder",
+                "OpenAIEmbedder"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "received_final_response": {
+          "name": "received_final_response",
+          "value": true,
+          "reason": "completion_reason=human_response, human_responses=1",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "no_actor_errors": {
+          "name": "no_actor_errors",
+          "value": true,
+          "reason": "No actor errors",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "FollowedMessageRoute": {
+          "name": "FollowedMessageRoute",
+          "value": true,
+          "reason": "Observed route: [('@Human', '@Manager'), ('@Manager', '@Knowledge'), ('@Knowledge', '@Manager'), ('@Manager', '@Human')]",
+          "source": {
+            "name": "FollowedMessageRoute",
+            "arguments": [
+              [
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Knowledge"
+                ],
+                [
+                  "@Knowledge",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ]
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "search_graph": {
+          "name": "search_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_web_fetch_tool": {
+          "name": "did_not_call_web_fetch_tool",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_update_graph": {
+          "name": "did_not_call_update_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 1 calls; expected at least 1",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "search_graph",
+              "minimum": 1
+            }
+          },
+          "evaluator_version": null
+        },
+        "tool_arguments_parseable": {
+          "name": "tool_arguments_parseable",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "tool_calls_succeeded": {
+          "name": "tool_calls_succeeded",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "groundedness": {
+          "name": "groundedness",
+          "value": true,
+          "reason": "The answer accurately states that the reviewed evidence names RAG4J, RAG4P, and OpenaiAnswerGenerator but does not identify any local or OpenAI embedders. Its source-ingestion suggestion is an allowed operational next step.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        },
+        "answer_relevance": {
+          "name": "answer_relevance",
+          "value": true,
+          "reason": "The answer directly addresses the question by explaining that the reviewed evidence does not identify any local or OpenAI embedders, and it distinguishes the mentioned projects and answer generator from embedding components.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        }
+      },
+      "task_duration": 8.335731,
+      "total_duration": 13.410808,
+      "source_case_name": null,
+      "trace_id": "01a09e7b7418417057545f893e2526e8",
+      "span_id": "56efcf2aefd4c937",
+      "evaluator_failures": []
+    },
+    {
+      "name": "rag-quality-metrics",
+      "inputs": {
+        "message": "What three metrics does RAG4j/p use to determine overall RAG quality?",
+        "target": null,
+        "turns": [],
+        "timeout_seconds": 240.0,
+        "fixture_source_url": null,
+        "fixture_path": null,
+        "fixture_paths": [],
+        "fixture_web_failure": null,
+        "knowledge_fixture": null,
+        "knowledge_fixture_path": null
+      },
+      "metadata": {
+        "source_url": "https://rag4j.org/documentation/",
+        "purpose": "post-ingestion-acceptance",
+        "topic": "quality",
+        "prompt_variant": "canonical",
+        "knowledge_source": "running_system"
+      },
+      "expected_output": null,
+      "output": {
+        "final_response": "The shared knowledge base confirms that RAG4j/p’s **Quality component** uses three metrics to evaluate the generated text and retrieved chunks against the user’s question, but it does not provide the metrics’ names or descriptions. Please provide a source URL for ingestion via @WebIngest so this information can be added.",
+        "human_responses": [
+          "The shared knowledge base confirms that RAG4j/p’s **Quality component** uses three metrics to evaluate the generated text and retrieved chunks against the user’s question, but it does not provide the metrics’ names or descriptions. Please provide a source URL for ingestion via @WebIngest so this information can be added."
+        ],
+        "completion_reason": "human_response",
+        "messages": [
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "What three metrics does RAG4j/p use to determine overall RAG quality?"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Knowledge",
+            "message_type": "request",
+            "content": "Please answer from the shared knowledge base: What three metrics does RAG4j/p use to determine overall RAG quality? Give the metric names and a brief description if available."
+          },
+          {
+            "sender": "@Knowledge",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "The shared knowledge base confirms that the **Quality component** uses three metrics to evaluate generated text and retrieved chunks against the user’s question, but it does not provide their names or descriptions. Sources: **Quality component** entity; **Quality component —evaluates→ Retrieval Augmented Generation (RAG)** relation. Please ingest a source via @WebIngest."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "The shared knowledge base confirms that RAG4j/p’s **Quality component** uses three metrics to evaluate the generated text and retrieved chunks against the user’s question, but it does not provide the metrics’ names or descriptions. Please provide a source URL for ingestion via @WebIngest so this information can be added."
+          }
+        ],
+        "tool_calls": [
+          {
+            "run_id": "01a09e7c-9bf4-72c5-90bf-f89c64274533",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_mtCaGR0EHKqiLdeSkv3st8U9",
+            "arguments_raw": "{\"query\":\"RAG4j/p three metrics overall RAG quality\",\"top_k\":10,\"mode\":\"hybrid\",\"include_neighbors\":true,\"include_edges\":true}",
+            "arguments": {
+              "query": "RAG4j/p three metrics overall RAG quality",
+              "top_k": 10,
+              "mode": "hybrid",
+              "include_neighbors": true,
+              "include_edges": true
+            },
+            "parse_error": null
+          }
+        ],
+        "tool_returns": [
+          {
+            "run_id": "01a09e7c-9bf4-72c5-90bf-f89c64274533",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_mtCaGR0EHKqiLdeSkv3st8U9",
+            "success": true
+          }
+        ],
+        "tool_evidence": [
+          {
+            "run_id": "01a09e7c-9bf4-72c5-90bf-f89c64274533",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_mtCaGR0EHKqiLdeSkv3st8U9",
+            "content": "Search Results:\n  - [entity] Quality component (component): RAG component that evaluates the quality of generated text and retrieved chunks in relation to the user's question, using three metrics for overall RAG quality. (score: 0.70)\n  - [relation] Quality component --[evaluates]--> Retrieval Augmented Generation (RAG) (score: 0.61)\n  - [relation] RAG4j/p --[has_variant]--> RAG4J (score: 0.54)\n  - [relation] RAG4j/p --[has_variant]--> RAG4P (score: 0.46)\n  - [relation] RAG4j/p --[implements_components_for]--> Retrieval Augmented Generation (RAG) (score: 0.45)\n  - [entity] RAG4J (software_project): The Java project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.43)\n  - [entity] Retrieval Augmented Generation (RAG) (architecture): A system architecture described by RAG4j/p as comprising retrieval, generation, and quality evaluation. A user question is used to retrieve relevant chunks, provide context to a generator, and assess result quality. (score: 0.42)\n  - [entity] RAG4j/p (software_project): A Java and Python project containing components needed to build Retrieval Augmented Generation systems; its Java project is RAG4J and Python project is RAG4P. (score: 0.40)\n  - [relation] Retrieval Augmented Generation (RAG) --[contains_component]--> Quality component (score: 0.40)\n  - [entity] RAG4P (software_project): The Python project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.39)",
+            "outcome": "success"
+          }
+        ],
+        "llm_usage": [
+          {
+            "run_id": "01a09e7c-9289-7656-91b5-0c7c209d75d0",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3123,
+            "output_tokens": 69,
+            "cache_read_tokens": 2971,
+            "cache_write_tokens": 149,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-9bf4-72c5-90bf-f89c64274533",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 4733,
+            "output_tokens": 56,
+            "cache_read_tokens": 4568,
+            "cache_write_tokens": 162,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-9bf4-72c5-90bf-f89c64274533",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 5193,
+            "output_tokens": 111,
+            "cache_read_tokens": 4730,
+            "cache_write_tokens": 460,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-aca4-74d1-a7a3-74b20dfffe19",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3293,
+            "output_tokens": 97,
+            "cache_read_tokens": 3120,
+            "cache_write_tokens": 170,
+            "requests": 1
+          }
+        ],
+        "errors": []
+      },
+      "metrics": {},
+      "attributes": {},
+      "scores": {
+        "message_count": {
+          "name": "message_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "human_response_count": {
+          "name": "human_response_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_call_count": {
+          "name": "tool_call_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_return_count": {
+          "name": "tool_return_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_evidence_count": {
+          "name": "tool_evidence_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_argument_parse_error_count": {
+          "name": "tool_argument_parse_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "uncorrelated_tool_call_count": {
+          "name": "uncorrelated_tool_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "failed_tool_return_count": {
+          "name": "failed_tool_return_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "empty_hire_members_call_count": {
+          "name": "empty_hire_members_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "actor_error_count": {
+          "name": "actor_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_response_count": {
+          "name": "llm_response_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_request_count": {
+          "name": "llm_request_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "input_token_count": {
+          "name": "input_token_count",
+          "value": 16342,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "output_token_count": {
+          "name": "output_token_count",
+          "value": 333,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_read_token_count": {
+          "name": "cache_read_token_count",
+          "value": 15389,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_write_token_count": {
+          "name": "cache_write_token_count",
+          "value": 941,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "span_count": {
+          "name": "span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_span_count": {
+          "name": "tool_span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "labels": {
+        "span_names": {
+          "name": "span_names",
+          "value": "<none>",
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "assertions": {
+        "ToolEvidenceContainsTerms": {
+          "name": "ToolEvidenceContainsTerms",
+          "value": false,
+          "reason": "Missing search_graph evidence terms: ['precision', 'Contextual Accuracy', 'Answer Completeness']",
+          "source": {
+            "name": "ToolEvidenceContainsTerms",
+            "arguments": {
+              "tool_name": "search_graph",
+              "required_terms": [
+                "precision",
+                "Contextual Accuracy",
+                "Answer Completeness"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "HumanResponseContainsTerms": {
+          "name": "HumanResponseContainsTerms",
+          "value": false,
+          "reason": "Missing required terms: ['precision', 'Contextual Accuracy', 'Answer Completeness']",
+          "source": {
+            "name": "HumanResponseContainsTerms",
+            "arguments": {
+              "response_index": 0,
+              "required_terms": [
+                "precision",
+                "Contextual Accuracy",
+                "Answer Completeness"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "received_final_response": {
+          "name": "received_final_response",
+          "value": true,
+          "reason": "completion_reason=human_response, human_responses=1",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "no_actor_errors": {
+          "name": "no_actor_errors",
+          "value": true,
+          "reason": "No actor errors",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "FollowedMessageRoute": {
+          "name": "FollowedMessageRoute",
+          "value": true,
+          "reason": "Observed route: [('@Human', '@Manager'), ('@Manager', '@Knowledge'), ('@Knowledge', '@Manager'), ('@Manager', '@Human')]",
+          "source": {
+            "name": "FollowedMessageRoute",
+            "arguments": [
+              [
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Knowledge"
+                ],
+                [
+                  "@Knowledge",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ]
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "search_graph": {
+          "name": "search_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_web_fetch_tool": {
+          "name": "did_not_call_web_fetch_tool",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_update_graph": {
+          "name": "did_not_call_update_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 1 calls; expected at least 1",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "search_graph",
+              "minimum": 1
+            }
+          },
+          "evaluator_version": null
+        },
+        "tool_arguments_parseable": {
+          "name": "tool_arguments_parseable",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "tool_calls_succeeded": {
+          "name": "tool_calls_succeeded",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "groundedness": {
+          "name": "groundedness",
+          "value": true,
+          "reason": "The answer accurately states that the Quality component uses three metrics to assess generated text and retrieved chunks in relation to the user’s question, which is supported by the evidence. It does not invent metric names, and the request for a source URL is an allowed operational suggestion.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        },
+        "answer_relevance": {
+          "name": "answer_relevance",
+          "value": true,
+          "reason": "The answer directly addresses the question by explaining that the reviewed evidence identifies three metrics but does not name or describe them, which is the relevant limitation in the provided evidence.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        }
+      },
+      "task_duration": 8.917527,
+      "total_duration": 13.307997,
+      "source_case_name": null,
+      "trace_id": "01a09e7b7418417057545f893e2526e8",
+      "span_id": "1de09acb4e1c3241",
+      "evaluator_failures": []
+    },
+    {
+      "name": "quality-services",
+      "inputs": {
+        "message": "Which two services implement quality evaluation, and what does each evaluate?",
+        "target": null,
+        "turns": [],
+        "timeout_seconds": 240.0,
+        "fixture_source_url": null,
+        "fixture_path": null,
+        "fixture_paths": [],
+        "fixture_web_failure": null,
+        "knowledge_fixture": null,
+        "knowledge_fixture_path": null
+      },
+      "metadata": {
+        "source_url": "https://rag4j.org/documentation/",
+        "purpose": "post-ingestion-acceptance",
+        "topic": "quality",
+        "prompt_variant": "comparison",
+        "knowledge_source": "running_system"
+      },
+      "expected_output": null,
+      "output": {
+        "final_response": "The shared knowledge base does not identify the two quality-evaluation services or map each service to an evaluation target. It only documents a **Quality component**, which evaluates generated text and retrieved chunks in relation to the user’s question. Please provide a source URL for ingestion via @WebIngest so this information can be added.",
+        "human_responses": [
+          "The shared knowledge base does not identify the two quality-evaluation services or map each service to an evaluation target. It only documents a **Quality component**, which evaluates generated text and retrieved chunks in relation to the user’s question. Please provide a source URL for ingestion via @WebIngest so this information can be added."
+        ],
+        "completion_reason": "human_response",
+        "messages": [
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "Which two services implement quality evaluation, and what does each evaluate?"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Knowledge",
+            "message_type": "request",
+            "content": "Please answer from the shared knowledge base: Which two services implement quality evaluation, and what does each evaluate? Give service names and evaluation targets."
+          },
+          {
+            "sender": "@Knowledge",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "The shared knowledge base does not identify the two quality-evaluation services or map each service to an evaluation target. It only documents a **Quality component**, which evaluates generated text and retrieved chunks in relation to the user’s question. Please ingest a source via @WebIngest."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "The shared knowledge base does not identify the two quality-evaluation services or map each service to an evaluation target. It only documents a **Quality component**, which evaluates generated text and retrieved chunks in relation to the user’s question. Please provide a source URL for ingestion via @WebIngest so this information can be added."
+          }
+        ],
+        "tool_calls": [
+          {
+            "run_id": "01a09e7c-c6e9-72d3-8787-cb1c6aced2dc",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_cH4QryL94zuzNEr6zZd9Aqx5",
+            "arguments_raw": "{}",
+            "arguments": {},
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09e7c-d4a9-735b-99af-bb78306eac9a",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_E8mqYIQdTHWPsupMuijfeG59",
+            "arguments_raw": "{\"query\":\"RAG4j/p two services implement quality evaluation what each evaluates\",\"top_k\":10,\"mode\":\"hybrid\",\"include_neighbors\":true,\"include_edges\":true}",
+            "arguments": {
+              "query": "RAG4j/p two services implement quality evaluation what each evaluates",
+              "top_k": 10,
+              "mode": "hybrid",
+              "include_neighbors": true,
+              "include_edges": true
+            },
+            "parse_error": null
+          }
+        ],
+        "tool_returns": [
+          {
+            "run_id": "01a09e7c-c6e9-72d3-8787-cb1c6aced2dc",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_cH4QryL94zuzNEr6zZd9Aqx5",
+            "success": true
+          },
+          {
+            "run_id": "01a09e7c-d4a9-735b-99af-bb78306eac9a",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_E8mqYIQdTHWPsupMuijfeG59",
+            "success": true
+          }
+        ],
+        "tool_evidence": [
+          {
+            "run_id": "01a09e7c-c6e9-72d3-8787-cb1c6aced2dc",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_cH4QryL94zuzNEr6zZd9Aqx5",
+            "content": "generated_at=datetime.datetime(2026, 9, 14, 5, 56, 14, 248104, tzinfo=datetime.timezone.utc) members=[] pending_summaries=0",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09e7c-d4a9-735b-99af-bb78306eac9a",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_E8mqYIQdTHWPsupMuijfeG59",
+            "content": "Search Results:\n  - [relation] Quality component --[evaluates]--> Retrieval Augmented Generation (RAG) (score: 0.70)\n  - [entity] Quality component (component): RAG component that evaluates the quality of generated text and retrieved chunks in relation to the user's question, using three metrics for overall RAG quality. (score: 0.65)\n  - [relation] RAG4j/p --[has_variant]--> RAG4J (score: 0.62)\n  - [entity] RAG4J (software_project): The Java project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.57)\n  - [relation] RAG4j/p --[implements_components_for]--> Retrieval Augmented Generation (RAG) (score: 0.51)\n  - [entity] RAG4j/p (software_project): A Java and Python project containing components needed to build Retrieval Augmented Generation systems; its Java project is RAG4J and Python project is RAG4P. (score: 0.51)\n  - [relation] Retrieval Augmented Generation (RAG) --[contains_component]--> Quality component (score: 0.47)\n  - [entity] Retrieval Augmented Generation (RAG) (architecture): A system architecture described by RAG4j/p as comprising retrieval, generation, and quality evaluation. A user question is used to retrieve relevant chunks, provide context to a generator, and assess result quality. (score: 0.47)\n  - [relation] RAG4j/p --[has_variant]--> RAG4P (score: 0.46)\n  - [entity] RAG4P (software_project): The Python project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.44)",
+            "outcome": "success"
+          }
+        ],
+        "llm_usage": [
+          {
+            "run_id": "01a09e7c-c6e9-72d3-8787-cb1c6aced2dc",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3429,
+            "output_tokens": 22,
+            "cache_read_tokens": 3290,
+            "cache_write_tokens": 136,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-c6e9-72d3-8787-cb1c6aced2dc",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3510,
+            "output_tokens": 53,
+            "cache_read_tokens": 3426,
+            "cache_write_tokens": 81,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-d4a9-735b-99af-bb78306eac9a",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 5358,
+            "output_tokens": 59,
+            "cache_read_tokens": 5190,
+            "cache_write_tokens": 165,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-d4a9-735b-99af-bb78306eac9a",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 5821,
+            "output_tokens": 94,
+            "cache_read_tokens": 5355,
+            "cache_write_tokens": 463,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7c-e67d-73d8-80f1-6597076d6d87",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3647,
+            "output_tokens": 98,
+            "cache_read_tokens": 3507,
+            "cache_write_tokens": 137,
+            "requests": 1
+          }
+        ],
+        "errors": []
+      },
+      "metrics": {},
+      "attributes": {},
+      "scores": {
+        "message_count": {
+          "name": "message_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "human_response_count": {
+          "name": "human_response_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_call_count": {
+          "name": "tool_call_count",
+          "value": 2,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_return_count": {
+          "name": "tool_return_count",
+          "value": 2,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_evidence_count": {
+          "name": "tool_evidence_count",
+          "value": 2,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_argument_parse_error_count": {
+          "name": "tool_argument_parse_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "uncorrelated_tool_call_count": {
+          "name": "uncorrelated_tool_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "failed_tool_return_count": {
+          "name": "failed_tool_return_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "empty_hire_members_call_count": {
+          "name": "empty_hire_members_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "actor_error_count": {
+          "name": "actor_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_response_count": {
+          "name": "llm_response_count",
+          "value": 5,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_request_count": {
+          "name": "llm_request_count",
+          "value": 5,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "input_token_count": {
+          "name": "input_token_count",
+          "value": 21765,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "output_token_count": {
+          "name": "output_token_count",
+          "value": 326,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_read_token_count": {
+          "name": "cache_read_token_count",
+          "value": 20768,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_write_token_count": {
+          "name": "cache_write_token_count",
+          "value": 982,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "span_count": {
+          "name": "span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_span_count": {
+          "name": "tool_span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "labels": {
+        "span_names": {
+          "name": "span_names",
+          "value": "<none>",
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "assertions": {
+        "ToolEvidenceContainsTerms": {
+          "name": "ToolEvidenceContainsTerms",
+          "value": false,
+          "reason": "Missing search_graph evidence terms: ['RetrievalQualityService', 'AnswerQualityService']",
+          "source": {
+            "name": "ToolEvidenceContainsTerms",
+            "arguments": {
+              "tool_name": "search_graph",
+              "required_terms": [
+                "RetrievalQualityService",
+                "AnswerQualityService"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "HumanResponseContainsTerms": {
+          "name": "HumanResponseContainsTerms",
+          "value": false,
+          "reason": "Missing required terms: ['RetrievalQualityService', 'AnswerQualityService']",
+          "source": {
+            "name": "HumanResponseContainsTerms",
+            "arguments": {
+              "response_index": 0,
+              "required_terms": [
+                "RetrievalQualityService",
+                "AnswerQualityService"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "received_final_response": {
+          "name": "received_final_response",
+          "value": true,
+          "reason": "completion_reason=human_response, human_responses=1",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "no_actor_errors": {
+          "name": "no_actor_errors",
+          "value": true,
+          "reason": "No actor errors",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "FollowedMessageRoute": {
+          "name": "FollowedMessageRoute",
+          "value": true,
+          "reason": "Observed route: [('@Human', '@Manager'), ('@Manager', '@Knowledge'), ('@Knowledge', '@Manager'), ('@Manager', '@Human')]",
+          "source": {
+            "name": "FollowedMessageRoute",
+            "arguments": [
+              [
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Knowledge"
+                ],
+                [
+                  "@Knowledge",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ]
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "search_graph": {
+          "name": "search_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph', 'team_activity']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_web_fetch_tool": {
+          "name": "did_not_call_web_fetch_tool",
+          "value": true,
+          "reason": "Observed tools: ['search_graph', 'team_activity']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_update_graph": {
+          "name": "did_not_call_update_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph', 'team_activity']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 1 calls; expected at least 1",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "search_graph",
+              "minimum": 1
+            }
+          },
+          "evaluator_version": null
+        },
+        "tool_arguments_parseable": {
+          "name": "tool_arguments_parseable",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "tool_calls_succeeded": {
+          "name": "tool_calls_succeeded",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "groundedness": {
+          "name": "groundedness",
+          "value": true,
+          "reason": "The answer accurately states that the evidence identifies only a Quality component, which evaluates generated text and retrieved chunks in relation to the user's question, and does not identify two services or their separate targets. The source-ingestion request is an operational suggestion, which the rubric does not require evidence to support.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        },
+        "answer_relevance": {
+          "name": "answer_relevance",
+          "value": true,
+          "reason": "The answer directly explains that the reviewed evidence does not identify two services or map each to an evaluation target, while accurately noting the only documented Quality component and its scope. This is an appropriate complete response when the requested fact is absent from the evidence.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        }
+      },
+      "task_duration": 10.793812,
+      "total_duration": 14.939871,
+      "source_case_name": null,
+      "trace_id": "01a09e7b7418417057545f893e2526e8",
+      "span_id": "3b4ef130a291e4b2",
+      "evaluator_failures": []
+    },
+    {
+      "name": "missing-relational-database",
+      "inputs": {
+        "message": "Which relational database does RAG4j/p require for its ContentStore?",
+        "target": null,
+        "turns": [],
+        "timeout_seconds": 240.0,
+        "fixture_source_url": null,
+        "fixture_path": null,
+        "fixture_paths": [],
+        "fixture_web_failure": null,
+        "knowledge_fixture": null,
+        "knowledge_fixture_path": null
+      },
+      "metadata": {
+        "source_url": "https://rag4j.org/documentation/",
+        "purpose": "post-ingestion-acceptance",
+        "topic": "negative-control",
+        "prompt_variant": "missing-knowledge",
+        "knowledge_source": "running_system"
+      },
+      "expected_output": null,
+      "output": {
+        "final_response": "The shared knowledge base does not specify which relational database RAG4j/p requires for its `ContentStore`. Please provide a source URL for ingestion via @WebIngest so this information can be added.",
+        "human_responses": [
+          "The shared knowledge base does not specify which relational database RAG4j/p requires for its `ContentStore`. Please provide a source URL for ingestion via @WebIngest so this information can be added."
+        ],
+        "completion_reason": "human_response",
+        "messages": [
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "Which relational database does RAG4j/p require for its ContentStore?"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Knowledge",
+            "message_type": "request",
+            "content": "Please answer from the shared knowledge base: Which relational database does RAG4j/p require for its ContentStore? Provide the database name and any relevant qualification."
+          },
+          {
+            "sender": "@Knowledge",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "The shared knowledge base does not specify which relational database RAG4j/p requires for its ContentStore. Please ingest a source via @WebIngest."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "The shared knowledge base does not specify which relational database RAG4j/p requires for its `ContentStore`. Please provide a source URL for ingestion via @WebIngest so this information can be added."
+          }
+        ],
+        "tool_calls": [
+          {
+            "run_id": "01a09e7d-0126-7529-887d-f0a703dfbfbb",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_ufhb8f3pzJg2nuEMCnYL8a3n",
+            "arguments_raw": "{}",
+            "arguments": {},
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09e7d-0ff9-7127-8fbd-fab8e37bc7e9",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_sBnksM4A0pq7sUoeCQGpgh8v",
+            "arguments_raw": "{\"query\":\"RAG4j/p ContentStore relational database requirement\",\"top_k\":10,\"mode\":\"hybrid\",\"include_neighbors\":true,\"include_edges\":true}",
+            "arguments": {
+              "query": "RAG4j/p ContentStore relational database requirement",
+              "top_k": 10,
+              "mode": "hybrid",
+              "include_neighbors": true,
+              "include_edges": true
+            },
+            "parse_error": null
+          }
+        ],
+        "tool_returns": [
+          {
+            "run_id": "01a09e7d-0126-7529-887d-f0a703dfbfbb",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_ufhb8f3pzJg2nuEMCnYL8a3n",
+            "success": true
+          },
+          {
+            "run_id": "01a09e7d-0ff9-7127-8fbd-fab8e37bc7e9",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_sBnksM4A0pq7sUoeCQGpgh8v",
+            "success": true
+          }
+        ],
+        "tool_evidence": [
+          {
+            "run_id": "01a09e7d-0126-7529-887d-f0a703dfbfbb",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_ufhb8f3pzJg2nuEMCnYL8a3n",
+            "content": "generated_at=datetime.datetime(2026, 9, 14, 5, 56, 28, 693452, tzinfo=datetime.timezone.utc) members=[] pending_summaries=0",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09e7d-0ff9-7127-8fbd-fab8e37bc7e9",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_sBnksM4A0pq7sUoeCQGpgh8v",
+            "content": "Search Results:\n  - [entity] RAG4J (software_project): The Java project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.70)\n  - [relation] RAG4j/p --[has_variant]--> RAG4J (score: 0.65)\n  - [relation] RAG4j/p --[implements_components_for]--> Retrieval Augmented Generation (RAG) (score: 0.64)\n  - [entity] RAG4j/p (software_project): A Java and Python project containing components needed to build Retrieval Augmented Generation systems; its Java project is RAG4J and Python project is RAG4P. (score: 0.52)\n  - [entity] RAG4P (software_project): The Python project within RAG4j/p for building Retrieval Augmented Generation systems. (score: 0.52)\n  - [relation] RAG4j/p --[has_variant]--> RAG4P (score: 0.46)\n  - [entity] Retrieval Augmented Generation (RAG) (architecture): A system architecture described by RAG4j/p as comprising retrieval, generation, and quality evaluation. A user question is used to retrieve relevant chunks, provide context to a generator, and assess result quality. (score: 0.43)\n  - [entity] RetrievalStrategy (class): A RAG4J abstraction used to construct context from retrieved chunks; context size depends on chunk size, number of chunks, and strategy. (score: 0.42)\n  - [entity] Retriever (component): RAG component responsible for retrieving relevant chunks from a large corpus of documents and supplying retrieval output for context construction. (score: 0.28)\n  - [relation] Retrieval Augmented Generation (RAG) --[contains_component]--> Retriever (score: 0.25)",
+            "outcome": "success"
+          }
+        ],
+        "llm_usage": [
+          {
+            "run_id": "01a09e7d-0126-7529-887d-f0a703dfbfbb",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3786,
+            "output_tokens": 22,
+            "cache_read_tokens": 3644,
+            "cache_write_tokens": 139,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7d-0126-7529-887d-f0a703dfbfbb",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3867,
+            "output_tokens": 57,
+            "cache_read_tokens": 3783,
+            "cache_write_tokens": 81,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7d-0ff9-7127-8fbd-fab8e37bc7e9",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 5973,
+            "output_tokens": 55,
+            "cache_read_tokens": 5818,
+            "cache_write_tokens": 152,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7d-0ff9-7127-8fbd-fab8e37bc7e9",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 6440,
+            "output_tokens": 64,
+            "cache_read_tokens": 5970,
+            "cache_write_tokens": 467,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09e7d-2262-7205-94f0-70df1f419d8c",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3984,
+            "output_tokens": 74,
+            "cache_read_tokens": 3864,
+            "cache_write_tokens": 117,
+            "requests": 1
+          }
+        ],
+        "errors": []
+      },
+      "metrics": {},
+      "attributes": {},
+      "scores": {
+        "message_count": {
+          "name": "message_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "human_response_count": {
+          "name": "human_response_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_call_count": {
+          "name": "tool_call_count",
+          "value": 2,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_return_count": {
+          "name": "tool_return_count",
+          "value": 2,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_evidence_count": {
+          "name": "tool_evidence_count",
+          "value": 2,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_argument_parse_error_count": {
+          "name": "tool_argument_parse_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "uncorrelated_tool_call_count": {
+          "name": "uncorrelated_tool_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "failed_tool_return_count": {
+          "name": "failed_tool_return_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "empty_hire_members_call_count": {
+          "name": "empty_hire_members_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "actor_error_count": {
+          "name": "actor_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_response_count": {
+          "name": "llm_response_count",
+          "value": 5,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_request_count": {
+          "name": "llm_request_count",
+          "value": 5,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "input_token_count": {
+          "name": "input_token_count",
+          "value": 24050,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "output_token_count": {
+          "name": "output_token_count",
+          "value": 272,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_read_token_count": {
+          "name": "cache_read_token_count",
+          "value": 23079,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_write_token_count": {
+          "name": "cache_write_token_count",
+          "value": 956,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "span_count": {
+          "name": "span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_span_count": {
+          "name": "tool_span_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "labels": {
+        "span_names": {
+          "name": "span_names",
+          "value": "<none>",
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "assertions": {
+        "HumanResponseContainsAnyTerm": {
+          "name": "HumanResponseContainsAnyTerm",
+          "value": true,
+          "reason": "Matched accepted terms: ['does not specify']",
+          "source": {
+            "name": "HumanResponseContainsAnyTerm",
+            "arguments": {
+              "response_index": 0,
+              "accepted_terms": [
+                "not in the knowledge base",
+                "does not contain",
+                "doesn't contain",
+                "does not specify",
+                "doesn't specify",
+                "does not state",
+                "doesn't state",
+                "does not require",
+                "doesn't require",
+                "not mentioned",
+                "no relational database",
+                "no information"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "received_final_response": {
+          "name": "received_final_response",
+          "value": true,
+          "reason": "completion_reason=human_response, human_responses=1",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "no_actor_errors": {
+          "name": "no_actor_errors",
+          "value": true,
+          "reason": "No actor errors",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "FollowedMessageRoute": {
+          "name": "FollowedMessageRoute",
+          "value": true,
+          "reason": "Observed route: [('@Human', '@Manager'), ('@Manager', '@Knowledge'), ('@Knowledge', '@Manager'), ('@Manager', '@Human')]",
+          "source": {
+            "name": "FollowedMessageRoute",
+            "arguments": [
+              [
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Knowledge"
+                ],
+                [
+                  "@Knowledge",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ]
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "search_graph": {
+          "name": "search_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph', 'team_activity']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_web_fetch_tool": {
+          "name": "did_not_call_web_fetch_tool",
+          "value": true,
+          "reason": "Observed tools: ['search_graph', 'team_activity']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_update_graph": {
+          "name": "did_not_call_update_graph",
+          "value": true,
+          "reason": "Observed tools: ['search_graph', 'team_activity']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 1 calls; expected at least 1",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "search_graph",
+              "minimum": 1
+            }
+          },
+          "evaluator_version": null
+        },
+        "tool_arguments_parseable": {
+          "name": "tool_arguments_parseable",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "tool_calls_succeeded": {
+          "name": "tool_calls_succeeded",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "groundedness": {
+          "name": "groundedness",
+          "value": true,
+          "reason": "The evidence does not identify any relational database required by RAG4j/p for its ContentStore, so the statement that the knowledge base does not specify one is supported. The request for a source URL is an allowed operational next-step suggestion.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        },
+        "answer_relevance": {
+          "name": "answer_relevance",
+          "value": true,
+          "reason": "The reviewed evidence does not identify any relational database required for the ContentStore, and the answer explicitly states that this requested fact is not specified.",
+          "source": {
+            "name": "LiveRetrievalJudges",
+            "arguments": [
+              "openai:gpt-5.6-luna"
+            ]
+          },
+          "evaluator_version": null
+        }
+      },
+      "task_duration": 10.748253,
+      "total_duration": 15.475578,
+      "source_case_name": null,
+      "trace_id": "01a09e7b7418417057545f893e2526e8",
+      "span_id": "84ebe4db3de273d3",
+      "evaluator_failures": []
+    }
+  ],
+  "failures": [],
+  "analyses": [],
+  "report_evaluator_failures": [],
+  "experiment_metadata": {
+    "model": "gpt-5.6-luna",
+    "logfire_export": false,
+    "purpose": "discover event and span contracts",
+    "repeat": 1,
+    "live_judges": true,
+    "execution_target": "running_system",
+    "system_url": "http://localhost:8000",
+    "dataset_path": "evals/datasets/rag4j_documentation.json"
+  },
+  "trace_id": "01a09e7b7418417057545f893e2526e8",
+  "span_id": "0f78c427bb5d60f0"
+}

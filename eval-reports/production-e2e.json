@@ -1,0 +1,2136 @@
+{
+  "name": "production-e2e-observability",
+  "cases": [
+    {
+      "name": "ingest-and-query-jettro-about",
+      "inputs": {
+        "message": null,
+        "target": null,
+        "turns": [
+          {
+            "message": "Ingest https://coenradie.com/about and focus on Jettro Coenradie's profession and name.",
+            "target": null
+          },
+          {
+            "message": "What is the profession of Jettro Coenradie?",
+            "target": null
+          },
+          {
+            "message": "What is the last name of Jettro?",
+            "target": null
+          }
+        ],
+        "timeout_seconds": 180.0,
+        "fixture_source_url": "https://coenradie.com/about",
+        "fixture_path": "/Users/jettrocoenradie/Development/personal/akgents/knowledge-akgents/evals/fixtures/jettro_about.txt",
+        "fixture_paths": [],
+        "fixture_web_failure": null,
+        "knowledge_fixture_path": null
+      },
+      "metadata": {
+        "source_url": "https://coenradie.com/about",
+        "fixture_captured": "2026-09-12",
+        "mode": "fixed-fixture-multi-turn"
+      },
+      "expected_output": null,
+      "output": {
+        "final_response": "Jettro’s last name is **Coenradie**.",
+        "human_responses": [
+          "The page was successfully ingested. The exact name is **Jettro Coenradie**. He is a **software architect** and **search enthusiast**, with **25+ years of experience in consulting and information technology**.",
+          "Jettro Coenradie’s profession is **software architect**.",
+          "Jettro’s last name is **Coenradie**."
+        ],
+        "completion_reason": "human_response",
+        "messages": [
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "Ingest https://coenradie.com/about and focus on Jettro Coenradie's profession and name."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@WebIngest",
+            "message_type": "request",
+            "content": "Please ingest https://coenradie.com/about into the shared knowledge base. Focus specifically on Jettro Coenradie's profession and the correct spelling/form of his name. Report the extracted facts and confirm ingestion."
+          },
+          {
+            "sender": "@WebIngest",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "Ingested https://coenradie.com/about successfully. Stored the person entity with the exact name “Jettro Coenradie,” plus the facts that he is a software architect and a search enthusiast. Also stored his stated 25+ years of experience in consulting and information technology. Relations recorded: Jettro Coenradie HAS_PROFESSION Software architect; Jettro Coenradie HAS_ROLE_OR_INTEREST Search enthusiast."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "The page was successfully ingested. The exact name is **Jettro Coenradie**. He is a **software architect** and **search enthusiast**, with **25+ years of experience in consulting and information technology**."
+          },
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "What is the profession of Jettro Coenradie?"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Knowledge",
+            "message_type": "request",
+            "content": "Using the shared knowledge base, answer: What is the profession of Jettro Coenradie? Please provide a concise answer."
+          },
+          {
+            "sender": "@Knowledge",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "Jettro Coenradie’s profession is **Software architect**, based on the HAS_PROFESSION relation: Jettro Coenradie → Software architect."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "Jettro Coenradie’s profession is **software architect**."
+          },
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "What is the last name of Jettro?"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Knowledge",
+            "message_type": "request",
+            "content": "Using the shared knowledge base, answer: What is the last name of Jettro?"
+          },
+          {
+            "sender": "@Knowledge",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "Jettro’s last name is **Coenradie**, based on the knowledge-base entity **Jettro Coenradie** (Person)."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "Jettro’s last name is **Coenradie**."
+          }
+        ],
+        "tool_calls": [
+          {
+            "run_id": "01a09b58-ce50-7109-8753-578fbe195c75",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_2rMzVG5bZOqAVnUwc6AGNPPt",
+            "arguments_raw": "{}",
+            "arguments": {},
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b58-e3fa-7646-bd6c-c5a284fdbf30",
+            "tool_name": "web_fetch_tool",
+            "tool_call_id": "call_4ThLuqhxz0fJ72wpVEb0oFM2",
+            "arguments_raw": "{\"urls\":[\"https://coenradie.com/about\"],\"query\":\"Focus on Jettro Coenradie's profession and the correct spelling/form of his name. Extract substantive facts.\",\"chunks_per_source\":5,\"timeout\":30,\"extract_depth\":\"advanced\",\"force\":false}",
+            "arguments": {
+              "urls": [
+                "https://coenradie.com/about"
+              ],
+              "query": "Focus on Jettro Coenradie's profession and the correct spelling/form of his name. Extract substantive facts.",
+              "chunks_per_source": 5,
+              "timeout": 30,
+              "extract_depth": "advanced",
+              "force": false
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b58-e3fa-7646-bd6c-c5a284fdbf30",
+            "tool_name": "update_graph",
+            "tool_call_id": "call_MEoWvttG4Zf7aQmv9fCkNBtv",
+            "arguments_raw": "{\"create_entities\":[{\"name\":\"Jettro Coenradie\",\"entity_type\":\"Person\",\"description\":\"Author of the about page; the page gives his name in this exact form: Jettro Coenradie.\",\"observations\":[\"Describes himself as a software architect and search enthusiast.\",\"Has worked in consulting and information technology for more than 25 years.\"]},{\"name\":\"Software architect\",\"entity_type\":\"Profession\",\"description\":\"Profession explicitly stated by Jettro Coenradie on his About page.\"},{\"name\":\"Search enthusiast\",\"entity_type\":\"Role/Interest\",\"description\":\"Description explicitly used by Jettro Coenradie on his About page.\"}],\"create_relations\":[{\"from_entity\":\"Jettro Coenradie\",\"to_entity\":\"Software architect\",\"relation_type\":\"HAS_PROFESSION\",\"description\":\"The About page identifies Jettro Coenradie as a software architect.\"},{\"from_entity\":\"Jettro Coenradie\",\"to_entity\":\"Search enthusiast\",\"relation_type\":\"HAS_ROLE_OR_INTEREST\",\"description\":\"The About page identifies Jettro Coenradie as a search enthusiast.\"}]}",
+            "arguments": {
+              "create_entities": [
+                {
+                  "name": "Jettro Coenradie",
+                  "entity_type": "Person",
+                  "description": "Author of the about page; the page gives his name in this exact form: Jettro Coenradie.",
+                  "observations": [
+                    "Describes himself as a software architect and search enthusiast.",
+                    "Has worked in consulting and information technology for more than 25 years."
+                  ]
+                },
+                {
+                  "name": "Software architect",
+                  "entity_type": "Profession",
+                  "description": "Profession explicitly stated by Jettro Coenradie on his About page."
+                },
+                {
+                  "name": "Search enthusiast",
+                  "entity_type": "Role/Interest",
+                  "description": "Description explicitly used by Jettro Coenradie on his About page."
+                }
+              ],
+              "create_relations": [
+                {
+                  "from_entity": "Jettro Coenradie",
+                  "to_entity": "Software architect",
+                  "relation_type": "HAS_PROFESSION",
+                  "description": "The About page identifies Jettro Coenradie as a software architect."
+                },
+                {
+                  "from_entity": "Jettro Coenradie",
+                  "to_entity": "Search enthusiast",
+                  "relation_type": "HAS_ROLE_OR_INTEREST",
+                  "description": "The About page identifies Jettro Coenradie as a search enthusiast."
+                }
+              ]
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b58-e3fa-7646-bd6c-c5a284fdbf30",
+            "tool_name": "commit_web_ingestion",
+            "tool_call_id": "call_VByAMjzwMiAhwulXQhT8fgKz",
+            "arguments_raw": "{\"url\":\"https://coenradie.com/about\",\"content_hash\":\"803bfeb0efb6a4791db855f06b7428f59a9b629b00f9d1f45d79bea29511cef9\",\"owned_entities\":[\"Jettro Coenradie\",\"Software architect\",\"Search enthusiast\"],\"owned_relations\":[{\"from_entity\":\"Jettro Coenradie\",\"to_entity\":\"Software architect\",\"relation_type\":\"HAS_PROFESSION\"},{\"from_entity\":\"Jettro Coenradie\",\"to_entity\":\"Search enthusiast\",\"relation_type\":\"HAS_ROLE_OR_INTEREST\"}]}",
+            "arguments": {
+              "url": "https://coenradie.com/about",
+              "content_hash": "803bfeb0efb6a4791db855f06b7428f59a9b629b00f9d1f45d79bea29511cef9",
+              "owned_entities": [
+                "Jettro Coenradie",
+                "Software architect",
+                "Search enthusiast"
+              ],
+              "owned_relations": [
+                {
+                  "from_entity": "Jettro Coenradie",
+                  "to_entity": "Software architect",
+                  "relation_type": "HAS_PROFESSION"
+                },
+                {
+                  "from_entity": "Jettro Coenradie",
+                  "to_entity": "Search enthusiast",
+                  "relation_type": "HAS_ROLE_OR_INTEREST"
+                }
+              ]
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b59-3fd0-7403-9d3e-278455211c3a",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_yeekmHmDIEpzDypsdx2uQ1vZ",
+            "arguments_raw": "{\"query\":\"Jettro Coenradie profession\",\"mode\":\"hybrid\",\"top_k\":10,\"include_edges\":true}",
+            "arguments": {
+              "query": "Jettro Coenradie profession",
+              "mode": "hybrid",
+              "top_k": 10,
+              "include_edges": true
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b59-6b82-72dd-ba25-6de548381eaa",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_hAlJsKtWn9GBShO81N0V3Mgo",
+            "arguments_raw": "{\"query\":\"Jettro last name\",\"mode\":\"hybrid\",\"top_k\":10,\"include_edges\":true}",
+            "arguments": {
+              "query": "Jettro last name",
+              "mode": "hybrid",
+              "top_k": 10,
+              "include_edges": true
+            },
+            "parse_error": null
+          }
+        ],
+        "tool_returns": [
+          {
+            "run_id": "01a09b58-ce50-7109-8753-578fbe195c75",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_2rMzVG5bZOqAVnUwc6AGNPPt",
+            "success": true
+          },
+          {
+            "run_id": "01a09b58-e3fa-7646-bd6c-c5a284fdbf30",
+            "tool_name": "web_fetch_tool",
+            "tool_call_id": "call_4ThLuqhxz0fJ72wpVEb0oFM2",
+            "success": true
+          },
+          {
+            "run_id": "01a09b58-e3fa-7646-bd6c-c5a284fdbf30",
+            "tool_name": "update_graph",
+            "tool_call_id": "call_MEoWvttG4Zf7aQmv9fCkNBtv",
+            "success": true
+          },
+          {
+            "run_id": "01a09b58-e3fa-7646-bd6c-c5a284fdbf30",
+            "tool_name": "commit_web_ingestion",
+            "tool_call_id": "call_VByAMjzwMiAhwulXQhT8fgKz",
+            "success": true
+          },
+          {
+            "run_id": "01a09b59-3fd0-7403-9d3e-278455211c3a",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_yeekmHmDIEpzDypsdx2uQ1vZ",
+            "success": true
+          },
+          {
+            "run_id": "01a09b59-6b82-72dd-ba25-6de548381eaa",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_hAlJsKtWn9GBShO81N0V3Mgo",
+            "success": true
+          }
+        ],
+        "tool_evidence": [
+          {
+            "run_id": "01a09b58-ce50-7109-8753-578fbe195c75",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_2rMzVG5bZOqAVnUwc6AGNPPt",
+            "content": "\"generated_at=datetime.datetime(2026, 9, 13, 15, 18, 6, 501995, tzinfo=datetime.timezone.utc) members=[] pending_summaries=0\"",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b58-e3fa-7646-bd6c-c5a284fdbf30",
+            "tool_name": "web_fetch_tool",
+            "tool_call_id": "call_4ThLuqhxz0fJ72wpVEb0oFM2",
+            "content": "{\"failed_results\": [], \"request_id\": \"f576c3f4-ff0c-494d-8636-190c12e13b46\", \"response_time\": 0.02, \"results\": [{\"content_hash\": \"803bfeb0efb6a4791db855f06b7428f59a9b629b00f9d1f45d79bea29511cef9\", \"content_status\": \"first\", \"images\": [], \"raw_content\": \"[Jettro Coenradie](/)\\n\\n# About\\n\\n![Jettro Coenradie](/img/author_hu_6b9f058a6925ed99.jpg)\\n\\nAuthor\\n\\nJettro Coenradie\\n\\nSoftware architect and search enthusiast. I write about AI, search, cloud, and software development.\\n\\nI have worked in consulting and information technology for more than 25 years. If that has taught me one thing, it is that everything changes, and you have to keep learning.\\n\\nThat fits me well. I like learning new things, especially when I can combine what I already know with something I have not tried before. Most of my work sits around software architecture, search, AI, data, and cloud-native development, but the thread running through all of it is curiosity.\\n\\nI also believe that sharing what you know is one of the best ways to grow. Over the years I have written hundreds of blog posts, presented at conferences, contributed to open-source projects, and helped with books and learning material. I hope to keep doing that for many years.\\n\\n[View my LinkedIn profile](https://www.linkedin.com/in/jettro/?skipRedirect=true)\\n\\n## What I Do [#](#what-i-do)\\n\\nI help teams turn complex technology into systems people can actually use and maintain. Search relevance, Elasticsearch, Solr, retrieval augmented generation, AI agents, and software architecture are recurring themes in my work.\\n\\nYou can find more of that work in my [posts](/posts/), [talks](/talks/), [projects](/projects/), and [publications](/publications/).\\n\\n## Growing People [#](#growing-people)\\n\\nTechnical learning is only part of the story. I have also invested in personal leadership, communication, and coaching. In recent years I trained as a coach and helped colleagues grow into leadership roles.\\n\\nThat work matters to me. Good technology depends on good teams, and good teams need people who are willing to listen, challenge, teach, and keep improving.\\n\\n## Things I Am Proud Of [#](#things-i-am-proud-of)\\n\\nAround 2021 I wanted to become more active in an open online community. With my background in Elasticsearch and Solr, the Search Relevance community felt like the right place. I started contributing to the Learning to Rank plugin for Elasticsearch and took on the task of migrating it to a newer Elasticsearch version. I finished the migration and got to know the maintainers along the way.\\n\\nI had thought about writing a book for a long time. I contributed chapters to books like *Elasticsearch in Action*, but had not created my own learning material yet. Manning later asked me to write an online training course. A few months after launch, almost 200 people had started the training, and the feedback was positive.\\n\\nIn 2023 I was selected to speak at Haystack Conference in the United States. I had spoken at conferences for years, but this was my first search conference outside Europe. I took the presentation further by introducing two characters, Frank and Amy. The feedback gave me a real boost in confidence.\\n\\n## Outside Work [#](#outside-work)\\n\\nI am a family man. I have a wife and two sons who now claim to be adults. I like riding my motorbike and taking my camera outside to photograph the beautiful things nature brings.\\n\\nA few guilty pleasures: I still buy printed books, I play video games on the PlayStation, and I buy a T-shirt at every Hard Rock Cafe I visit.\\n\\n \", \"title\": \"About · Jettro Coenradie\", \"url\": \"https://coenradie.com/about\"}]}",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b58-e3fa-7646-bd6c-c5a284fdbf30",
+            "tool_name": "update_graph",
+            "tool_call_id": "call_MEoWvttG4Zf7aQmv9fCkNBtv",
+            "content": "Done",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b58-e3fa-7646-bd6c-c5a284fdbf30",
+            "tool_name": "commit_web_ingestion",
+            "tool_call_id": "call_VByAMjzwMiAhwulXQhT8fgKz",
+            "content": "{\"content_hash\": \"803bfeb0efb6a4791db855f06b7428f59a9b629b00f9d1f45d79bea29511cef9\", \"status\": \"ingested\", \"times_ingested\": 1, \"url\": \"https://coenradie.com/about\"}",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b59-3fd0-7403-9d3e-278455211c3a",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_yeekmHmDIEpzDypsdx2uQ1vZ",
+            "content": "Search Results:\n  - [relation] Jettro Coenradie --[HAS_PROFESSION]--> Software architect (score: 0.70)\n  - [entity] Jettro Coenradie (Person): Author of the about page; the page gives his name in this exact form: Jettro Coenradie. (score: 0.68)\n  - [relation] Jettro Coenradie --[HAS_ROLE_OR_INTEREST]--> Search enthusiast (score: 0.51)\n  - [entity] Search enthusiast (Role/Interest): Description explicitly used by Jettro Coenradie on his About page. (score: 0.19)\n  - [entity] Software architect (Profession): Profession explicitly stated by Jettro Coenradie on his About page. (score: 0.00)",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b59-6b82-72dd-ba25-6de548381eaa",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_hAlJsKtWn9GBShO81N0V3Mgo",
+            "content": "Search Results:\n  - [entity] Jettro Coenradie (Person): Author of the about page; the page gives his name in this exact form: Jettro Coenradie. (score: 0.70)\n  - [entity] Search enthusiast (Role/Interest): Description explicitly used by Jettro Coenradie on his About page. (score: 0.53)\n  - [relation] Jettro Coenradie --[HAS_ROLE_OR_INTEREST]--> Search enthusiast (score: 0.52)\n  - [relation] Jettro Coenradie --[HAS_PROFESSION]--> Software architect (score: 0.43)\n  - [entity] Software architect (Profession): Profession explicitly stated by Jettro Coenradie on his About page. (score: 0.00)",
+            "outcome": "success"
+          }
+        ],
+        "llm_usage": [
+          {
+            "run_id": "01a09b58-ce50-7109-8753-578fbe195c75",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1316,
+            "output_tokens": 24,
+            "cache_read_tokens": 0,
+            "cache_write_tokens": 1313,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b58-ce50-7109-8753-578fbe195c75",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1399,
+            "output_tokens": 103,
+            "cache_read_tokens": 1313,
+            "cache_write_tokens": 83,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b58-e3fa-7646-bd6c-c5a284fdbf30",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3123,
+            "output_tokens": 81,
+            "cache_read_tokens": 0,
+            "cache_write_tokens": 3120,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b58-e3fa-7646-bd6c-c5a284fdbf30",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 4101,
+            "output_tokens": 344,
+            "cache_read_tokens": 3120,
+            "cache_write_tokens": 978,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b58-e3fa-7646-bd6c-c5a284fdbf30",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 4457,
+            "output_tokens": 144,
+            "cache_read_tokens": 4098,
+            "cache_write_tokens": 356,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b58-e3fa-7646-bd6c-c5a284fdbf30",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 4679,
+            "output_tokens": 131,
+            "cache_read_tokens": 4454,
+            "cache_write_tokens": 222,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-2a4a-7490-a5aa-6a31ec4ca2d4",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1625,
+            "output_tokens": 83,
+            "cache_read_tokens": 1396,
+            "cache_write_tokens": 226,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-3644-70d6-8548-50f8c2108f0e",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1746,
+            "output_tokens": 62,
+            "cache_read_tokens": 1622,
+            "cache_write_tokens": 121,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-3fd0-7403-9d3e-278455211c3a",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1582,
+            "output_tokens": 51,
+            "cache_read_tokens": 0,
+            "cache_write_tokens": 1579,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-3fd0-7403-9d3e-278455211c3a",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1825,
+            "output_tokens": 72,
+            "cache_read_tokens": 1579,
+            "cache_write_tokens": 243,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-5509-7219-8a8b-88d35ff57d56",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1871,
+            "output_tokens": 40,
+            "cache_read_tokens": 1743,
+            "cache_write_tokens": 125,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-6038-7678-bcc9-9a4a9f483b60",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1947,
+            "output_tokens": 53,
+            "cache_read_tokens": 1868,
+            "cache_write_tokens": 76,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-6b82-72dd-ba25-6de548381eaa",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1941,
+            "output_tokens": 48,
+            "cache_read_tokens": 1822,
+            "cache_write_tokens": 116,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-6b82-72dd-ba25-6de548381eaa",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2181,
+            "output_tokens": 71,
+            "cache_read_tokens": 1938,
+            "cache_write_tokens": 240,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-8005-761c-8a22-9cb7b5ff3df1",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2060,
+            "output_tokens": 39,
+            "cache_read_tokens": 1944,
+            "cache_write_tokens": 113,
+            "requests": 1
+          }
+        ],
+        "errors": []
+      },
+      "metrics": {
+        "requests": 15,
+        "input_tokens": 35853,
+        "output_tokens": 1346,
+        "cache_creation.input_tokens": 8911,
+        "reasoning_tokens": 219,
+        "cache_write_tokens": 8911,
+        "cost": 0.004389890000000001,
+        "cache_read.input_tokens": 26897,
+        "cache_read_tokens": 26897
+      },
+      "attributes": {},
+      "scores": {
+        "message_count": {
+          "name": "message_count",
+          "value": 12,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "human_response_count": {
+          "name": "human_response_count",
+          "value": 3,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_call_count": {
+          "name": "tool_call_count",
+          "value": 6,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_return_count": {
+          "name": "tool_return_count",
+          "value": 6,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_evidence_count": {
+          "name": "tool_evidence_count",
+          "value": 6,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_argument_parse_error_count": {
+          "name": "tool_argument_parse_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "uncorrelated_tool_call_count": {
+          "name": "uncorrelated_tool_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "failed_tool_return_count": {
+          "name": "failed_tool_return_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "empty_hire_members_call_count": {
+          "name": "empty_hire_members_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "actor_error_count": {
+          "name": "actor_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_response_count": {
+          "name": "llm_response_count",
+          "value": 15,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_request_count": {
+          "name": "llm_request_count",
+          "value": 15,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "input_token_count": {
+          "name": "input_token_count",
+          "value": 35853,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "output_token_count": {
+          "name": "output_token_count",
+          "value": 1346,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_read_token_count": {
+          "name": "cache_read_token_count",
+          "value": 26897,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_write_token_count": {
+          "name": "cache_write_token_count",
+          "value": 8911,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "span_count": {
+          "name": "span_count",
+          "value": 30,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_span_count": {
+          "name": "tool_span_count",
+          "value": 6,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "labels": {
+        "span_names": {
+          "name": "span_names",
+          "value": "chat gpt-5.6-luna | execute_tool commit_web_ingestion | execute_tool search_graph | execute_tool team_activity | execute_tool update_graph | execute_tool web_fetch_tool | invoke_agent agent",
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "assertions": {
+        "received_final_response": {
+          "name": "received_final_response",
+          "value": true,
+          "reason": "completion_reason=human_response, human_responses=3",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": [
+              3
+            ]
+          },
+          "evaluator_version": null
+        },
+        "no_actor_errors": {
+          "name": "no_actor_errors",
+          "value": true,
+          "reason": "No actor errors",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": [
+              3
+            ]
+          },
+          "evaluator_version": null
+        },
+        "FollowedMessageRoute": {
+          "name": "FollowedMessageRoute",
+          "value": true,
+          "reason": "Observed route: [('@Human', '@Manager'), ('@Manager', '@WebIngest'), ('@WebIngest', '@Manager'), ('@Manager', '@Human'), ('@Human', '@Manager'), ('@Manager', '@Knowledge'), ('@Knowledge', '@Manager'), ('@Manager', '@Human'), ('@Human', '@Manager'), ('@Manager', '@Knowledge'), ('@Knowledge', '@Manager'), ('@Manager', '@Human')]",
+          "source": {
+            "name": "FollowedMessageRoute",
+            "arguments": [
+              [
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@WebIngest"
+                ],
+                [
+                  "@WebIngest",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ],
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Knowledge"
+                ],
+                [
+                  "@Knowledge",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ],
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Knowledge"
+                ],
+                [
+                  "@Knowledge",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ]
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "web_fetch_tool": {
+          "name": "web_fetch_tool",
+          "value": true,
+          "reason": "Observed tools: ['commit_web_ingestion', 'search_graph', 'team_activity', 'update_graph', 'web_fetch_tool']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph",
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "update_graph": {
+          "name": "update_graph",
+          "value": true,
+          "reason": "Observed tools: ['commit_web_ingestion', 'search_graph', 'team_activity', 'update_graph', 'web_fetch_tool']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph",
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "search_graph": {
+          "name": "search_graph",
+          "value": true,
+          "reason": "Observed tools: ['commit_web_ingestion', 'search_graph', 'team_activity', 'update_graph', 'web_fetch_tool']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph",
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "ToolArgumentsContain": {
+          "name": "ToolArgumentsContain",
+          "value": true,
+          "reason": "Observed urls values: [['https://coenradie.com/about']]",
+          "source": {
+            "name": "ToolArgumentsContain",
+            "arguments": {
+              "tool_name": "web_fetch_tool",
+              "argument_name": "urls",
+              "expected_value": "https://coenradie.com/about"
+            }
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 1 calls; expected at least 1 and at most 1",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "web_fetch_tool",
+              "minimum": 1,
+              "maximum": 1
+            }
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount_2": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 1 calls; expected at least 1 and at most 1",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "update_graph",
+              "minimum": 1,
+              "maximum": 1
+            }
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount_3": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 2 calls; expected at least 2",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "search_graph",
+              "minimum": 2
+            }
+          },
+          "evaluator_version": null
+        },
+        "tool_arguments_parseable": {
+          "name": "tool_arguments_parseable",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph",
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "tool_calls_succeeded": {
+          "name": "tool_calls_succeeded",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph",
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "HumanResponseContainsTerms": {
+          "name": "HumanResponseContainsTerms",
+          "value": true,
+          "reason": "All required terms present",
+          "source": {
+            "name": "HumanResponseContainsTerms",
+            "arguments": {
+              "response_index": 1,
+              "required_terms": [
+                "software architect"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "HumanResponseContainsTerms_2": {
+          "name": "HumanResponseContainsTerms",
+          "value": true,
+          "reason": "All required terms present",
+          "source": {
+            "name": "HumanResponseContainsTerms",
+            "arguments": {
+              "response_index": 2,
+              "required_terms": [
+                "Coenradie"
+              ]
+            }
+          },
+          "evaluator_version": null
+        }
+      },
+      "task_duration": 48.877071,
+      "total_duration": 48.892668,
+      "source_case_name": null,
+      "trace_id": "01a09b58c936de9035ac2703872f19e4",
+      "span_id": "a933072780c900e8",
+      "evaluator_failures": []
+    },
+    {
+      "name": "ingest-and-query-yuma-background",
+      "inputs": {
+        "message": null,
+        "target": null,
+        "turns": [
+          {
+            "message": "Ingest https://www.weareyuma.com/en/about/about-us/background and focus on what Yuma does and which companies formed it.",
+            "target": null
+          },
+          {
+            "message": "What does Yuma do?",
+            "target": null
+          },
+          {
+            "message": "What companies formed Yuma?",
+            "target": null
+          }
+        ],
+        "timeout_seconds": 180.0,
+        "fixture_source_url": "https://www.weareyuma.com/en/about/about-us/background",
+        "fixture_path": "/Users/jettrocoenradie/Development/personal/akgents/knowledge-akgents/evals/fixtures/yuma_background.txt",
+        "fixture_paths": [],
+        "fixture_web_failure": null,
+        "knowledge_fixture_path": null
+      },
+      "metadata": {
+        "source_url": "https://www.weareyuma.com/en/about/about-us/background",
+        "fixture_captured": "2026-09-12",
+        "mode": "fixed-fixture-multi-turn"
+      },
+      "expected_output": null,
+      "output": {
+        "final_response": "Yuma was formed by six companies: Aprico Consulting, B12 Consulting, BPSOLUTIONS, Luminis, Total Design, and xplus.",
+        "human_responses": [
+          "The page was successfully ingested and stored. Yuma is a fully integrated AI-transformation partner combining AI, architecture, strategy, design, engineering, infrastructure, and data. It was formed by six specialized companies: xplus, Luminis, BPSOLUTIONS, Total Design, Aprico Consulting, and B12 Consulting. xplus contributes business and enterprise architecture, while B12 Consulting contributes data science, AI, and software development, including production-ready AI solutions.",
+          "Yuma is a fully integrated AI-transformation partner. It helps organizations achieve continuous, end-to-end transformation by combining AI, architecture, strategy, design, engineering, infrastructure, and data.",
+          "Yuma was formed by six companies: Aprico Consulting, B12 Consulting, BPSOLUTIONS, Luminis, Total Design, and xplus."
+        ],
+        "completion_reason": "human_response",
+        "messages": [
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "Ingest https://www.weareyuma.com/en/about/about-us/background and focus on what Yuma does and which companies formed it."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@WebIngest",
+            "message_type": "request",
+            "content": "Ingest https://www.weareyuma.com/en/about/about-us/background into the shared knowledge base. Focus on what Yuma does and which companies formed it. Reply with the extracted facts and confirmation of storage."
+          },
+          {
+            "sender": "@WebIngest",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "Ingested and stored the Yuma background page. Key facts: Yuma is a fully integrated AI-transformation partner combining AI, architecture, strategy, design, engineering, infrastructure, and data. It was formed by six specialized companies: xplus, Luminis, BPSOLUTIONS, Total Design, Aprico Consulting, and B12 Consulting. xplus contributes business and enterprise architecture; B12 Consulting contributes data science, AI, and software development, including production-ready AI solutions. Stored 7 entities and 6 company-to-Yuma formation relations in the knowledge base, and committed the source ingestion successfully."
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "The page was successfully ingested and stored. Yuma is a fully integrated AI-transformation partner combining AI, architecture, strategy, design, engineering, infrastructure, and data. It was formed by six specialized companies: xplus, Luminis, BPSOLUTIONS, Total Design, Aprico Consulting, and B12 Consulting. xplus contributes business and enterprise architecture, while B12 Consulting contributes data science, AI, and software development, including production-ready AI solutions."
+          },
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "What does Yuma do?"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Knowledge",
+            "message_type": "request",
+            "content": "Using the shared knowledge base, answer: What does Yuma do? Provide a concise answer and cite the relevant stored facts."
+          },
+          {
+            "sender": "@Knowledge",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "Yuma is a fully integrated AI transformation partner formed by six specialized companies in Belgium and the Netherlands. It helps organizations achieve continuous, end-to-end transformation by combining AI, architecture, strategy, design, engineering, infrastructure, and data. (Stored entity: Yuma; related facts include Luminis, Total Design, BPSOLUTIONS, Aprico Consulting, and xplus forming_part_of Yuma.)"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "Yuma is a fully integrated AI-transformation partner. It helps organizations achieve continuous, end-to-end transformation by combining AI, architecture, strategy, design, engineering, infrastructure, and data."
+          },
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "What companies formed Yuma?"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Knowledge",
+            "message_type": "request",
+            "content": "Using the shared knowledge base, answer: Which companies formed Yuma? List all companies concisely."
+          },
+          {
+            "sender": "@Knowledge",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "The six companies forming Yuma are: Aprico Consulting, B12 Consulting, BPSOLUTIONS, Luminis, Total Design, and xplus. (Stored relations: each company —[forms_part_of]→ Yuma.)"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "Yuma was formed by six companies: Aprico Consulting, B12 Consulting, BPSOLUTIONS, Luminis, Total Design, and xplus."
+          }
+        ],
+        "tool_calls": [
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "web_fetch_tool",
+            "tool_call_id": "call_DgsgUfZ9sYYaCljBeAoenaKA",
+            "arguments_raw": "{\"urls\":[\"https://www.weareyuma.com/en/about/about-us/background\"],\"query\":\"Focus on what Yuma does and which companies formed it.\",\"chunks_per_source\":5,\"timeout\":30,\"extract_depth\":\"advanced\",\"force\":false}",
+            "arguments": {
+              "urls": [
+                "https://www.weareyuma.com/en/about/about-us/background"
+              ],
+              "query": "Focus on what Yuma does and which companies formed it.",
+              "chunks_per_source": 5,
+              "timeout": 30,
+              "extract_depth": "advanced",
+              "force": false
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "web_fetch_tool",
+            "tool_call_id": "call_8lNbpea1NwpcHf9k6EdjjXFf",
+            "arguments_raw": "{\"urls\":[\"https://www.weareyuma.com/en/about/about-us/background\"],\"query\":\"List all six expert companies that form Yuma, including each company's country and role/capability.\",\"chunks_per_source\":10,\"timeout\":30,\"extract_depth\":\"advanced\",\"force\":true}",
+            "arguments": {
+              "urls": [
+                "https://www.weareyuma.com/en/about/about-us/background"
+              ],
+              "query": "List all six expert companies that form Yuma, including each company's country and role/capability.",
+              "chunks_per_source": 10,
+              "timeout": 30,
+              "extract_depth": "advanced",
+              "force": true
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "web_search_tool",
+            "tool_call_id": "call_mCDSioDc75m2DhgZzrb7JOsF",
+            "arguments_raw": "{\"query\":\"site:weareyuma.com/en/about/about-us/background \\\"six\\\" companies Yuma xplus Luminis BPSOLUTIONS\",\"max_results\":5,\"search_depth\":\"advanced\"}",
+            "arguments": {
+              "query": "site:weareyuma.com/en/about/about-us/background \"six\" companies Yuma xplus Luminis BPSOLUTIONS",
+              "max_results": 5,
+              "search_depth": "advanced"
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "web_search_tool",
+            "tool_call_id": "call_YvrV28Buy9QBXXwtajX33dLi",
+            "arguments_raw": "{\"query\":\"Yuma AI transformation six companies Luminis BPSOLUTIONS xplus B12 Consulting formed by integrating\",\"max_results\":10,\"search_depth\":\"advanced\"}",
+            "arguments": {
+              "query": "Yuma AI transformation six companies Luminis BPSOLUTIONS xplus B12 Consulting formed by integrating",
+              "max_results": 10,
+              "search_depth": "advanced"
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "update_graph",
+            "tool_call_id": "call_KbEZwxwa8wpuA6avQJieYnsN",
+            "arguments_raw": "{\"create_entities\":[{\"name\":\"Yuma\",\"entity_type\":\"Organization\",\"description\":\"A fully integrated AI transformation partner formed by six specialized companies from Belgium and the Netherlands. Yuma helps organizations move beyond isolated digital initiatives toward continuous, end-to-end transformation, combining AI, architecture, strategy, design, engineering, infrastructure, and data.\",\"observations\":[\"Yuma focuses on AI-driven, human-centered transformation and aims to empower people to make better decisions and act independently.\",\"The organization serves clients across the Benelux with a unified end-to-end approach.\"]},{\"name\":\"xplus\",\"entity_type\":\"Company\",\"description\":\"Belgian company that forms part of Yuma and contributes business and enterprise architecture expertise.\",\"observations\":[\"Provides strategic blueprints aligning business goals with technology execution.\",\"Country indicated by source: Belgium (BE).\"]},{\"name\":\"Luminis\",\"entity_type\":\"Company\",\"description\":\"Specialized company that forms part of Yuma.\",\"observations\":[\"The source identifies Luminis as one of the companies integrated to form Yuma.\"]},{\"name\":\"BPSOLUTIONS\",\"entity_type\":\"Company\",\"description\":\"Specialized company that forms part of Yuma.\",\"observations\":[\"The source identifies BPSOLUTIONS as one of the companies integrated to form Yuma.\"]},{\"name\":\"Total Design\",\"entity_type\":\"Company\",\"description\":\"Design-focused company that forms part of Yuma.\",\"observations\":[\"The source identifies Total Design as one of the six companies forming Yuma.\"]},{\"name\":\"Aprico Consulting\",\"entity_type\":\"Company\",\"description\":\"Specialized consulting company that forms part of Yuma.\",\"observations\":[\"The source identifies Aprico Consulting as one of the six companies forming Yuma.\"]},{\"name\":\"B12 Consulting\",\"entity_type\":\"Company\",\"description\":\"Belgian company that forms part of Yuma and contributes data science, artificial intelligence, and software development capabilities.\",\"observations\":[\"Known for turning AI into robust, production-ready solutions.\",\"Country indicated by source: Belgium (BE).\"]}],\"create_relations\":[{\"from_entity\":\"xplus\",\"to_entity\":\"Yuma\",\"relation_type\":\"forms_part_of\",\"description\":\"xplus is one of the six specialized companies integrated into Yuma.\"},{\"from_entity\":\"Luminis\",\"to_entity\":\"Yuma\",\"relation_type\":\"forms_part_of\",\"description\":\"Luminis is one of the six specialized companies integrated into Yuma.\"},{\"from_entity\":\"BPSOLUTIONS\",\"to_entity\":\"Yuma\",\"relation_type\":\"forms_part_of\",\"description\":\"BPSOLUTIONS is one of the six specialized companies integrated into Yuma.\"},{\"from_entity\":\"Total Design\",\"to_entity\":\"Yuma\",\"relation_type\":\"forms_part_of\",\"description\":\"Total Design is one of the six specialized companies integrated into Yuma.\"},{\"from_entity\":\"Aprico Consulting\",\"to_entity\":\"Yuma\",\"relation_type\":\"forms_part_of\",\"description\":\"Aprico Consulting is one of the six specialized companies integrated into Yuma.\"},{\"from_entity\":\"B12 Consulting\",\"to_entity\":\"Yuma\",\"relation_type\":\"forms_part_of\",\"description\":\"B12 Consulting is one of the six specialized companies integrated into Yuma.\"}]}",
+            "arguments": {
+              "create_entities": [
+                {
+                  "name": "Yuma",
+                  "entity_type": "Organization",
+                  "description": "A fully integrated AI transformation partner formed by six specialized companies from Belgium and the Netherlands. Yuma helps organizations move beyond isolated digital initiatives toward continuous, end-to-end transformation, combining AI, architecture, strategy, design, engineering, infrastructure, and data.",
+                  "observations": [
+                    "Yuma focuses on AI-driven, human-centered transformation and aims to empower people to make better decisions and act independently.",
+                    "The organization serves clients across the Benelux with a unified end-to-end approach."
+                  ]
+                },
+                {
+                  "name": "xplus",
+                  "entity_type": "Company",
+                  "description": "Belgian company that forms part of Yuma and contributes business and enterprise architecture expertise.",
+                  "observations": [
+                    "Provides strategic blueprints aligning business goals with technology execution.",
+                    "Country indicated by source: Belgium (BE)."
+                  ]
+                },
+                {
+                  "name": "Luminis",
+                  "entity_type": "Company",
+                  "description": "Specialized company that forms part of Yuma.",
+                  "observations": [
+                    "The source identifies Luminis as one of the companies integrated to form Yuma."
+                  ]
+                },
+                {
+                  "name": "BPSOLUTIONS",
+                  "entity_type": "Company",
+                  "description": "Specialized company that forms part of Yuma.",
+                  "observations": [
+                    "The source identifies BPSOLUTIONS as one of the companies integrated to form Yuma."
+                  ]
+                },
+                {
+                  "name": "Total Design",
+                  "entity_type": "Company",
+                  "description": "Design-focused company that forms part of Yuma.",
+                  "observations": [
+                    "The source identifies Total Design as one of the six companies forming Yuma."
+                  ]
+                },
+                {
+                  "name": "Aprico Consulting",
+                  "entity_type": "Company",
+                  "description": "Specialized consulting company that forms part of Yuma.",
+                  "observations": [
+                    "The source identifies Aprico Consulting as one of the six companies forming Yuma."
+                  ]
+                },
+                {
+                  "name": "B12 Consulting",
+                  "entity_type": "Company",
+                  "description": "Belgian company that forms part of Yuma and contributes data science, artificial intelligence, and software development capabilities.",
+                  "observations": [
+                    "Known for turning AI into robust, production-ready solutions.",
+                    "Country indicated by source: Belgium (BE)."
+                  ]
+                }
+              ],
+              "create_relations": [
+                {
+                  "from_entity": "xplus",
+                  "to_entity": "Yuma",
+                  "relation_type": "forms_part_of",
+                  "description": "xplus is one of the six specialized companies integrated into Yuma."
+                },
+                {
+                  "from_entity": "Luminis",
+                  "to_entity": "Yuma",
+                  "relation_type": "forms_part_of",
+                  "description": "Luminis is one of the six specialized companies integrated into Yuma."
+                },
+                {
+                  "from_entity": "BPSOLUTIONS",
+                  "to_entity": "Yuma",
+                  "relation_type": "forms_part_of",
+                  "description": "BPSOLUTIONS is one of the six specialized companies integrated into Yuma."
+                },
+                {
+                  "from_entity": "Total Design",
+                  "to_entity": "Yuma",
+                  "relation_type": "forms_part_of",
+                  "description": "Total Design is one of the six specialized companies integrated into Yuma."
+                },
+                {
+                  "from_entity": "Aprico Consulting",
+                  "to_entity": "Yuma",
+                  "relation_type": "forms_part_of",
+                  "description": "Aprico Consulting is one of the six specialized companies integrated into Yuma."
+                },
+                {
+                  "from_entity": "B12 Consulting",
+                  "to_entity": "Yuma",
+                  "relation_type": "forms_part_of",
+                  "description": "B12 Consulting is one of the six specialized companies integrated into Yuma."
+                }
+              ]
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "commit_web_ingestion",
+            "tool_call_id": "call_n2TdZnJRpgQJx9dFxmVT1MoE",
+            "arguments_raw": "{\"url\":\"https://www.weareyuma.com/en/about/about-us/background\",\"content_hash\":\"5f445368002fc1bdcf8d54b954a089eba837440d9dd51ea5489ad6d42cfc6427\",\"owned_entities\":[\"Yuma\",\"xplus\",\"Luminis\",\"BPSOLUTIONS\",\"Total Design\",\"Aprico Consulting\",\"B12 Consulting\"],\"owned_relations\":[{\"from_entity\":\"xplus\",\"to_entity\":\"Yuma\",\"relation_type\":\"forms_part_of\"},{\"from_entity\":\"Luminis\",\"to_entity\":\"Yuma\",\"relation_type\":\"forms_part_of\"},{\"from_entity\":\"BPSOLUTIONS\",\"to_entity\":\"Yuma\",\"relation_type\":\"forms_part_of\"},{\"from_entity\":\"Total Design\",\"to_entity\":\"Yuma\",\"relation_type\":\"forms_part_of\"},{\"from_entity\":\"Aprico Consulting\",\"to_entity\":\"Yuma\",\"relation_type\":\"forms_part_of\"},{\"from_entity\":\"B12 Consulting\",\"to_entity\":\"Yuma\",\"relation_type\":\"forms_part_of\"}]}",
+            "arguments": {
+              "url": "https://www.weareyuma.com/en/about/about-us/background",
+              "content_hash": "5f445368002fc1bdcf8d54b954a089eba837440d9dd51ea5489ad6d42cfc6427",
+              "owned_entities": [
+                "Yuma",
+                "xplus",
+                "Luminis",
+                "BPSOLUTIONS",
+                "Total Design",
+                "Aprico Consulting",
+                "B12 Consulting"
+              ],
+              "owned_relations": [
+                {
+                  "from_entity": "xplus",
+                  "to_entity": "Yuma",
+                  "relation_type": "forms_part_of"
+                },
+                {
+                  "from_entity": "Luminis",
+                  "to_entity": "Yuma",
+                  "relation_type": "forms_part_of"
+                },
+                {
+                  "from_entity": "BPSOLUTIONS",
+                  "to_entity": "Yuma",
+                  "relation_type": "forms_part_of"
+                },
+                {
+                  "from_entity": "Total Design",
+                  "to_entity": "Yuma",
+                  "relation_type": "forms_part_of"
+                },
+                {
+                  "from_entity": "Aprico Consulting",
+                  "to_entity": "Yuma",
+                  "relation_type": "forms_part_of"
+                },
+                {
+                  "from_entity": "B12 Consulting",
+                  "to_entity": "Yuma",
+                  "relation_type": "forms_part_of"
+                }
+              ]
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b5a-262a-71bb-944e-2466c9fddb01",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_LzghcnBHzyiscOB1btlCuvYn",
+            "arguments_raw": "{}",
+            "arguments": {},
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b5a-3599-7589-ba10-da1c8ebd03ad",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_t8D3C5stKgyNQWCxdNaMNQWa",
+            "arguments_raw": "{\"query\":\"Yuma\",\"top_k\":10,\"mode\":\"hybrid\",\"include_neighbors\":true,\"include_edges\":true}",
+            "arguments": {
+              "query": "Yuma",
+              "top_k": 10,
+              "mode": "hybrid",
+              "include_neighbors": true,
+              "include_edges": true
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b5a-5314-72b1-b0d4-8c3efb73ded8",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_ohOkIcP6qc0rSLJJ4BoJmUmp",
+            "arguments_raw": "{}",
+            "arguments": {},
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b5a-62a4-72cf-96ff-7fd20d5ac2ab",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_jqd8sILEy3sXCjEWP1WujCEU",
+            "arguments_raw": "{\"query\":\"companies formed Yuma\",\"top_k\":10,\"mode\":\"hybrid\",\"include_edges\":true,\"include_neighbors\":true}",
+            "arguments": {
+              "query": "companies formed Yuma",
+              "top_k": 10,
+              "mode": "hybrid",
+              "include_edges": true,
+              "include_neighbors": true
+            },
+            "parse_error": null
+          }
+        ],
+        "tool_returns": [
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "web_fetch_tool",
+            "tool_call_id": "call_DgsgUfZ9sYYaCljBeAoenaKA",
+            "success": true
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "web_fetch_tool",
+            "tool_call_id": "call_8lNbpea1NwpcHf9k6EdjjXFf",
+            "success": true
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "web_search_tool",
+            "tool_call_id": "call_mCDSioDc75m2DhgZzrb7JOsF",
+            "success": true
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "web_search_tool",
+            "tool_call_id": "call_YvrV28Buy9QBXXwtajX33dLi",
+            "success": true
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "update_graph",
+            "tool_call_id": "call_KbEZwxwa8wpuA6avQJieYnsN",
+            "success": true
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "commit_web_ingestion",
+            "tool_call_id": "call_n2TdZnJRpgQJx9dFxmVT1MoE",
+            "success": true
+          },
+          {
+            "run_id": "01a09b5a-262a-71bb-944e-2466c9fddb01",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_LzghcnBHzyiscOB1btlCuvYn",
+            "success": true
+          },
+          {
+            "run_id": "01a09b5a-3599-7589-ba10-da1c8ebd03ad",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_t8D3C5stKgyNQWCxdNaMNQWa",
+            "success": true
+          },
+          {
+            "run_id": "01a09b5a-5314-72b1-b0d4-8c3efb73ded8",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_ohOkIcP6qc0rSLJJ4BoJmUmp",
+            "success": true
+          },
+          {
+            "run_id": "01a09b5a-62a4-72cf-96ff-7fd20d5ac2ab",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_jqd8sILEy3sXCjEWP1WujCEU",
+            "success": true
+          }
+        ],
+        "tool_evidence": [
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "web_fetch_tool",
+            "tool_call_id": "call_DgsgUfZ9sYYaCljBeAoenaKA",
+            "content": "{\"failed_results\": [], \"request_id\": \"9cc03b52-7584-4b79-b3ab-fd194321039f\", \"response_time\": 0.09, \"results\": [{\"content_hash\": \"5f445368002fc1bdcf8d54b954a089eba837440d9dd51ea5489ad6d42cfc6427\", \"content_status\": \"first\", \"images\": [], \"raw_content\": \"Step by step, these companies formed a single, integrated entity that enables organizations to move beyond digital transformation as a series of initiatives, towards transformation as a continuous, end-to-end capability.\\n\\n## Collaborating and integrating  across borders\\n\\n### The expert companies that form Yuma.\\n\\nThe foundation was laid in 2022 with the addition of xplus, Luminis, and BPSOLUTIONS.\\n\\nxplus (BE) introduced strong expertise in business and enterprise architecture, providing the strategic blueprints that ensure alignment between business goals and technology execution. This architectural foundation is critical to navigating complex transformations and turning ambition into structured, actionable roadmaps. [...] It is exactly this belief that led to the creation of Yuma. Rather than growing as a traditional organization, Yuma was intentionally formed by integrating six specialized companies, each an expert in its field and each bringing a distinct capability essential to true transformation.   \\nFrom the very beginning, this integration transcended borders. Bringing together leading companies from Belgium and the Netherlands, Yuma was built on the conviction that there are no frontiers in transformation. By combining strengths across the Benelux, we created a unified proposition that serves organizations across the region with a consistent, high-quality, end-to-end approach. [...] B12 Consulting\\n\\nB12 Consulting (BE) added advanced capabilities in data science and software development, with a strong reputation for turning artificial intelligence into robust, production-ready solutions. Their contribution ensures that innovation is not just experimental, but scalable and impactful, driving sustainable growth and competitive advantage.\\n\\n## One partner to design, build  and run AI Transformation.\\n\\nTogether, these 6 companies form Yuma: a fully integrated AI transformation partner that combines artificial intelligence, architecture, strategy, design, engineering, infrastructure, and data into one seamless whole. What did not exist before as a single organization now operates as a unified entity, built on complementary strengths and a shared ambition. [...] Search \\n\\n nl\\n\\n# Background\\n\\n## Responding to the changing nature of transformation itself.\\n\\nTransformation today is no longer about isolated digital initiatives. It is about rethinking how organizations create value, operate, and grow in a world where everything is connected. And for this, they need partners who can support them across the full lifecycle of these transformations.\\n\\nBecause the challenges they face today are too complex, too interconnected, and too critical to be addressed in isolation. This realization has led to the creation of Yuma: 6 specialized companies united in one unified partner that can guide organizations through every stage of their digital transformation journey.\\n\\n## Empowering people in  an increasingly complex world. [...] For Yuma, this means that transformation is not only digital, but increasingly AI-driven and deeply human at its core. We focus on connecting AI transformation to human nature, enabling a future where humans and AI collaborate to augment capabilities rather than replace them, with one clear goal: creating agency.   \\nEmpowering people to make better decisions and act independently in an increasingly complex world.\", \"title\": \"Background | Yuma\", \"url\": \"https://www.weareyuma.com/en/about/about-us/background\"}]}",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "web_fetch_tool",
+            "tool_call_id": "call_8lNbpea1NwpcHf9k6EdjjXFf",
+            "content": "Web fetch failed: chunks_per_source must be an integer between 1 and 5. The TAVILY_API_KEY may be invalid or the service may be temporarily unavailable.",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "web_search_tool",
+            "tool_call_id": "call_mCDSioDc75m2DhgZzrb7JOsF",
+            "content": "{\"answer\": null, \"follow_up_questions\": null, \"images\": [], \"query\": \"six companies Yuma xplus Luminis BPSOLUTIONS\", \"request_id\": \"c5f1c1fd-cfdd-4ef3-8096-4532e664600d\", \"response_time\": 1.98, \"results\": [{\"content\": \"Step by step, these companies formed a single, integrated entity that enables organizations to move beyond digital transformation as a series of initiatives, towards transformation as a continuous, end-to-end capability.\\n\\n## Collaborating and integrating  across borders\\n\\n### The expert companies that form Yuma.\\n\\nThe foundation was laid in 2022 with the addition of xplus, Luminis, and BPSOLUTIONS.\\n\\nxplus (BE) introduced strong expertise in business and enterprise architecture, providing the strategic blueprints that ensure alignment between business goals and technology execution. This architectural foundation is critical to navigating complex transformations and turning ambition into structured, actionable roadmaps. [...] It is exactly this belief that led to the creation of Yuma. Rather than growing as a traditional organization, Yuma was intentionally formed by integrating six specialized companies, each an expert in its field and each bringing a distinct capability essential to true transformation.   \\nFrom the very beginning, this integration transcended borders. Bringing together leading companies from Belgium and the Netherlands, Yuma was built on the conviction that there are no frontiers in transformation. By combining strengths across the Benelux, we created a unified proposition that serves organizations across the region with a consistent, high-quality, end-to-end approach. [...] B12 Consulting\\n\\nB12 Consulting (BE) added advanced capabilities in data science and software development, with a strong reputation for turning artificial intelligence into robust, production-ready solutions. Their contribution ensures that innovation is not just experimental, but scalable and impactful, driving sustainable growth and competitive advantage.\\n\\n## One partner to design, build  and run AI Transformation.\\n\\nTogether, these 6 companies form Yuma: a fully integrated AI transformation partner that combines artificial intelligence, architecture, strategy, design, engineering, infrastructure, and data into one seamless whole. What did not exist before as a single organization now operates as a unified entity, built on complementary strengths and a shared ambition.\", \"id\": \"eb613a-00\", \"raw_content\": null, \"score\": 0.7570233, \"title\": \"Background | Yuma\", \"url\": \"https://www.weareyuma.com/en/about/about-us/background\"}]}",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "web_search_tool",
+            "tool_call_id": "call_YvrV28Buy9QBXXwtajX33dLi",
+            "content": "{\"answer\": null, \"follow_up_questions\": null, \"images\": [], \"query\": \"Yuma AI transformation six companies Luminis BPSOLUTIONS xplus B12 Consulting formed by integrating\", \"request_id\": \"3ba24225-ae75-4d99-a3bc-1a3db7d9d58d\", \"response_time\": 2.41, \"results\": [{\"content\": \"Step by step, these companies formed a single, integrated entity that enables organizations to move beyond digital transformation as a series of initiatives, towards transformation as a continuous, end-to-end capability.\\n\\n## Collaborating and integrating  across borders\\n\\n### The expert companies that form Yuma.\\n\\nThe foundation was laid in 2022 with the addition of xplus, Luminis, and BPSOLUTIONS.\\n\\nxplus (BE) introduced strong expertise in business and enterprise architecture, providing the strategic blueprints that ensure alignment between business goals and technology execution. This architectural foundation is critical to navigating complex transformations and turning ambition into structured, actionable roadmaps. [...] B12 Consulting\\n\\nB12 Consulting (BE) added advanced capabilities in data science and software development, with a strong reputation for turning artificial intelligence into robust, production-ready solutions. Their contribution ensures that innovation is not just experimental, but scalable and impactful, driving sustainable growth and competitive advantage.\\n\\n## One partner to design, build  and run AI Transformation.\\n\\nTogether, these 6 companies form Yuma: a fully integrated AI transformation partner that combines artificial intelligence, architecture, strategy, design, engineering, infrastructure, and data into one seamless whole. What did not exist before as a single organization now operates as a unified entity, built on complementary strengths and a shared ambition. [...] It is exactly this belief that led to the creation of Yuma. Rather than growing as a traditional organization, Yuma was intentionally formed by integrating six specialized companies, each an expert in its field and each bringing a distinct capability essential to true transformation.   \\nFrom the very beginning, this integration transcended borders. Bringing together leading companies from Belgium and the Netherlands, Yuma was built on the conviction that there are no frontiers in transformation. By combining strengths across the Benelux, we created a unified proposition that serves organizations across the region with a consistent, high-quality, end-to-end approach.\", \"id\": \"9ec0c3-00\", \"raw_content\": null, \"score\": 0.8319231, \"title\": \"Background | Yuma\", \"url\": \"https://www.weareyuma.com/en/about/about-us/background\"}, {\"content\": \"# Yuma\\nN/A\\nArtificial Intelligence • Brussels • 6,527 followers • 501-1,000 employees\\n\\n## Overview\\nYuma is a new digital transformation group in the BeNeLux. A group where digital and human transformation go hand in hand as we believe that there is no digital transformation without human transformation. Yuma combines a human, people-centric approach, with a hands-on mentality and best-in-class expertise. This best-in-class expertise is a result of the combination of XPLUS, Total Design, Luminis, BPSOLUTIONS, B12 Consulting and Aprico Consulting.\\n\\n### Website\\n\\n### Crunchbase\\nN/A\\n### LinkedIn\\nN/A\\n\\n### Industry\\nArtificial Intelligence\\n\\n### Company Size\\n501-1,000 employees  \\n378 associated members (LinkedIn members who've listed Yuma as their current workplace on their profile) [...] ## Similar Companies\\nYuma Tunisia (Software Development):  (N/A); Luminis (IT Services and IT Consulting):  (Amsterdam, North Holland); xplus (Business Consulting and Services):  (Mechelen, Flemish Region); Yuma Energy (Technology, Information and Internet):  (N/A); Total Design (Design Services):  (Amsterdam, North Holland); Yuma (Technology, Information and Internet):  (Stamford, Connecticut); SiFAST (Software Development):  (N/A); Spark-it (IT Services and IT Consulting):  (La Défense 5 , Courbevoie); Softtodo (IT Services and IT Consulting):  (N/A); Yuma AI (YC W23) (Technology, Information and Internet):  (N/A) [...] and governance mindset - How human-AI collaboration can unlock new forms of value creation - The key challenges around trust, resilience, integration, and long-term scalability During this session, Pieter Mergan ( SD Worx ), Mihailo Backovic (Yuma), and Pieter Dubois ( xplus ) will share practical insights and real-world experience on applying agentic AI at scale and what it takes to make it work beyond proofs of concept. 💡  [Likes: 20, Comments: 0]; Yuma (2w): 20 km of Brussels. One team. One spirit. This Sunday, members of the Yuma team took on the challenge of the 20 km of Brussels. Beyond the finish line, the event reflected something we strongly believe in: great achievements are never just about individual performance. They are about people supporting each other, encouraging one\", \"id\": \"94c547-01\", \"raw_content\": null, \"score\": 0.78963995, \"title\": \"Yuma\", \"url\": \"https://be.linkedin.com/company/weareyuma\"}, {\"content\": \"# Yuma’s Post\\n\\n2,758 followers\\n\\n Report this post\\n\\nYuma welcomes B12 Consulting: delivering advanced AI to the Benelux. Today we are acceleration our digital capabilities by welcoming B12 Consulting (‘B12’). B12, one of Belgium’s foremost companies in AI, has been transforming businesses by driving organizational performance, growth and competitiveness through intelligent solutions development. We are thrilled to join forces with B12 and to revolutionize digital transformation through collaboration and innovation. Feel free to reach out to us if you want to explore new opportunities. Link to press release:  B12 Consulting, BPSOLUTIONS. MAKE DATA WORK, Luminis, XPLUS.EU, Aprico Consultants, Total Design #weareyuma #digitaltransformation [...] Yuma welcomes B12: delivering advanced AI to the Benelux :: Yuma   weareyuma.com\\n\\n113   7 Comments\\n\\nLike   Comment\\n\\nGerbrand V.   1y \\n\\n Report this comment\\n\\nNew great minds are joining the club 🙌🎉. Welcome B12 Consulting. With such brilliant minds joining us, I worry about keeping up with the average IQ of this remarkable group of Yumans we are building 😀\\n\\nLike Reply  1 Reaction\\n\\nRonald Voets \\n\\nCustomer Success Director at SDB groep\\n\\n 1y \\n\\n Report this comment\\n\\nGlad to have you on board B12 Consulting team 🚀 !\\n\\nLike Reply  1 Reaction\\n\\nBtissam Chairi \\n\\nHead of Human Resources\\n\\n 1y \\n\\n Report this comment\\n\\nWelcome to the team ! See you all soon 😊\\n\\nLike Reply  1 Reaction\\n\\nLuminis   1y \\n\\n Report this comment\\n\\nWelcome to the team B12 Consulting!\\n\\nLike Reply  1 Reaction\\n\\nMark de Groot [...] Like Reply  1 Reaction\\n\\nMark de Groot \\n\\nCEO at YUMA | Board Director at YUMA | Private Investor\\n\\n 1y \\n\\n Report this comment\\n\\nMichel Herquet & Team: welcome to Yuma! Let's create a smarter future together!\\n\\nLike Reply  1 Reaction   2 Reactions\\n\\nBart Van Brabant \\n\\nNo longer available due to illness - grateful for the journey\\n\\n 1y \\n\\n Report this comment\\n\\nHappy to see AI competency entering our ecosystem. Opens many new opportunities for business and learning. Welcome aboard\\n\\nLike Reply  1 Reaction\\n\\n See more comments \\n\\nTo view or add a comment, sign in\\n\\n2,758 followers\\n\\nView Profile   Connect\\n\\n## More from this author\\n\\n ### Get Inspired: 6 Human Keys, AI Talk and Customer Case\\n\\n  Yuma   11mo\\n ### ‘Wij plaatsen mensen voorop binnen digitale transformaties’\", \"id\": \"b91960-02\", \"raw_content\": null, \"score\": 0.68090034, \"title\": \"Yuma welcomes B12: delivering advanced AI to the Benelux :: Yuma | Yuma\", \"url\": \"https://www.linkedin.com/posts/weareyuma_yuma-welcomes-b12-delivering-advanced-ai-activity-7196045845144735744-2Yjr\"}, {\"content\": \"# Yuma\\n\\n#### Stand Number: 253\\n\\n#### Visit Their Website: \\n\\nYuma is a new digital transformation group in the BeNeLux. A group where digital and human transformation go hand in hand as we believe that there is no digital transformation without human transformation. Yuma combines a human, people-centric approach, with a hands-on mentality and best-in-class expertise. This best-in-class expertise is a result of the combination of XPLUS, Total Design, Luminis and BPSOLUTIONS, and more companies are expected to join the group. [...] Register Now\\n\\nPartner Logos 2.png\\n\\n AGENDA\\n  + DAY ONE | GOLD | DIGITAL TRANSFORMATION IN ACTION\\n  + DAY TWO | GOLD | HUMAN-CENTRED APPROACHES TO DTX\\n  + TECHEX LEARNING HUB\\n  + TECHEX MEETUP ZONE\\n  + ALL TECHEX TRACKS\\n SPEAKERS\\n EXHIBITION\\n  + Sponsors\\n  + EXHIBITORS\\n  + Start Up Zone\\n  + FLOORPLAN\\n  + GET INVOLVED\\n ATTEND\\n  + Why Attend?\\n  + Networking Opportunities\\n  + Travel & Accommodation\\n  + FAQS\\n  + ENTERPRISE LEADERSHIP PASSES\\n  + Contact Us\\n Media\\n  + News\\n  + Media & Association Partners\\n  + Promotional Assets\\n CO-LOCATED EVENTS\\n  + AI & BIG DATA\\n  + INTELLIGENT AUTOMATION & ROBOTICS\\n  + Physical AI\\n  + CYBER SECURITY & CLOUD\\n  + IOT TECH\\n  + EDGE COMPUTING\\n  + DATA CENTRE\\n World Series\\n  + Digital Transformation Expo Global\\n  + Digital Transformation Expo North America [...] Skip to content\\n\\n[](\\n\\n## Digital Transformation Expo Europe\\n\\n## 19-20 OCTOBER 2026 | RAI, Amsterdam\\n\\n## The Executive Summit for CIOs, CDOs and Enterprise Transformation Leaders\\n\\nBook A Stand\\n\\nRegister Now\\n\\nPartner Logos 2.png\", \"id\": \"a7315a-03\", \"raw_content\": null, \"score\": 0.67527276, \"title\": \"Yuma - Digital Transformation Europe Conference\", \"url\": \"https://www.digitaltransformation-week.com/europe/partners/yuma\"}, {\"content\": \"The addition of B12 Consulting adds a team of around 45 data scientists to Yuma, lifting its headcount to over 650 staff in the Netherlands and Belgium.\\n\\nFounded in 2012, B12 Consulting is an IT consulting firm specialised in data science, artificial intelligence, and software services. The company from Louvain-la-Neuve works for clients of all sizes and in multiple sectors, including health, mobility, energy, industry, automotive, and pharma.\\n\\nPascal Laffineur, CEO of Yuma, said that the arrival of B12 Consulting will add important and in-demand capabilities to Yuma’s network. “B12 Consulting is one of Belgium’s foremost actors in artificial intelligence and data,” he said. [...] Backed by private equity firm M80, Yuma has the ambition to become one of “the leading players” in Europe’s digital transformation market. The company was created by the coming together of four companies in the summer of 2023, with Aprico Consultants joining the group in March this year.\\n\\n“Becoming part of Yuma presents an exciting opportunity for B12 Consulting to expand our reach and enhance our offerings. With our collective strengths we can provide tailored solutions that address complex challenges faced by businesses today,” said Michel Herquet, Managing Partner of B12 Consulting.\\n\\n Belgium\\n M&A in consulting\\n\\n## M&A in consulting news\\n\\nMore M&A in consulting\\n\\n EY-Parthenon acquires Dutch digital strategy consultancy SparkOptimus [...] “When we researched the Benelux AI market, B12 Consulting came out on top in terms of technical skills and ability to turn AI into robust, mature solutions – beyond the hype. The work they did to improve the development of mRNA vaccines or to pro-actively monitor the Brussels tram infrastructure are just two examples of this. As such, we are extremely proud that they decided to join Yuma.”\\n\\n“Their offering and track-record with more than 400 successful projects in data and AI aligns perfectly with our vision of empowering organizations to thrive in the digital age. Together with our expertise in consulting, architecture, software development and managed services, we can deliver the most advanced solutions that drive sustainable growth and competitive advantage for our clients.”\", \"id\": \"e92e9e-04\", \"raw_content\": null, \"score\": 0.5758033, \"title\": \"Yuma buys Belgian data and AI consultancy B12 Consulting\", \"url\": \"https://www.consultancy.eu/news/10161/yuma-buys-belgian-data-and-ai-consultancy-b12-consulting\"}, {\"content\": \"Yuma brings together respective industry leaders—Total Design, XPLUS, Luminis, and BPSOLUTIONS—to create a network that delivers end-to-end solutions for\", \"id\": \"29639b-05\", \"raw_content\": null, \"score\": 0.5737984, \"title\": \"Yuma | Globrands\", \"url\": \"https://globrands.com/our-work/yuma\"}, {\"content\": \"We are Yuma, one of the fastest-growing digital transformation groups … integrated system: Xplus (architecture), Luminis (engineering),\", \"id\": \"6b6b64-06\", \"raw_content\": null, \"score\": 0.486015, \"title\": \"Business Development Manager - Yuma\", \"url\": \"https://bebee.com/nl/jobs/business-development-manager-yuma-utrecht--fj-2345360414\"}, {\"content\": \"xplus is part of Yuma, a growing family of leading digital and IT specialists united by a shared ambition: shaping the future of digital transformation in\", \"id\": \"d09379-07\", \"raw_content\": null, \"score\": 0.47358477, \"title\": \"Part of Yuma | xplus\", \"url\": \"https://www.xplus.eu/about/who-we-are/part-yuma\"}, {\"content\": \"B12, one of Belgium’s foremost companies in AI, has been transforming businesses by driving organizational performance, growth and competitiveness through intelligent solutions development. VP & CTO at Regeneron | Chief Digital & Technology Officer | Board Member | Industry Speaker | Driving Innovation in Digital, Data, AI & Cloud Deloitte’s recent “State of Generative AI in the Enterprise: Now Decides Next” survey [https://deloi.tt/4aXMkxL] connects the dots on how GenAI and innovation are connected, featuring feedback from 2,000 business leaders on how they are adopting and scaling AI for their organizations. By integrating AI21's cutting-edge GenAI models and Weights & Biases' powerful AI developer platform, we are set to revolutionize how businesses harness AI for decision-making and gain a competitive edge.\", \"id\": \"6465ba-08\", \"raw_content\": null, \"score\": 0.46920466, \"title\": \"Peter Maenhout's Post - Yuma welcomes B12\", \"url\": \"https://www.linkedin.com/posts/peter-maenhout-776476a0_yuma-welcomes-b12-delivering-advanced-ai-activity-7197166053989249024-df1X\"}, {\"content\": \"Logo B12 Consulting\\n\\n# B12 Consulting\\n\\nB12 Consulting, a member of the Yuma collective, develops and deploys artificial intelligence, data engineering and custom software solutions. The company creates business platforms, industrialised AI models and UX/UI interfaces, and supports its clients from data strategy to production.\\n\\nProducts and services\\n\\nICT - services:   Data processing and data analytics\\n\\nICT - software:   Software development\\n\\nICT - advanced:   Artificial intelligence (AI)\\n\\nNature and type\\n\\nPrivate sector:   Commercial enterprise\", \"id\": \"370c5c-09\", \"raw_content\": null, \"score\": 0.4581311, \"title\": \"B12 Consulting | DigitalWallonia.be\", \"url\": \"https://www.digitalwallonia.be/en/cartography/b12-consulting\"}]}",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "update_graph",
+            "tool_call_id": "call_KbEZwxwa8wpuA6avQJieYnsN",
+            "content": "Done",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "tool_name": "commit_web_ingestion",
+            "tool_call_id": "call_n2TdZnJRpgQJx9dFxmVT1MoE",
+            "content": "{\"content_hash\": \"5f445368002fc1bdcf8d54b954a089eba837440d9dd51ea5489ad6d42cfc6427\", \"status\": \"ingested\", \"times_ingested\": 1, \"url\": \"https://www.weareyuma.com/en/about/about-us/background\"}",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b5a-262a-71bb-944e-2466c9fddb01",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_LzghcnBHzyiscOB1btlCuvYn",
+            "content": "\"generated_at=datetime.datetime(2026, 9, 13, 15, 19, 32, 980118, tzinfo=datetime.timezone.utc) members=[] pending_summaries=0\"",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b5a-3599-7589-ba10-da1c8ebd03ad",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_t8D3C5stKgyNQWCxdNaMNQWa",
+            "content": "Search Results:\n  - [entity] Yuma (Organization): A fully integrated AI transformation partner formed by six specialized companies from Belgium and the Netherlands. Yuma helps organizations move beyond isolated digital initiatives toward continuous, end-to-end transformation, combining AI, architecture, strategy, design, engineering, infrastructure, and data. (score: 1.00)\n  - [entity] Total Design (Company): Design-focused company that forms part of Yuma. (score: 0.89)\n  - [entity] Luminis (Company): Specialized company that forms part of Yuma. (score: 0.88)\n  - [relation] xplus --[forms_part_of]--> Yuma (score: 0.84)\n  - [entity] BPSOLUTIONS (Company): Specialized company that forms part of Yuma. (score: 0.81)\n  - [relation] Luminis --[forms_part_of]--> Yuma (score: 0.77)\n  - [entity] Aprico Consulting (Company): Specialized consulting company that forms part of Yuma. (score: 0.76)\n  - [relation] Total Design --[forms_part_of]--> Yuma (score: 0.66)\n  - [relation] BPSOLUTIONS --[forms_part_of]--> Yuma (score: 0.60)\n  - [relation] Aprico Consulting --[forms_part_of]--> Yuma (score: 0.56)",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b5a-5314-72b1-b0d4-8c3efb73ded8",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_ohOkIcP6qc0rSLJJ4BoJmUmp",
+            "content": "\"generated_at=datetime.datetime(2026, 9, 13, 15, 19, 44, 654712, tzinfo=datetime.timezone.utc) members=[] pending_summaries=0\"",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b5a-62a4-72cf-96ff-7fd20d5ac2ab",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_jqd8sILEy3sXCjEWP1WujCEU",
+            "content": "Search Results:\n  - [entity] Total Design (Company): Design-focused company that forms part of Yuma. (score: 0.70)\n  - [entity] BPSOLUTIONS (Company): Specialized company that forms part of Yuma. (score: 0.65)\n  - [relation] xplus --[forms_part_of]--> Yuma (score: 0.63)\n  - [entity] Luminis (Company): Specialized company that forms part of Yuma. (score: 0.61)\n  - [entity] Aprico Consulting (Company): Specialized consulting company that forms part of Yuma. (score: 0.60)\n  - [relation] Aprico Consulting --[forms_part_of]--> Yuma (score: 0.59)\n  - [entity] Yuma (Organization): A fully integrated AI transformation partner formed by six specialized companies from Belgium and the Netherlands. Yuma helps organizations move beyond isolated digital initiatives toward continuous, end-to-end transformation, combining AI, architecture, strategy, design, engineering, infrastructure, and data. (score: 0.53)\n  - [relation] BPSOLUTIONS --[forms_part_of]--> Yuma (score: 0.47)\n  - [relation] B12 Consulting --[forms_part_of]--> Yuma (score: 0.47)\n  - [relation] Luminis --[forms_part_of]--> Yuma (score: 0.45)",
+            "outcome": "success"
+          }
+        ],
+        "llm_usage": [
+          {
+            "run_id": "01a09b59-8bd1-7285-86b2-3234d3fe7d37",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1320,
+            "output_tokens": 91,
+            "cache_read_tokens": 1087,
+            "cache_write_tokens": 230,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3122,
+            "output_tokens": 75,
+            "cache_read_tokens": 2869,
+            "cache_write_tokens": 250,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 3943,
+            "output_tokens": 112,
+            "cache_read_tokens": 3119,
+            "cache_write_tokens": 821,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 4102,
+            "output_tokens": 79,
+            "cache_read_tokens": 3940,
+            "cache_write_tokens": 159,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 4705,
+            "output_tokens": 107,
+            "cache_read_tokens": 4099,
+            "cache_write_tokens": 603,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 8280,
+            "output_tokens": 778,
+            "cache_read_tokens": 4702,
+            "cache_write_tokens": 3575,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 9070,
+            "output_tokens": 239,
+            "cache_read_tokens": 8277,
+            "cache_write_tokens": 790,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b59-95e0-70c2-b638-618598e5b6e7",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 9388,
+            "output_tokens": 163,
+            "cache_read_tokens": 9067,
+            "cache_write_tokens": 318,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b5a-14f5-711e-acf2-cfc4a6005d2a",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1566,
+            "output_tokens": 131,
+            "cache_read_tokens": 1317,
+            "cache_write_tokens": 246,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b5a-262a-71bb-944e-2466c9fddb01",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1728,
+            "output_tokens": 24,
+            "cache_read_tokens": 1563,
+            "cache_write_tokens": 162,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b5a-262a-71bb-944e-2466c9fddb01",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1811,
+            "output_tokens": 62,
+            "cache_read_tokens": 1725,
+            "cache_write_tokens": 83,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b5a-3599-7589-ba10-da1c8ebd03ad",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1569,
+            "output_tokens": 50,
+            "cache_read_tokens": 1295,
+            "cache_write_tokens": 271,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b5a-3599-7589-ba10-da1c8ebd03ad",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1939,
+            "output_tokens": 127,
+            "cache_read_tokens": 1566,
+            "cache_write_tokens": 370,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b5a-4988-7731-9060-fa0f0fcb6064",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1984,
+            "output_tokens": 72,
+            "cache_read_tokens": 1808,
+            "cache_write_tokens": 173,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b5a-5314-72b1-b0d4-8c3efb73ded8",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2087,
+            "output_tokens": 23,
+            "cache_read_tokens": 1981,
+            "cache_write_tokens": 103,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b5a-5314-72b1-b0d4-8c3efb73ded8",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2169,
+            "output_tokens": 46,
+            "cache_read_tokens": 2084,
+            "cache_write_tokens": 82,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b5a-62a4-72cf-96ff-7fd20d5ac2ab",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2113,
+            "output_tokens": 53,
+            "cache_read_tokens": 1936,
+            "cache_write_tokens": 174,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b5a-62a4-72cf-96ff-7fd20d5ac2ab",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2487,
+            "output_tokens": 222,
+            "cache_read_tokens": 2110,
+            "cache_write_tokens": 374,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b5a-7a2a-74e0-b172-d4eae81dcbac",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 2292,
+            "output_tokens": 65,
+            "cache_read_tokens": 2166,
+            "cache_write_tokens": 123,
+            "requests": 1
+          }
+        ],
+        "errors": []
+      },
+      "metrics": {
+        "requests": 19,
+        "input_tokens": 65675,
+        "output_tokens": 2519,
+        "cache_creation.input_tokens": 8907,
+        "cache_read.input_tokens": 56711,
+        "reasoning_tokens": 518,
+        "cache_write_tokens": 8907,
+        "cache_read_tokens": 56711,
+        "cost": 0.00639517
+      },
+      "attributes": {},
+      "scores": {
+        "message_count": {
+          "name": "message_count",
+          "value": 12,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "human_response_count": {
+          "name": "human_response_count",
+          "value": 3,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_call_count": {
+          "name": "tool_call_count",
+          "value": 10,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_return_count": {
+          "name": "tool_return_count",
+          "value": 10,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_evidence_count": {
+          "name": "tool_evidence_count",
+          "value": 10,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_argument_parse_error_count": {
+          "name": "tool_argument_parse_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "uncorrelated_tool_call_count": {
+          "name": "uncorrelated_tool_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "failed_tool_return_count": {
+          "name": "failed_tool_return_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "empty_hire_members_call_count": {
+          "name": "empty_hire_members_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "actor_error_count": {
+          "name": "actor_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_response_count": {
+          "name": "llm_response_count",
+          "value": 19,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_request_count": {
+          "name": "llm_request_count",
+          "value": 19,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "input_token_count": {
+          "name": "input_token_count",
+          "value": 65675,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "output_token_count": {
+          "name": "output_token_count",
+          "value": 2519,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_read_token_count": {
+          "name": "cache_read_token_count",
+          "value": 56711,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_write_token_count": {
+          "name": "cache_write_token_count",
+          "value": 8907,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "span_count": {
+          "name": "span_count",
+          "value": 38,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_span_count": {
+          "name": "tool_span_count",
+          "value": 10,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "labels": {
+        "span_names": {
+          "name": "span_names",
+          "value": "chat gpt-5.6-luna | execute_tool commit_web_ingestion | execute_tool search_graph | execute_tool team_activity | execute_tool update_graph | execute_tool web_fetch_tool | execute_tool web_search_tool | invoke_agent agent",
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "assertions": {
+        "received_final_response": {
+          "name": "received_final_response",
+          "value": true,
+          "reason": "completion_reason=human_response, human_responses=3",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": [
+              3
+            ]
+          },
+          "evaluator_version": null
+        },
+        "no_actor_errors": {
+          "name": "no_actor_errors",
+          "value": true,
+          "reason": "No actor errors",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": [
+              3
+            ]
+          },
+          "evaluator_version": null
+        },
+        "FollowedMessageRoute": {
+          "name": "FollowedMessageRoute",
+          "value": true,
+          "reason": "Observed route: [('@Human', '@Manager'), ('@Manager', '@WebIngest'), ('@WebIngest', '@Manager'), ('@Manager', '@Human'), ('@Human', '@Manager'), ('@Manager', '@Knowledge'), ('@Knowledge', '@Manager'), ('@Manager', '@Human'), ('@Human', '@Manager'), ('@Manager', '@Knowledge'), ('@Knowledge', '@Manager'), ('@Manager', '@Human')]",
+          "source": {
+            "name": "FollowedMessageRoute",
+            "arguments": [
+              [
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@WebIngest"
+                ],
+                [
+                  "@WebIngest",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ],
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Knowledge"
+                ],
+                [
+                  "@Knowledge",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ],
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Knowledge"
+                ],
+                [
+                  "@Knowledge",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ]
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "web_fetch_tool": {
+          "name": "web_fetch_tool",
+          "value": true,
+          "reason": "Observed tools: ['commit_web_ingestion', 'search_graph', 'team_activity', 'update_graph', 'web_fetch_tool', 'web_search_tool']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph",
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "update_graph": {
+          "name": "update_graph",
+          "value": true,
+          "reason": "Observed tools: ['commit_web_ingestion', 'search_graph', 'team_activity', 'update_graph', 'web_fetch_tool', 'web_search_tool']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph",
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "search_graph": {
+          "name": "search_graph",
+          "value": true,
+          "reason": "Observed tools: ['commit_web_ingestion', 'search_graph', 'team_activity', 'update_graph', 'web_fetch_tool', 'web_search_tool']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph",
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "ToolArgumentsContain": {
+          "name": "ToolArgumentsContain",
+          "value": true,
+          "reason": "Observed urls values: [['https://www.weareyuma.com/en/about/about-us/background'], ['https://www.weareyuma.com/en/about/about-us/background']]",
+          "source": {
+            "name": "ToolArgumentsContain",
+            "arguments": {
+              "tool_name": "web_fetch_tool",
+              "argument_name": "urls",
+              "expected_value": "https://www.weareyuma.com/en/about/about-us/background"
+            }
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount": {
+          "name": "ToolCallCount",
+          "value": false,
+          "reason": "Observed 2 calls; expected at least 1 and at most 1",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "web_fetch_tool",
+              "minimum": 1,
+              "maximum": 1
+            }
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount_2": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 1 calls; expected at least 1 and at most 1",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "update_graph",
+              "minimum": 1,
+              "maximum": 1
+            }
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount_3": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 2 calls; expected at least 2",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "search_graph",
+              "minimum": 2
+            }
+          },
+          "evaluator_version": null
+        },
+        "tool_arguments_parseable": {
+          "name": "tool_arguments_parseable",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph",
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "tool_calls_succeeded": {
+          "name": "tool_calls_succeeded",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph",
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "HumanResponseContainsTerms": {
+          "name": "HumanResponseContainsTerms",
+          "value": false,
+          "reason": "Missing required terms: ['digital']",
+          "source": {
+            "name": "HumanResponseContainsTerms",
+            "arguments": {
+              "response_index": 1,
+              "required_terms": [
+                "digital",
+                "transformation",
+                "partner"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "HumanResponseContainsTerms_2": {
+          "name": "HumanResponseContainsTerms",
+          "value": true,
+          "reason": "All required terms present",
+          "source": {
+            "name": "HumanResponseContainsTerms",
+            "arguments": {
+              "response_index": 2,
+              "required_terms": [
+                "xplus",
+                "Luminis",
+                "BPSOLUTIONS",
+                "Total Design",
+                "Aprico",
+                "B12 Consulting"
+              ]
+            }
+          },
+          "evaluator_version": null
+        }
+      },
+      "task_duration": 64.126744,
+      "total_duration": 64.141312,
+      "source_case_name": null,
+      "trace_id": "01a09b58c936de9035ac2703872f19e4",
+      "span_id": "42fa2d16168713a9",
+      "evaluator_failures": []
+    }
+  ],
+  "failures": [],
+  "analyses": [],
+  "report_evaluator_failures": [],
+  "experiment_metadata": {
+    "model": "gpt-5.6-luna",
+    "logfire_export": false,
+    "purpose": "discover event and span contracts",
+    "repeat": 1,
+    "live_judges": false,
+    "catalog_team": "production"
+  },
+  "trace_id": "01a09b58c936de9035ac2703872f19e4",
+  "span_id": "927453d752703407"
+}

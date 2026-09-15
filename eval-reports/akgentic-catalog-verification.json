@@ -1,0 +1,591 @@
+{
+  "name": "retrieval-only-observability",
+  "cases": [
+    {
+      "name": "jettro-profession",
+      "inputs": {
+        "message": "What is the profession of Jettro Coenradie?",
+        "target": null,
+        "turns": [],
+        "timeout_seconds": 180.0,
+        "fixture_source_url": null,
+        "fixture_path": null,
+        "fixture_paths": [],
+        "fixture_web_failure": null,
+        "knowledge_fixture_path": "/Users/jettrocoenradie/Development/personal/akgents/knowledge-akgents/evals/fixtures/pilot_knowledge.json"
+      },
+      "metadata": {
+        "mode": "fixed-knowledge-retrieval-only",
+        "fixture_captured": "2026-09-12",
+        "prompt_variant": "canonical"
+      },
+      "expected_output": null,
+      "output": {
+        "final_response": "Jettro Coenradie is a software architect and is also described as a search enthusiast.",
+        "human_responses": [
+          "Jettro Coenradie is a software architect and is also described as a search enthusiast."
+        ],
+        "completion_reason": "human_response",
+        "messages": [
+          {
+            "sender": "@Human",
+            "recipient": "@Manager",
+            "message_type": "request",
+            "content": "What is the profession of Jettro Coenradie?"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Knowledge",
+            "message_type": "request",
+            "content": "Please answer from the shared knowledge base: What is the profession of Jettro Coenradie? If the fact is missing, say so and recommend web ingestion."
+          },
+          {
+            "sender": "@Knowledge",
+            "recipient": "@Manager",
+            "message_type": "response",
+            "content": "Jettro Coenradie’s profession is **software architect**; he is also described as a **search enthusiast**. Source: entity **Jettro Coenradie (Person)**, which states “His profession is software architect, and he is also a search enthusiast.”"
+          },
+          {
+            "sender": "@Manager",
+            "recipient": "@Human",
+            "message_type": "response",
+            "content": "Jettro Coenradie is a software architect and is also described as a search enthusiast."
+          }
+        ],
+        "tool_calls": [
+          {
+            "run_id": "01a09b13-ab16-722b-bf2d-d514704a4fa0",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_R27Rgz7PRPvXUNvzIXZesdfV",
+            "arguments_raw": "{}",
+            "arguments": {},
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b13-ab16-722b-bf2d-d514704a4fa0",
+            "tool_name": "read_mailbox",
+            "tool_call_id": "call_xhJnoU9Sgpe6yL9iw3ragpVv",
+            "arguments_raw": "{\"message_id\":\"placeholder\"}",
+            "arguments": {
+              "message_id": "placeholder"
+            },
+            "parse_error": null
+          },
+          {
+            "run_id": "01a09b13-e2af-732b-a998-c5e66e46a9d9",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_y2OkYzKVqc6dMc3gIhxVKl2L",
+            "arguments_raw": "{\"query\":\"Jettro Coenradie profession\",\"top_k\":10,\"mode\":\"hybrid\"}",
+            "arguments": {
+              "query": "Jettro Coenradie profession",
+              "top_k": 10,
+              "mode": "hybrid"
+            },
+            "parse_error": null
+          }
+        ],
+        "tool_returns": [
+          {
+            "run_id": "01a09b13-ab16-722b-bf2d-d514704a4fa0",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_R27Rgz7PRPvXUNvzIXZesdfV",
+            "success": true
+          },
+          {
+            "run_id": "01a09b13-ab16-722b-bf2d-d514704a4fa0",
+            "tool_name": "read_mailbox",
+            "tool_call_id": "call_xhJnoU9Sgpe6yL9iw3ragpVv",
+            "success": true
+          },
+          {
+            "run_id": "01a09b13-e2af-732b-a998-c5e66e46a9d9",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_y2OkYzKVqc6dMc3gIhxVKl2L",
+            "success": true
+          }
+        ],
+        "tool_evidence": [
+          {
+            "run_id": "01a09b13-ab16-722b-bf2d-d514704a4fa0",
+            "tool_name": "team_activity",
+            "tool_call_id": "call_R27Rgz7PRPvXUNvzIXZesdfV",
+            "content": "\"generated_at=datetime.datetime(2026, 9, 13, 14, 2, 35, 370513, tzinfo=datetime.timezone.utc) members=[] pending_summaries=0\"",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b13-ab16-722b-bf2d-d514704a4fa0",
+            "tool_name": "read_mailbox",
+            "tool_call_id": "call_xhJnoU9Sgpe6yL9iw3ragpVv",
+            "content": "Acknowledged — that message is yours for this run and will not arrive again as its own turn.",
+            "outcome": "success"
+          },
+          {
+            "run_id": "01a09b13-e2af-732b-a998-c5e66e46a9d9",
+            "tool_name": "search_graph",
+            "tool_call_id": "call_y2OkYzKVqc6dMc3gIhxVKl2L",
+            "content": "Search Results:\n  - [entity] Jettro Coenradie (Person): Jettro Coenradie's surname is Coenradie. His profession is software architect, and he is also a search enthusiast. (score: 1.00)",
+            "outcome": "success"
+          }
+        ],
+        "llm_usage": [
+          {
+            "run_id": "01a09b13-ab16-722b-bf2d-d514704a4fa0",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1305,
+            "output_tokens": 31,
+            "cache_read_tokens": 0,
+            "cache_write_tokens": 1302,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b13-ab16-722b-bf2d-d514704a4fa0",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1395,
+            "output_tokens": 20,
+            "cache_read_tokens": 1302,
+            "cache_write_tokens": 90,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b13-ab16-722b-bf2d-d514704a4fa0",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1447,
+            "output_tokens": 105,
+            "cache_read_tokens": 1392,
+            "cache_write_tokens": 52,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b13-ab16-722b-bf2d-d514704a4fa0",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1609,
+            "output_tokens": 132,
+            "cache_read_tokens": 1444,
+            "cache_write_tokens": 162,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b13-ab16-722b-bf2d-d514704a4fa0",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1798,
+            "output_tokens": 111,
+            "cache_read_tokens": 1606,
+            "cache_write_tokens": 189,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b13-e2af-732b-a998-c5e66e46a9d9",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1528,
+            "output_tokens": 46,
+            "cache_read_tokens": 0,
+            "cache_write_tokens": 1525,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b13-e2af-732b-a998-c5e66e46a9d9",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1639,
+            "output_tokens": 105,
+            "cache_read_tokens": 1525,
+            "cache_write_tokens": 111,
+            "requests": 1
+          },
+          {
+            "run_id": "01a09b13-f5a1-7775-a95f-abed808cca9a",
+            "model_name": "gpt-5.6-luna",
+            "provider_name": "openai",
+            "input_tokens": 1996,
+            "output_tokens": 63,
+            "cache_read_tokens": 1795,
+            "cache_write_tokens": 198,
+            "requests": 1
+          }
+        ],
+        "errors": []
+      },
+      "metrics": {
+        "requests": 8,
+        "input_tokens": 12717,
+        "output_tokens": 613,
+        "cache_creation.input_tokens": 3629,
+        "reasoning_tokens": 194,
+        "cache_write_tokens": 3629,
+        "cost": 0.00182893,
+        "cache_read.input_tokens": 9064,
+        "cache_read_tokens": 9064
+      },
+      "attributes": {},
+      "scores": {
+        "message_count": {
+          "name": "message_count",
+          "value": 4,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "human_response_count": {
+          "name": "human_response_count",
+          "value": 1,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_call_count": {
+          "name": "tool_call_count",
+          "value": 3,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_return_count": {
+          "name": "tool_return_count",
+          "value": 3,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_evidence_count": {
+          "name": "tool_evidence_count",
+          "value": 3,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_argument_parse_error_count": {
+          "name": "tool_argument_parse_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "uncorrelated_tool_call_count": {
+          "name": "uncorrelated_tool_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "failed_tool_return_count": {
+          "name": "failed_tool_return_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "empty_hire_members_call_count": {
+          "name": "empty_hire_members_call_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "actor_error_count": {
+          "name": "actor_error_count",
+          "value": 0,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_response_count": {
+          "name": "llm_response_count",
+          "value": 8,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "llm_request_count": {
+          "name": "llm_request_count",
+          "value": 8,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "input_token_count": {
+          "name": "input_token_count",
+          "value": 12717,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "output_token_count": {
+          "name": "output_token_count",
+          "value": 613,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_read_token_count": {
+          "name": "cache_read_token_count",
+          "value": 9064,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "cache_write_token_count": {
+          "name": "cache_write_token_count",
+          "value": 3629,
+          "reason": null,
+          "source": {
+            "name": "EventInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "span_count": {
+          "name": "span_count",
+          "value": 14,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "tool_span_count": {
+          "name": "tool_span_count",
+          "value": 3,
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "labels": {
+        "span_names": {
+          "name": "span_names",
+          "value": "chat gpt-5.6-luna | execute_tool read_mailbox | execute_tool search_graph | execute_tool team_activity | invoke_agent agent",
+          "reason": null,
+          "source": {
+            "name": "SpanInventory",
+            "arguments": null
+          },
+          "evaluator_version": null
+        }
+      },
+      "assertions": {
+        "HumanResponseContainsTerms": {
+          "name": "HumanResponseContainsTerms",
+          "value": true,
+          "reason": "All required terms present",
+          "source": {
+            "name": "HumanResponseContainsTerms",
+            "arguments": {
+              "response_index": 0,
+              "required_terms": [
+                "software architect"
+              ]
+            }
+          },
+          "evaluator_version": null
+        },
+        "received_final_response": {
+          "name": "received_final_response",
+          "value": true,
+          "reason": "completion_reason=human_response, human_responses=1",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "no_actor_errors": {
+          "name": "no_actor_errors",
+          "value": true,
+          "reason": "No actor errors",
+          "source": {
+            "name": "CompletedSuccessfully",
+            "arguments": null
+          },
+          "evaluator_version": null
+        },
+        "FollowedMessageRoute": {
+          "name": "FollowedMessageRoute",
+          "value": true,
+          "reason": "Observed route: [('@Human', '@Manager'), ('@Manager', '@Knowledge'), ('@Knowledge', '@Manager'), ('@Manager', '@Human')]",
+          "source": {
+            "name": "FollowedMessageRoute",
+            "arguments": [
+              [
+                [
+                  "@Human",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Knowledge"
+                ],
+                [
+                  "@Knowledge",
+                  "@Manager"
+                ],
+                [
+                  "@Manager",
+                  "@Human"
+                ]
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "search_graph": {
+          "name": "search_graph",
+          "value": true,
+          "reason": "Observed tools: ['read_mailbox', 'search_graph', 'team_activity']",
+          "source": {
+            "name": "CalledRequiredTools",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_web_fetch_tool": {
+          "name": "did_not_call_web_fetch_tool",
+          "value": true,
+          "reason": "Observed tools: ['read_mailbox', 'search_graph', 'team_activity']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "did_not_call_update_graph": {
+          "name": "did_not_call_update_graph",
+          "value": true,
+          "reason": "Observed tools: ['read_mailbox', 'search_graph', 'team_activity']",
+          "source": {
+            "name": "DidNotCallTools",
+            "arguments": [
+              [
+                "web_fetch_tool",
+                "update_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "ToolCallCount": {
+          "name": "ToolCallCount",
+          "value": true,
+          "reason": "Observed 1 calls; expected at least 1",
+          "source": {
+            "name": "ToolCallCount",
+            "arguments": {
+              "tool_name": "search_graph",
+              "minimum": 1
+            }
+          },
+          "evaluator_version": null
+        },
+        "tool_arguments_parseable": {
+          "name": "tool_arguments_parseable",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        },
+        "tool_calls_succeeded": {
+          "name": "tool_calls_succeeded",
+          "value": true,
+          "reason": null,
+          "source": {
+            "name": "ToolCallsSucceeded",
+            "arguments": [
+              [
+                "search_graph"
+              ]
+            ]
+          },
+          "evaluator_version": null
+        }
+      },
+      "task_duration": 22.215122,
+      "total_duration": 22.222615,
+      "source_case_name": null,
+      "trace_id": "01a09b13a7071415499386c515274ed3",
+      "span_id": "7d97f4729a15f18a",
+      "evaluator_failures": []
+    }
+  ],
+  "failures": [],
+  "analyses": [],
+  "report_evaluator_failures": [],
+  "experiment_metadata": {
+    "model": "gpt-5.6-luna",
+    "logfire_export": false,
+    "purpose": "discover event and span contracts",
+    "repeat": 1,
+    "live_judges": false
+  },
+  "trace_id": "01a09b13a7071415499386c515274ed3",
+  "span_id": "1ff1ae178f67bf8a"
+}
