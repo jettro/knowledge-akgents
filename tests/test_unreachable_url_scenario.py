@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+from akgentic_evals.evaluators import ToolCallCount, ToolEvidenceContainsTerms
 from evals.scenarios.unreachable_url import (
     FAILURE_MESSAGE,
     UNREACHABLE_URL,
     build_unreachable_url_scenario_dataset,
 )
-from evals.evaluators.events import ToolCallCount, ToolEvidenceContainsTerms
 
 
 def test_unreachable_url_scenario_configures_fixture_failure() -> None:
@@ -15,9 +15,9 @@ def test_unreachable_url_scenario_configures_fixture_failure() -> None:
     case = dataset.cases[0]
 
     assert case.name == "report-web-fetch-failure-without-graph-update"
-    assert case.inputs.fixture_source_url == UNREACHABLE_URL
-    assert case.inputs.fixture_path is None
-    assert case.inputs.fixture_web_failure == FAILURE_MESSAGE
+    assert case.inputs.environment.fixture_source_url == UNREACHABLE_URL
+    assert case.inputs.environment.fixture_path is None
+    assert case.inputs.environment.fixture_web_failure == FAILURE_MESSAGE
     assert case.metadata["fixture_kind"] == "synthetic-web-failure"
 
 

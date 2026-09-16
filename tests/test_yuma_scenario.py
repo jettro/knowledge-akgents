@@ -2,17 +2,17 @@
 
 from __future__ import annotations
 
-from evals.scenarios.yuma_scenario import (
-    FIXTURE_PATH,
-    YUMA_BACKGROUND_URL,
-    build_yuma_scenario_dataset,
-)
-from evals.evaluators.events import (
+from akgentic_evals.evaluators import (
     CompletedSuccessfully,
     HumanResponseContainsAnyTerm,
     HumanResponseContainsTerms,
     ToolCallCount,
     ToolCallsSucceeded,
+)
+from evals.scenarios.yuma_scenario import (
+    FIXTURE_PATH,
+    YUMA_BACKGROUND_URL,
+    build_yuma_scenario_dataset,
 )
 
 
@@ -28,7 +28,7 @@ def test_yuma_scenario_defines_three_ordered_turns() -> None:
         "What does Yuma do?",
         "What companies formed Yuma?",
     ]
-    assert case.inputs.fixture_path == str(FIXTURE_PATH)
+    assert case.inputs.environment.fixture_path == str(FIXTURE_PATH)
 
 
 def test_yuma_scenario_requires_three_responses_and_two_searches() -> None:

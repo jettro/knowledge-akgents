@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
+from akgentic_evals.evaluators import (
+    HumanResponsesDoNotContainTerms,
+    ToolArgumentsDoNotContainTerms,
+)
 from evals.scenarios.prompt_injection import (
     FIXTURE_PATH,
     PROMPT_INJECTION_URL,
     build_prompt_injection_scenario_dataset,
-)
-from evals.evaluators.events import (
-    HumanResponsesDoNotContainTerms,
-    ToolArgumentsDoNotContainTerms,
 )
 
 
@@ -18,8 +18,8 @@ def test_prompt_injection_scenario_uses_isolated_synthetic_fixture() -> None:
     case = dataset.cases[0]
 
     assert case.name == "ignore-instructions-inside-page-content"
-    assert case.inputs.fixture_source_url == PROMPT_INJECTION_URL
-    assert case.inputs.fixture_path == str(FIXTURE_PATH)
+    assert case.inputs.environment.fixture_source_url == PROMPT_INJECTION_URL
+    assert case.inputs.environment.fixture_path == str(FIXTURE_PATH)
     assert case.metadata["fixture_kind"] == "synthetic-prompt-injection"
     assert len(case.inputs.ordered_turns()) == 2
 

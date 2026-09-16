@@ -5,7 +5,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import Any, cast
 
-from evals.evaluators.events import (
+from akgentic_evals.evaluators import (
     DidNotCallTools,
     DidNotInvolveActors,
     FollowedMessageRoute,
@@ -16,12 +16,12 @@ from evals.evaluators.events import (
     ToolCallsInOrder,
     ToolCallsSucceeded,
     ToolEvidenceContainsTerms,
-    _contains_expected,
-    _is_ordered_subsequence,
+    contains_expected,
+    is_ordered_subsequence,
 )
-from evals.harness.models import (
+from akgentic_evals.models import (
+    AkgenticCaseOutput,
     MessageRecord,
-    TeamCaseOutput,
     ToolCallRecord,
     ToolEvidenceRecord,
     ToolReturnRecord,
@@ -36,7 +36,7 @@ def test_route_matches_ordered_subsequence() -> None:
         ("@Manager", "@Human"),
     ]
 
-    assert _is_ordered_subsequence(
+    assert is_ordered_subsequence(
         [
             ("@Human", "@Manager"),
             ("@Manager", "@WebIngest"),
@@ -47,14 +47,14 @@ def test_route_matches_ordered_subsequence() -> None:
 
 
 def test_route_rejects_wrong_order() -> None:
-    assert not _is_ordered_subsequence(
+    assert not is_ordered_subsequence(
         [("@Manager", "@WebIngest"), ("@Human", "@Manager")],
         [("@Human", "@Manager"), ("@Manager", "@WebIngest")],
     )
 
 
 def test_argument_match_normalizes_trailing_slash_inside_list() -> None:
-    assert _contains_expected(
+    assert contains_expected(
         ["https://coenradie.com/about/"],
         "https://coenradie.com/about",
     )
@@ -170,6 +170,14 @@ def test_forbidden_terms_are_detected_across_human_responses() -> None:
 
 def test_required_terms_are_found_in_tool_evidence() -> None:
     output = _output(
+        tool_returns=[
+            ToolReturnRecord(
+                run_id="run-1",
+                tool_name="web_fetch_tool",
+                tool_call_id="call-1",
+                success=True,
+            )
+        ],
         tool_evidence=[
             ToolEvidenceRecord(
                 run_id="run-1",
@@ -188,6 +196,36 @@ def test_required_terms_are_found_in_tool_evidence() -> None:
     result = evaluator.evaluate(_context(output))
 
     assert result.value
+
+
+def test_required_terms_ignore_evidence_from_failed_tool_call() -> None:
+    output = _output(
+        tool_returns=[
+            ToolReturnRecord(
+                run_id="run-1",
+                tool_name="search_graph",
+                tool_call_id="call-1",
+                success=False,
+            )
+        ],
+        tool_evidence=[
+            ToolEvidenceRecord(
+                run_id="run-1",
+                tool_name="search_graph",
+                tool_call_id="call-1",
+                content="Jettro is a software architect.",
+                outcome="failed",
+            )
+        ],
+    )
+    evaluator = ToolEvidenceContainsTerms(
+        tool_name="search_graph",
+        required_terms=("software architect",),
+    )
+
+    result = evaluator.evaluate(_context(output))
+
+    assert not result.value
 
 
 def test_forbidden_ingestion_call_fails_retrieval_only_evaluator() -> None:
@@ -226,6 +264,32 @@ def test_tool_success_distinguishes_failed_return_from_missing_return() -> None:
                 tool_name="search_graph",
                 tool_call_id="call-1",
                 success=False,
+            )
+        ],
+    )
+
+    result = ToolCallsSucceeded(tool_names=("search_graph",)).evaluate(_context(output))
+
+    assert not result["tool_calls_succeeded"]
+
+
+def test_tool_success_correlates_run_id_and_tool_call_id() -> None:
+    output = _output(
+        tool_calls=[
+            ToolCallRecord(
+                run_id="run-2",
+                tool_name="search_graph",
+                tool_call_id="call-1",
+                arguments_raw="{}",
+                arguments={},
+            )
+        ],
+        tool_returns=[
+            ToolReturnRecord(
+                run_id="run-1",
+                tool_name="search_graph",
+                tool_call_id="call-1",
+                success=True,
             )
         ],
     )
@@ -284,9 +348,9 @@ def _output(
     tool_calls: list[ToolCallRecord] | None = None,
     tool_returns: list[ToolReturnRecord] | None = None,
     tool_evidence: list[ToolEvidenceRecord] | None = None,
-) -> TeamCaseOutput:
+) -> AkgenticCaseOutput:
     responses = human_responses or []
-    return TeamCaseOutput(
+    return AkgenticCaseOutput(
         final_response=responses[-1] if responses else None,
         human_responses=responses,
         completion_reason="human_response",
@@ -298,5 +362,5 @@ def _output(
     )
 
 
-def _context(output: TeamCaseOutput) -> Any:
+def _context(output: AkgenticCaseOutput) -> Any:
     return cast(Any, SimpleNamespace(output=output))

@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from evals.harness import runtime as harness_runtime
 from evals.harness import tasks
-from evals.harness.models import TeamCaseInput, TeamCaseOutput
+from evals.harness.models import KnowledgeCaseInput, KnowledgeEvaluationEnvironment
 
 
 def test_each_task_run_uses_and_shuts_down_a_fresh_team(
@@ -36,18 +37,20 @@ def test_each_task_run_uses_and_shuts_down_a_fresh_team(
         )
         return object()
 
-    monkeypatch.setattr(tasks, "KnowledgeTeam", RecordingTeam)
-    monkeypatch.setattr(tasks, "EvaluationEventCollector", FakeCollector)
-    monkeypatch.setattr(tasks, "load_case_team_card", record_composition)
+    monkeypatch.setattr(harness_runtime, "KnowledgeTeam", RecordingTeam)
+    monkeypatch.setattr(harness_runtime, "KnowledgeTeamRuntime", FakeRuntime)
+    monkeypatch.setattr(harness_runtime, "load_case_team_card", record_composition)
 
-    first = tasks.run_team_case(TeamCaseInput(message="first", timeout_seconds=1))
-    second = tasks.run_team_case(TeamCaseInput(message="second", timeout_seconds=1))
+    first = tasks.run_team_case(KnowledgeCaseInput(message="first", timeout_seconds=1))
+    second = tasks.run_team_case(KnowledgeCaseInput(message="second", timeout_seconds=1))
     failure = tasks.run_team_case(
-        TeamCaseInput(
+        KnowledgeCaseInput(
             message="failure",
             timeout_seconds=1,
-            fixture_source_url="https://eval.invalid/unreachable",
-            fixture_web_failure="Connection timed out",
+            environment=KnowledgeEvaluationEnvironment(
+                fixture_source_url="https://eval.invalid/unreachable",
+                fixture_web_failure="Connection timed out",
+            ),
         )
     )
 
@@ -83,16 +86,18 @@ def test_production_task_does_not_construct_fixture_web_tool(monkeypatch: Any) -
         )
         return object()
 
-    monkeypatch.setattr(tasks, "KnowledgeTeam", FakeTeam)
-    monkeypatch.setattr(tasks, "EvaluationEventCollector", FakeCollector)
-    monkeypatch.setattr(tasks, "load_case_team_card", record_composition)
+    monkeypatch.setattr(harness_runtime, "KnowledgeTeam", FakeTeam)
+    monkeypatch.setattr(harness_runtime, "KnowledgeTeamRuntime", FakeRuntime)
+    monkeypatch.setattr(harness_runtime, "load_case_team_card", record_composition)
 
     output = tasks.run_team_case(
-        TeamCaseInput(
+        KnowledgeCaseInput(
             message="Ingest https://coenradie.com/about",
             timeout_seconds=1,
-            fixture_source_url="https://coenradie.com/about",
-            fixture_path="not-read-in-production.txt",
+            environment=KnowledgeEvaluationEnvironment(
+                fixture_source_url="https://coenradie.com/about",
+                fixture_path="not-read-in-production.txt",
+            ),
         ),
         catalog_team="production",
     )
@@ -107,39 +112,34 @@ def test_production_task_does_not_construct_fixture_web_tool(monkeypatch: Any) -
     ]
 
 
-class FakeCollector:
-    def __init__(self) -> None:
-        self.response = ""
-
-    def wait_for_human_responses(
-        self,
-        expected_count: int,
-        timeout_seconds: float,
-    ) -> TeamCaseOutput:
-        responses = [self.response] if expected_count else []
-        return TeamCaseOutput(
-            final_response=responses[-1] if responses else None,
-            human_responses=responses,
-            completion_reason="human_response",
-            messages=[],
-            tool_calls=[],
-            tool_returns=[],
-            errors=[],
-        )
-
-
 class FakeTeam:
     def __init__(self, team_card: Any) -> None:
         self.team_card = team_card
-        self.collector: FakeCollector | None = None
         self.shutdown_called = False
-
-    def start(self, publish: Any, subscribers: tuple[FakeCollector, ...]) -> None:
-        self.collector = subscribers[0]
-
-    def send(self, text: str, target: str | None = None) -> None:
-        assert self.collector is not None
-        self.collector.response = text
 
     def shutdown(self) -> None:
         self.shutdown_called = True
+
+
+class FakeRuntime:
+    def __init__(self, team: FakeTeam) -> None:
+        self.team = team
+        self.event_handler: Any = None
+
+    def start(self, event_handler: Any) -> None:
+        self.event_handler = event_handler
+
+    def send(self, turn: Any) -> None:
+        from akgentic_evals.events import MessageObserved
+
+        self.event_handler(
+            MessageObserved(
+                sender="@Manager",
+                recipient="@Human",
+                message_type="AgentMessage",
+                content=turn.message,
+            )
+        )
+
+    def shutdown(self) -> None:
+        self.team.shutdown()

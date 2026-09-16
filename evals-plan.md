@@ -1482,7 +1482,7 @@ The first approved live-judge run used the Jettro profession case and passed
 `search_graph` result, the groundedness judge confirmed that both the software
 architect and search-enthusiast claims were supported, and the relevance judge
 confirmed that the answer directly addressed the profession question. The
-agent usage metrics in `TeamCaseOutput` cover Akgentic model activity only; the
+agent usage metrics in `AkgenticCaseOutput` cover Akgentic model activity only; the
 two Pydantic judge calls are additional paid evaluator work and are not included
 in those event-derived token totals.
 
@@ -2133,7 +2133,7 @@ returns, retrieved evidence, model usage, errors, and final responses from the
 application event stream. It does not replace the knowledge tool or ingest
 content.
 
-`evals/datasets/rag4j_documentation.json` is the first concrete acceptance
+`evals/examples/rag4j/dataset.json` is the first concrete acceptance
 dataset for this tier. It derives reviewed expected facts from
 `https://rag4j.org/documentation/` and separately evaluates retrieved
 `search_graph` evidence and final-answer wording.

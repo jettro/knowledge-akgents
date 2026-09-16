@@ -12,15 +12,19 @@ import logfire
 from pydantic_evals import Dataset
 from pydantic_evals.evaluators import Evaluator, EvaluatorContext, EvaluatorOutput
 
+from akgentic_evals.models import AkgenticCaseOutput
+from akgentic_evals.reporting import load_report, save_report
 from evals.evaluators.live import LiveRetrievalJudges
+from evals.harness.catalog import TeamCatalog
 from evals.harness.cli import positive_int
 from evals.harness.dataset_loader import build_json_dataset
-from evals.harness.models import TeamCaseInput, TeamCaseOutput
-from evals.harness.reporting import load_report, save_report
+from evals.harness.models import KnowledgeCaseInput
 from evals.harness.running_system import (
+    RUNNING_SYSTEM_CAPABILITIES,
     require_running_system,
     run_running_system_case,
 )
+from evals.harness.runtime import KnowledgeTeamRuntime
 from evals.harness.tasks import run_team_case
 from evals.scenarios.change_aware_ingestion import build_change_aware_ingestion_dataset
 from evals.scenarios.jettro_ingestion import build_jettro_ingestion_dataset
@@ -42,10 +46,10 @@ from knowledge_akgents.settings import settings
 
 
 @dataclass
-class EventInventory(Evaluator[TeamCaseInput, TeamCaseOutput, dict[str, str]]):
+class EventInventory(Evaluator[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, str]]):
     def evaluate(
         self,
-        ctx: EvaluatorContext[TeamCaseInput, TeamCaseOutput, dict[str, str]],
+        ctx: EvaluatorContext[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, str]],
     ) -> EvaluatorOutput:
         call_ids = {call.tool_call_id for call in ctx.output.tool_calls}
         return_ids = {result.tool_call_id for result in ctx.output.tool_returns}
@@ -84,10 +88,10 @@ class EventInventory(Evaluator[TeamCaseInput, TeamCaseOutput, dict[str, str]]):
 
 
 @dataclass
-class SpanInventory(Evaluator[TeamCaseInput, TeamCaseOutput, dict[str, str]]):
+class SpanInventory(Evaluator[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, str]]):
     def evaluate(
         self,
-        ctx: EvaluatorContext[TeamCaseInput, TeamCaseOutput, dict[str, str]],
+        ctx: EvaluatorContext[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, str]],
     ) -> EvaluatorOutput:
         nodes = list(ctx.span_tree)
         names = sorted({node.name for node in nodes})
@@ -212,7 +216,7 @@ def main() -> None:
             "JSON datasets select their execution target through knowledge.source; "
             "remove --catalog-team."
         )
-    catalog_team = args.catalog_team or "evaluation"
+    catalog_team: TeamCatalog = args.catalog_team or "evaluation"
     uses_running_system = (
         loaded_json is not None
         and loaded_json.execution_target == "running_system"
@@ -309,6 +313,11 @@ def main() -> None:
             "repeat": args.repeat,
             "live_judges": args.with_judges,
             "execution_target": execution_target,
+            "runtime_capabilities": (
+                RUNNING_SYSTEM_CAPABILITIES.model_dump()
+                if uses_running_system
+                else KnowledgeTeamRuntime.capabilities.model_dump()
+            ),
             "system_url": args.system_url if uses_running_system else None,
             "dataset_path": str(args.dataset) if args.dataset is not None else None,
         },

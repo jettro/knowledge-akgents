@@ -1,82 +1,20 @@
-"""Task adapters that drive Knowledge Akgents for one evaluation case."""
+"""Pydantic Evals task adapters for Knowledge Akgents."""
 
 from __future__ import annotations
 
-from pathlib import Path
-from tempfile import TemporaryDirectory
-
-from evals.harness.catalog import TeamCatalog, load_case_team_card
-from evals.harness.collector import EvaluationEventCollector
-from evals.harness.fixture_knowledge import FixtureKnowledgeTool, KnowledgeFixture
-from evals.harness.fixture_web import FixtureWebTool
-from evals.harness.models import TeamCaseInput, TeamCaseOutput
-from knowledge_akgents.change_aware_web import ChangeAwareWebTool
-from knowledge_akgents.team import KnowledgeTeam
+from akgentic_evals.models import AkgenticCaseOutput
+from akgentic_evals.runtime import run_case_with_factory
+from evals.harness.catalog import TeamCatalog
+from evals.harness.models import KnowledgeCaseInput
+from evals.harness.runtime import KnowledgeRuntimeFactory
 
 
 def run_team_case(
-    inputs: TeamCaseInput,
+    inputs: KnowledgeCaseInput,
     *,
     catalog_team: TeamCatalog = "evaluation",
-) -> TeamCaseOutput:
-    with TemporaryDirectory(prefix="knowledge-akgents-eval-") as state_dir:
-        return _run_team_case(inputs, Path(state_dir), catalog_team)
-
-
-def _run_team_case(
-    inputs: TeamCaseInput,
-    state_dir: Path,
-    catalog_team: TeamCatalog = "evaluation",
-) -> TeamCaseOutput:
-    web_tool = None
-    if catalog_team == "evaluation" and inputs.fixture_source_url:
-        content = (
-            Path(inputs.fixture_path).read_text(encoding="utf-8")
-            if inputs.fixture_path
-            else ""
-        )
-        content_sequence = [
-            Path(fixture_path).read_text(encoding="utf-8")
-            for fixture_path in inputs.fixture_paths
-        ]
-        web_tool = ChangeAwareWebTool(
-            repository_path=state_dir / "urls.json",
-            delegate=FixtureWebTool(
-                source_url=inputs.fixture_source_url,
-                content=content,
-                content_sequence=content_sequence,
-                failure_message=inputs.fixture_web_failure,
-            ),
-        )
-
-    knowledge_tool = None
-    if inputs.knowledge_fixture is not None:
-        knowledge_tool = FixtureKnowledgeTool(records=inputs.knowledge_fixture.records)
-    elif inputs.knowledge_fixture_path:
-        fixture = KnowledgeFixture.model_validate_json(
-            Path(inputs.knowledge_fixture_path).read_text(encoding="utf-8")
-        )
-        knowledge_tool = FixtureKnowledgeTool(records=fixture.records)
-
-    collector = EvaluationEventCollector()
-    team_card = load_case_team_card(
-        catalog_team,
-        state_dir,
-        web_tool=web_tool,
-        knowledge_tool=knowledge_tool,
+) -> AkgenticCaseOutput:
+    return run_case_with_factory(
+        inputs,
+        KnowledgeRuntimeFactory(catalog_team),
     )
-    team = KnowledgeTeam(team_card)
-    try:
-        team.start(publish=lambda _: None, subscribers=(collector,))
-        output = collector.wait_for_human_responses(0, 0)
-        for response_count, turn in enumerate(inputs.ordered_turns(), start=1):
-            team.send(turn.message, turn.target)
-            output = collector.wait_for_human_responses(
-                response_count,
-                inputs.timeout_seconds,
-            )
-            if output.completion_reason != "human_response":
-                break
-        return output
-    finally:
-        team.shutdown()

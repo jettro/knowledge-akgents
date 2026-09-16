@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-from evals.scenarios.retrieval_only import (
-    DATASET_PATH,
-    MISSING_KNOWLEDGE_TERMS,
-    build_retrieval_only_dataset,
-)
-from evals.evaluators.events import (
+from akgentic_evals.evaluators import (
     DidNotCallTools,
     HumanResponseContainsAnyTerm,
     HumanResponseContainsTerms,
     ToolCallCount,
+)
+from evals.scenarios.retrieval_only import (
+    DATASET_PATH,
+    MISSING_KNOWLEDGE_TERMS,
+    build_retrieval_only_dataset,
 )
 
 
@@ -38,10 +38,18 @@ def test_retrieval_only_dataset_defines_canonical_and_paraphrased_cases() -> Non
         case for case in dataset.cases if case.name == "synthetic-conflicting-database-preference"
     )
     assert DATASET_PATH.name == "retrieval_only.json"
-    assert all(len(case.inputs.knowledge_fixture.records) == 8 for case in standard_cases)
-    assert len(conflict_case.inputs.knowledge_fixture.records) == 2
+    assert all(
+        len(case.inputs.environment.knowledge_fixture.records) == 8
+        for case in standard_cases
+        if case.inputs.environment.knowledge_fixture is not None
+    )
+    assert conflict_case.inputs.environment.knowledge_fixture is not None
+    assert len(conflict_case.inputs.environment.knowledge_fixture.records) == 2
     assert conflict_case.metadata["fixture"] == "conflicting-database"
-    assert all(case.inputs.knowledge_fixture_path is None for case in dataset.cases)
+    assert all(
+        case.inputs.environment.knowledge_fixture_path is None
+        for case in dataset.cases
+    )
     assert all(len(case.inputs.ordered_turns()) == 1 for case in dataset.cases)
     assert {case.name: case.metadata["prompt_variant"] for case in dataset.cases} == {
         "jettro-profession": "canonical",

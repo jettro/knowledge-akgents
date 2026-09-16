@@ -49,6 +49,6 @@ against small, deterministic records rather than a real Qdrant collection.
 
 See `retrieval_only.json` for a complete example.
 
-`rag4j_documentation.json` is the concrete running-system example. It evaluates
-the already-ingested RAG4j/p documentation page and checks both retrieved tool
-evidence and final answers.
+The copyable running-system example lives in
+`evals/examples/rag4j/`. It evaluates the already-ingested RAG4j/p
+documentation page and checks both retrieved tool evidence and final answers.

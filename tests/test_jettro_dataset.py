@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from akgentic_evals.evaluators import CalledRequiredTools, ToolCallsSucceeded
 from evals.scenarios.jettro_ingestion import build_jettro_ingestion_dataset
-from evals.evaluators.events import CalledRequiredTools, ToolCallsSucceeded
 
 
 def test_jettro_ingestion_requires_only_domain_tools() -> None:

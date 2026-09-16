@@ -1,24 +1,43 @@
-"""Drive the already-running Knowledge Akgents application for one eval case."""
+"""Drive the running Knowledge Akgents application through WebSocket events."""
 
 from __future__ import annotations
 
 import json
-import time
+import threading
+from collections.abc import Iterator
+from contextlib import contextmanager
 from typing import Any
 from urllib.error import URLError
 from urllib.parse import urlsplit, urlunsplit
 from urllib.request import urlopen
 
+from websockets.exceptions import ConnectionClosed
 from websockets.sync.client import connect
 
-from evals.harness.models import (
-    LlmUsageRecord,
-    MessageRecord,
-    TeamCaseInput,
-    TeamCaseOutput,
-    ToolCallRecord,
-    ToolEvidenceRecord,
-    ToolReturnRecord,
+from akgentic_evals.events import (
+    AkgenticEvalEvent,
+    MessageObserved,
+    RuntimeFailed,
+    RuntimeStopped,
+    ToolCalled,
+    ToolEvidenceObserved,
+    ToolReturned,
+    UsageObserved,
+)
+from akgentic_evals.models import AkgenticCaseOutput
+from akgentic_evals.runtime import (
+    ConversationTurn,
+    EventHandler,
+    RuntimeCapabilities,
+    run_case_with_factory,
+)
+from evals.harness.models import KnowledgeCaseInput
+
+RUNNING_SYSTEM_CAPABILITIES = RuntimeCapabilities(
+    request_correlation=False,
+    isolated_execution=False,
+    quiescence_detection=False,
+    trace_context=False,
 )
 
 
@@ -36,99 +55,113 @@ def require_running_system(system_url: str) -> None:
         raise ValueError(f"{endpoint} is not a Knowledge Akgents backend")
 
 
+class RunningSystemRuntime:
+    """Adapt the application's broadcast WebSocket to normalized events."""
+
+    capabilities = RUNNING_SYSTEM_CAPABILITIES
+
+    def __init__(self, system_url: str) -> None:
+        self._system_url = system_url
+        self._event_handler: EventHandler | None = None
+        self._websocket: Any = None
+        self._reader: threading.Thread | None = None
+        self._stopping = threading.Event()
+
+    def start(self, event_handler: EventHandler) -> None:
+        self._event_handler = event_handler
+        try:
+            self._websocket = connect(_websocket_url(self._system_url), open_timeout=5)
+            self._websocket.recv(timeout=5)  # initial connection/roster event
+        except (OSError, ValueError, TimeoutError, ConnectionClosed) as exc:
+            self._emit(RuntimeFailed(error=f"{type(exc).__name__}: {exc}"))
+            return
+
+        self._reader = threading.Thread(
+            target=self._read_events,
+            name="akgentic-eval-websocket",
+            daemon=True,
+        )
+        self._reader.start()
+
+    def send(self, turn: ConversationTurn) -> None:
+        if self._websocket is None:
+            return
+        payload = (
+            json.dumps({"text": turn.message, "target": turn.target})
+            if turn.target
+            else turn.message
+        )
+        try:
+            self._websocket.send(payload)
+        except (OSError, ConnectionClosed) as exc:
+            self._emit(RuntimeFailed(error=f"{type(exc).__name__}: {exc}"))
+
+    def shutdown(self) -> None:
+        self._stopping.set()
+        if self._websocket is not None:
+            self._websocket.close()
+            self._websocket = None
+        if self._reader is not None:
+            self._reader.join(timeout=1)
+            self._reader = None
+
+    def _read_events(self) -> None:
+        assert self._websocket is not None
+        while not self._stopping.is_set():
+            try:
+                raw = self._websocket.recv(timeout=0.2)
+                data = json.loads(raw)
+                if not isinstance(data, dict):
+                    raise ValueError("WebSocket event must be a JSON object")
+                event = _normalize_event(data)
+                if event is not None:
+                    self._emit(event)
+            except TimeoutError:
+                continue
+            except ConnectionClosed:
+                if not self._stopping.is_set():
+                    self._emit(RuntimeStopped())
+                return
+            except (OSError, ValueError, json.JSONDecodeError) as exc:
+                self._emit(RuntimeFailed(error=f"{type(exc).__name__}: {exc}"))
+                return
+
+    def _emit(self, event: AkgenticEvalEvent) -> None:
+        if self._event_handler is not None:
+            self._event_handler(event)
+
+
+class RunningSystemRuntimeFactory:
+    def __init__(self, system_url: str) -> None:
+        self._system_url = system_url
+
+    @contextmanager
+    def runtime(self, inputs: KnowledgeCaseInput) -> Iterator[RunningSystemRuntime]:
+        yield RunningSystemRuntime(self._system_url)
+
+
 def run_running_system_case(
-    inputs: TeamCaseInput,
+    inputs: KnowledgeCaseInput,
     *,
     system_url: str,
-) -> TeamCaseOutput:
+) -> AkgenticCaseOutput:
     """Execute a case through the running backend's public WebSocket boundary."""
-    messages: list[MessageRecord] = []
-    tool_calls: list[ToolCallRecord] = []
-    tool_returns: list[ToolReturnRecord] = []
-    tool_evidence: list[ToolEvidenceRecord] = []
-    llm_usage: list[LlmUsageRecord] = []
-    errors: list[str] = []
-    human_responses: list[str] = []
-    completion_reason = "timeout"
-
-    try:
-        with connect(_websocket_url(system_url), open_timeout=5) as websocket:
-            websocket.recv(timeout=5)  # initial connection/roster event
-            for expected_count, turn in enumerate(inputs.ordered_turns(), start=1):
-                websocket.send(
-                    json.dumps({"text": turn.message, "target": turn.target})
-                    if turn.target
-                    else turn.message
-                )
-                deadline = time.monotonic() + inputs.timeout_seconds
-                while len(human_responses) < expected_count and not errors:
-                    remaining = deadline - time.monotonic()
-                    if remaining <= 0:
-                        break
-                    raw = websocket.recv(timeout=remaining)
-                    data = json.loads(raw)
-                    _record_event(
-                        data,
-                        messages=messages,
-                        tool_calls=tool_calls,
-                        tool_returns=tool_returns,
-                        tool_evidence=tool_evidence,
-                        llm_usage=llm_usage,
-                        errors=errors,
-                        human_responses=human_responses,
-                    )
-                if errors or len(human_responses) < expected_count:
-                    break
-            if len(human_responses) == len(inputs.ordered_turns()):
-                completion_reason = "human_response"
-            elif errors:
-                completion_reason = "error"
-    except TimeoutError:
-        completion_reason = "timeout"
-    except (OSError, ValueError, json.JSONDecodeError) as exc:
-        errors.append(f"{type(exc).__name__}: {exc}")
-        completion_reason = "error"
-
-    return TeamCaseOutput(
-        final_response=human_responses[-1] if human_responses else None,
-        human_responses=human_responses,
-        completion_reason=completion_reason,
-        messages=messages,
-        tool_calls=tool_calls,
-        tool_returns=tool_returns,
-        tool_evidence=tool_evidence,
-        llm_usage=llm_usage,
-        errors=errors,
+    return run_case_with_factory(
+        inputs,
+        RunningSystemRuntimeFactory(system_url),
     )
 
 
-def _record_event(
-    data: dict[str, Any],
-    *,
-    messages: list[MessageRecord],
-    tool_calls: list[ToolCallRecord],
-    tool_returns: list[ToolReturnRecord],
-    tool_evidence: list[ToolEvidenceRecord],
-    llm_usage: list[LlmUsageRecord],
-    errors: list[str],
-    human_responses: list[str],
-) -> None:
+def _normalize_event(data: dict[str, Any]) -> AkgenticEvalEvent | None:
     kind = data.get("kind")
     if kind == "message":
-        record = MessageRecord(
+        return MessageObserved(
             sender=data.get("sender"),
             recipient=data.get("recipient"),
             message_type=str(data.get("type", "")),
             content=str(data.get("content", "")),
         )
-        messages.append(record)
-        if (
-            record.recipient == "@Human"
-            and record.sender != "@Human"
-            and record.content
-        ):
-            human_responses.append(record.content)
-    elif kind == "tool_call":
+    if kind == "tool_call":
         arguments_raw = str(data.get("arguments", ""))
         try:
             arguments = json.loads(arguments_raw)
@@ -136,50 +169,45 @@ def _record_event(
         except json.JSONDecodeError as exc:
             arguments = None
             parse_error = str(exc)
-        tool_calls.append(
-            ToolCallRecord(
-                run_id=str(data.get("run_id", "")),
-                tool_name=str(data.get("tool", "")),
-                tool_call_id=str(data.get("tool_call_id", "")),
-                arguments_raw=arguments_raw,
-                arguments=arguments,
-                parse_error=parse_error,
-            )
+        return ToolCalled(
+            run_id=str(data.get("run_id", "")),
+            tool_name=str(data.get("tool", "")),
+            tool_call_id=str(data.get("tool_call_id", "")),
+            arguments_raw=arguments_raw,
+            arguments=arguments,
+            parse_error=parse_error,
         )
-    elif kind == "tool_return":
-        tool_returns.append(
-            ToolReturnRecord(
-                run_id=str(data.get("run_id", "")),
-                tool_name=str(data.get("tool", "")),
-                tool_call_id=str(data.get("tool_call_id", "")),
-                success=bool(data.get("success", False)),
-            )
+    if kind == "tool_return":
+        return ToolReturned(
+            run_id=str(data.get("run_id", "")),
+            tool_name=str(data.get("tool", "")),
+            tool_call_id=str(data.get("tool_call_id", "")),
+            success=bool(data.get("success", False)),
         )
-    elif kind == "tool_evidence":
-        tool_evidence.append(
-            ToolEvidenceRecord(
-                run_id=str(data.get("run_id", "")) or None,
-                tool_name=str(data.get("tool", "")),
-                tool_call_id=str(data.get("tool_call_id", "")),
-                content=str(data.get("content", "")),
-                outcome=str(data.get("outcome", "")),
-            )
+    if kind == "tool_evidence":
+        return ToolEvidenceObserved(
+            run_id=str(data.get("run_id", "")) or None,
+            tool_name=str(data.get("tool", "")),
+            tool_call_id=str(data.get("tool_call_id", "")),
+            content=str(data.get("content", "")),
+            outcome=str(data.get("outcome", "")),
         )
-    elif kind == "llm_usage":
-        llm_usage.append(
-            LlmUsageRecord(
-                run_id=str(data.get("run_id", "")),
-                model_name=str(data.get("model_name", "")),
-                provider_name=str(data.get("provider_name", "")),
-                input_tokens=int(data.get("input_tokens", 0)),
-                output_tokens=int(data.get("output_tokens", 0)),
-                cache_read_tokens=int(data.get("cache_read_tokens", 0)),
-                cache_write_tokens=int(data.get("cache_write_tokens", 0)),
-                requests=int(data.get("requests", 0)),
-            )
+    if kind == "llm_usage":
+        return UsageObserved(
+            run_id=str(data.get("run_id", "")),
+            model_name=str(data.get("model_name", "")),
+            provider_name=str(data.get("provider_name", "")),
+            input_tokens=int(data.get("input_tokens", 0)),
+            output_tokens=int(data.get("output_tokens", 0)),
+            cache_read_tokens=int(data.get("cache_read_tokens", 0)),
+            cache_write_tokens=int(data.get("cache_write_tokens", 0)),
+            requests=int(data.get("requests", 0)),
         )
-    elif kind == "error":
-        errors.append(str(data.get("content", "Unknown application error")))
+    if kind == "error":
+        return RuntimeFailed(
+            error=str(data.get("content", "Unknown application error"))
+        )
+    return None
 
 
 def _websocket_url(system_url: str) -> str:

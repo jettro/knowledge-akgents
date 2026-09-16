@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.evaluators.events import (
+from akgentic_evals.evaluators import (
     CalledRequiredTools,
     CompletedSuccessfully,
     FollowedMessageRoute,
@@ -17,7 +17,12 @@ from evals.evaluators.events import (
     ToolCallCount,
     ToolCallsSucceeded,
 )
-from evals.harness.models import TeamCaseInput, TeamCaseOutput, TeamTurn
+from akgentic_evals.models import AkgenticCaseOutput
+from akgentic_evals.runtime import ConversationTurn
+from evals.harness.models import (
+    KnowledgeCaseInput,
+    KnowledgeEvaluationEnvironment,
+)
 
 YUMA_BACKGROUND_URL = "https://www.weareyuma.com/en/about/about-us/background"
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "yuma_background.txt"
@@ -25,26 +30,28 @@ FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "yuma_background.txt"
 
 def build_yuma_scenario_dataset(
     timeout_seconds: float = 180.0,
-) -> Dataset[TeamCaseInput, TeamCaseOutput, dict[str, Any]]:
+) -> Dataset[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, Any]]:
     return Dataset(
         name="knowledge-akgents/yuma-end-to-end",
         cases=[
             Case(
                 name="ingest-and-query-yuma-background",
-                inputs=TeamCaseInput(
+                inputs=KnowledgeCaseInput(
                     turns=[
-                        TeamTurn(
+                        ConversationTurn(
                             message=(
                                 f"Ingest {YUMA_BACKGROUND_URL} and focus on what Yuma "
                                 "does and which companies formed it."
                             )
                         ),
-                        TeamTurn(message="What does Yuma do?"),
-                        TeamTurn(message="What companies formed Yuma?"),
+                        ConversationTurn(message="What does Yuma do?"),
+                        ConversationTurn(message="What companies formed Yuma?"),
                     ],
                     timeout_seconds=timeout_seconds,
-                    fixture_source_url=YUMA_BACKGROUND_URL,
-                    fixture_path=str(FIXTURE_PATH),
+                    environment=KnowledgeEvaluationEnvironment(
+                        fixture_source_url=YUMA_BACKGROUND_URL,
+                        fixture_path=str(FIXTURE_PATH),
+                    ),
                 ),
                 metadata={
                     "source_url": YUMA_BACKGROUND_URL,

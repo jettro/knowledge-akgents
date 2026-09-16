@@ -7,23 +7,29 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import Field, model_validator
 from pydantic_evals import Case, Dataset
-from pydantic_evals.evaluators import Evaluator
 
-from evals.evaluators.events import (
+from akgentic_evals.datasets import (
+    EvaluatorDefinition,
+    HumanResponseContainsAnyTermDefinition,
+    StrictDefinitionModel,
+    build_evaluator,
+)
+from akgentic_evals.evaluators import (
     CalledRequiredTools,
     CompletedSuccessfully,
     DidNotCallTools,
     FollowedMessageRoute,
-    HumanResponseContainsAnyTerm,
-    HumanResponseContainsTerms,
     ToolCallCount,
     ToolCallsSucceeded,
-    ToolEvidenceContainsTerms,
 )
+from akgentic_evals.models import AkgenticCaseOutput
 from evals.harness.fixture_knowledge import KnowledgeFixture
-from evals.harness.models import TeamCaseInput, TeamCaseOutput
+from evals.harness.models import (
+    KnowledgeCaseInput,
+    KnowledgeEvaluationEnvironment,
+)
 
 RETRIEVAL_ROUTE = (
     ("@Human", "@Manager"),
@@ -33,60 +39,7 @@ RETRIEVAL_ROUTE = (
 )
 
 
-class StrictModel(BaseModel):
-    model_config = ConfigDict(extra="forbid", populate_by_name=True)
-
-
-class HumanResponseContainsTermsDefinition(StrictModel):
-    type: Literal["human_response_contains_terms"]
-    response_index: int = Field(default=0, ge=0)
-    required_terms: tuple[str, ...] = Field(min_length=1)
-
-
-class HumanResponseContainsAnyTermDefinition(StrictModel):
-    type: Literal["human_response_contains_any_term"]
-    response_index: int = Field(default=0, ge=0)
-    accepted_terms: tuple[str, ...] | None = None
-    accepted_terms_ref: str | None = None
-
-    @model_validator(mode="after")
-    def validate_term_source(self) -> HumanResponseContainsAnyTermDefinition:
-        if (self.accepted_terms is None) == (self.accepted_terms_ref is None):
-            raise ValueError("Provide exactly one of accepted_terms or accepted_terms_ref")
-        if self.accepted_terms is not None and not self.accepted_terms:
-            raise ValueError("accepted_terms must not be empty")
-        return self
-
-
-class ToolCallCountDefinition(StrictModel):
-    type: Literal["tool_call_count"]
-    tool_name: str = Field(min_length=1)
-    minimum: int = Field(ge=0)
-    maximum: int | None = Field(default=None, ge=0)
-
-    @model_validator(mode="after")
-    def validate_range(self) -> ToolCallCountDefinition:
-        if self.maximum is not None and self.maximum < self.minimum:
-            raise ValueError("maximum must be greater than or equal to minimum")
-        return self
-
-
-class ToolEvidenceContainsTermsDefinition(StrictModel):
-    type: Literal["tool_evidence_contains_terms"]
-    tool_name: str = Field(default="search_graph", min_length=1)
-    required_terms: tuple[str, ...] = Field(min_length=1)
-
-
-EvaluatorDefinition = Annotated[
-    HumanResponseContainsTermsDefinition
-    | HumanResponseContainsAnyTermDefinition
-    | ToolCallCountDefinition
-    | ToolEvidenceContainsTermsDefinition,
-    Field(discriminator="type"),
-]
-
-
-class CaseDefinition(StrictModel):
+class CaseDefinition(StrictDefinitionModel):
     name: str = Field(min_length=1)
     message: str = Field(min_length=1)
     fixture: str | None = None
@@ -94,13 +47,13 @@ class CaseDefinition(StrictModel):
     evaluators: tuple[EvaluatorDefinition, ...] = ()
 
 
-class FixtureKnowledgeDefinition(StrictModel):
+class FixtureKnowledgeDefinition(StrictDefinitionModel):
     source: Literal["fixtures"]
     default_fixture: str = Field(min_length=1)
     fixtures: dict[str, KnowledgeFixture] = Field(min_length=1)
 
 
-class RunningSystemKnowledgeDefinition(StrictModel):
+class RunningSystemKnowledgeDefinition(StrictDefinitionModel):
     source: Literal["running_system"]
 
 
@@ -110,7 +63,7 @@ KnowledgeDefinition = Annotated[
 ]
 
 
-class JsonDatasetDefinition(StrictModel):
+class JsonDatasetDefinition(StrictDefinitionModel):
     schema_url: str | None = Field(default=None, alias="$schema")
     version: Literal[2]
     task: Literal["retrieval"]
@@ -160,7 +113,7 @@ class JsonDatasetDefinition(StrictModel):
 
 @dataclass(frozen=True, slots=True)
 class LoadedJsonDataset:
-    dataset: Dataset[TeamCaseInput, TeamCaseOutput, dict[str, Any]]
+    dataset: Dataset[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, Any]]
     execution_target: Literal["local_evaluation_team", "running_system"]
 
 
@@ -186,7 +139,7 @@ def build_json_dataset(
         if isinstance(definition.knowledge, FixtureKnowledgeDefinition)
         else None
     )
-    cases: list[Case[TeamCaseInput, TeamCaseOutput, dict[str, Any]]] = []
+    cases: list[Case[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, Any]]] = []
     for case_definition in definition.cases:
         fixture_name = None
         knowledge_fixture = None
@@ -203,14 +156,16 @@ def build_json_dataset(
         cases.append(
             Case(
                 name=case_definition.name,
-                inputs=TeamCaseInput(
+                inputs=KnowledgeCaseInput(
                     message=case_definition.message,
                     timeout_seconds=timeout_seconds,
-                    knowledge_fixture=knowledge_fixture,
+                    environment=KnowledgeEvaluationEnvironment(
+                        knowledge_fixture=knowledge_fixture
+                    ),
                 ),
                 metadata=metadata,
                 evaluators=tuple(
-                    build_case_evaluator(evaluator, definition.vocabularies)
+                    build_evaluator(evaluator, definition.vocabularies)
                     for evaluator in case_definition.evaluators
                 ),
             )
@@ -235,37 +190,3 @@ def build_json_dataset(
             else "running_system"
         ),
     )
-
-
-def build_case_evaluator(
-    definition: EvaluatorDefinition,
-    vocabularies: dict[str, tuple[str, ...]],
-) -> Evaluator[Any, Any, Any]:
-    """Convert one allow-listed JSON evaluator definition to Python logic."""
-    if isinstance(definition, HumanResponseContainsTermsDefinition):
-        return HumanResponseContainsTerms(
-            response_index=definition.response_index,
-            required_terms=definition.required_terms,
-        )
-    if isinstance(definition, HumanResponseContainsAnyTermDefinition):
-        terms = (
-            definition.accepted_terms
-            if definition.accepted_terms is not None
-            else vocabularies[definition.accepted_terms_ref or ""]
-        )
-        return HumanResponseContainsAnyTerm(
-            response_index=definition.response_index,
-            accepted_terms=terms,
-        )
-    if isinstance(definition, ToolCallCountDefinition):
-        return ToolCallCount(
-            tool_name=definition.tool_name,
-            minimum=definition.minimum,
-            maximum=definition.maximum,
-        )
-    if isinstance(definition, ToolEvidenceContainsTermsDefinition):
-        return ToolEvidenceContainsTerms(
-            tool_name=definition.tool_name,
-            required_terms=definition.required_terms,
-        )
-    raise TypeError(f"Unsupported evaluator definition: {type(definition).__name__}")

@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.evaluators.events import (
+from akgentic_evals.evaluators import (
     CalledRequiredTools,
     CompletedSuccessfully,
     FollowedMessageRoute,
@@ -15,32 +15,41 @@ from evals.evaluators.events import (
     ToolCallCount,
     ToolCallsSucceeded,
 )
-from evals.harness.models import TeamCaseInput, TeamCaseOutput, TeamTurn
+from akgentic_evals.models import AkgenticCaseOutput
+from akgentic_evals.runtime import ConversationTurn
+from evals.harness.models import (
+    KnowledgeCaseInput,
+    KnowledgeEvaluationEnvironment,
+)
 from evals.scenarios.jettro_ingestion import FIXTURE_PATH, JETTRO_ABOUT_URL
 
 
 def build_jettro_scenario_dataset(
     timeout_seconds: float = 180.0,
-) -> Dataset[TeamCaseInput, TeamCaseOutput, dict[str, Any]]:
+) -> Dataset[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, Any]]:
     return Dataset(
         name="knowledge-akgents/jettro-end-to-end",
         cases=[
             Case(
                 name="ingest-and-query-jettro-about",
-                inputs=TeamCaseInput(
+                inputs=KnowledgeCaseInput(
                     turns=[
-                        TeamTurn(
+                        ConversationTurn(
                             message=(
                                 f"Ingest {JETTRO_ABOUT_URL} and focus on Jettro "
                                 "Coenradie's profession and name."
                             )
                         ),
-                        TeamTurn(message="What is the profession of Jettro Coenradie?"),
-                        TeamTurn(message="What is the last name of Jettro?"),
+                        ConversationTurn(
+                            message="What is the profession of Jettro Coenradie?"
+                        ),
+                        ConversationTurn(message="What is the last name of Jettro?"),
                     ],
                     timeout_seconds=timeout_seconds,
-                    fixture_source_url=JETTRO_ABOUT_URL,
-                    fixture_path=str(FIXTURE_PATH),
+                    environment=KnowledgeEvaluationEnvironment(
+                        fixture_source_url=JETTRO_ABOUT_URL,
+                        fixture_path=str(FIXTURE_PATH),
+                    ),
                 ),
                 metadata={
                     "source_url": JETTRO_ABOUT_URL,

@@ -2,13 +2,18 @@
 
 from __future__ import annotations
 
+from akgentic_evals.models import (
+    AkgenticCaseOutput,
+    ToolEvidenceRecord,
+    ToolReturnRecord,
+)
 from evals.evaluators.live import build_live_judge_input
-from evals.harness.models import TeamCaseInput, TeamCaseOutput, ToolEvidenceRecord
+from evals.harness.models import KnowledgeCaseInput
 
 
 def test_live_judge_uses_only_successful_search_evidence() -> None:
     output = _output(
-        [
+        evidence=[
             ToolEvidenceRecord(
                 run_id="run-1",
                 tool_name="search_graph",
@@ -30,11 +35,31 @@ def test_live_judge_uses_only_successful_search_evidence() -> None:
                 content="Failed search content",
                 outcome="failed",
             ),
-        ]
+        ],
+        returns=[
+            ToolReturnRecord(
+                run_id="run-1",
+                tool_name="search_graph",
+                tool_call_id="search-1",
+                success=True,
+            ),
+            ToolReturnRecord(
+                run_id="run-1",
+                tool_name="team_activity",
+                tool_call_id="team-1",
+                success=True,
+            ),
+            ToolReturnRecord(
+                run_id="run-1",
+                tool_name="search_graph",
+                tool_call_id="search-2",
+                success=False,
+            ),
+        ],
     )
 
     judge_input = build_live_judge_input(
-        TeamCaseInput(message="What is Jettro's profession?"),
+        KnowledgeCaseInput(message="What is Jettro's profession?"),
         output,
     )
 
@@ -45,21 +70,24 @@ def test_live_judge_uses_only_successful_search_evidence() -> None:
 
 def test_live_judge_requires_search_evidence() -> None:
     judge_input = build_live_judge_input(
-        TeamCaseInput(message="What is Jettro's profession?"),
-        _output([]),
+        KnowledgeCaseInput(message="What is Jettro's profession?"),
+        _output(evidence=[]),
     )
 
     assert judge_input is None
 
 
-def _output(evidence: list[ToolEvidenceRecord]) -> TeamCaseOutput:
-    return TeamCaseOutput(
+def _output(
+    evidence: list[ToolEvidenceRecord],
+    returns: list[ToolReturnRecord] | None = None,
+) -> AkgenticCaseOutput:
+    return AkgenticCaseOutput(
         final_response="answer",
         human_responses=["answer"],
         completion_reason="human_response",
         messages=[],
         tool_calls=[],
-        tool_returns=[],
+        tool_returns=returns or [],
         tool_evidence=evidence,
         errors=[],
     )

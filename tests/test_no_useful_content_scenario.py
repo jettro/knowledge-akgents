@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
+from akgentic_evals.evaluators import HumanResponseContainsAnyTerm, ToolCallCount
 from evals.scenarios.no_useful_content import (
     FIXTURE_PATH,
     NO_USEFUL_CONTENT_URL,
     build_no_useful_content_scenario_dataset,
 )
-from evals.evaluators.events import HumanResponseContainsAnyTerm, ToolCallCount
 
 
 def test_no_useful_content_scenario_uses_isolated_fixture() -> None:
@@ -15,8 +15,8 @@ def test_no_useful_content_scenario_uses_isolated_fixture() -> None:
     case = dataset.cases[0]
 
     assert case.name == "skip-graph-update-for-boilerplate-only-page"
-    assert case.inputs.fixture_source_url == NO_USEFUL_CONTENT_URL
-    assert case.inputs.fixture_path == str(FIXTURE_PATH)
+    assert case.inputs.environment.fixture_source_url == NO_USEFUL_CONTENT_URL
+    assert case.inputs.environment.fixture_path == str(FIXTURE_PATH)
     assert case.metadata["fixture_kind"] == "synthetic-boilerplate-only"
 
 

@@ -13,7 +13,8 @@ from pydantic_evals.evaluators import (
 )
 from pydantic_evals.evaluators.llm_as_a_judge import judge_input_output
 
-from evals.harness.models import TeamCaseInput, TeamCaseOutput
+from akgentic_evals.models import AkgenticCaseOutput
+from evals.harness.models import KnowledgeCaseInput
 from evals.scenarios.judge_calibration import (
     ANSWER_RELEVANCE_RUBRIC,
     GROUNDEDNESS_RUBRIC,
@@ -26,14 +27,16 @@ class LiveJudgeInput(BaseModel):
 
 
 @dataclass
-class LiveRetrievalJudges(Evaluator[TeamCaseInput, TeamCaseOutput, dict[str, object]]):
+class LiveRetrievalJudges(
+    Evaluator[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, object]]
+):
     model: str
 
     async def evaluate(
         self,
         ctx: EvaluatorContext[
-            TeamCaseInput,
-            TeamCaseOutput,
+            KnowledgeCaseInput,
+            AkgenticCaseOutput,
             dict[str, object],
         ],
     ) -> EvaluatorOutput:
@@ -71,13 +74,11 @@ class LiveRetrievalJudges(Evaluator[TeamCaseInput, TeamCaseOutput, dict[str, obj
 
 
 def build_live_judge_input(
-    inputs: TeamCaseInput,
-    output: TeamCaseOutput,
+    inputs: KnowledgeCaseInput,
+    output: AkgenticCaseOutput,
 ) -> LiveJudgeInput | None:
     evidence = [
-        record.content
-        for record in output.tool_evidence
-        if record.tool_name == "search_graph" and record.outcome == "success"
+        record.content for record in output.successful_tool_evidence("search_graph")
     ]
     if not evidence:
         return None

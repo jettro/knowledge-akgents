@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+from akgentic_evals.evaluators import (
+    CompletedSuccessfully,
+    ToolCallCount,
+    ToolCallsSucceeded,
+)
 from evals.scenarios.jettro_scenario import build_jettro_scenario_dataset
-from evals.evaluators.events import CompletedSuccessfully, ToolCallCount, ToolCallsSucceeded
 
 
 def test_jettro_scenario_defines_three_ordered_turns() -> None:

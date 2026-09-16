@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from akgentic_evals.evaluators import DidNotInvolveActors, FollowedMessageRoute
 from evals.scenarios.routing import build_routing_dataset
-from evals.evaluators.events import DidNotInvolveActors, FollowedMessageRoute
 
 
 def test_routing_dataset_defines_direct_and_manager_cases() -> None:

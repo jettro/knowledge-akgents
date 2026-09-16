@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+from typing import Any, cast
+
 from pydantic_evals.evaluators import LLMJudge
 
+from akgentic_evals.calibration import summarize_judge_agreement
 from evals.scenarios.judge_calibration import (
     ANSWER_RELEVANCE_RUBRIC,
     GROUNDEDNESS_RUBRIC,
@@ -73,3 +77,42 @@ def test_static_calibration_task_returns_candidate_answer() -> None:
     case = build_judge_calibration_dataset("openai:test-model").cases[0]
 
     assert return_candidate_answer(case.inputs) == case.inputs.candidate_answer
+
+
+def test_agreement_summary_is_independent_of_application_rubrics() -> None:
+    report = cast(
+        Any,
+        SimpleNamespace(
+            cases=[
+                SimpleNamespace(
+                    name="case-run-1",
+                    source_case_name="case",
+                    metadata={"human_quality": True},
+                    assertions={
+                        "quality": SimpleNamespace(
+                            value=True,
+                            reason="Supported",
+                        )
+                    },
+                ),
+                SimpleNamespace(
+                    name="case-run-2",
+                    source_case_name="case",
+                    metadata={"human_quality": True},
+                    assertions={
+                        "quality": SimpleNamespace(
+                            value=False,
+                            reason="Unsupported",
+                        )
+                    },
+                ),
+            ]
+        ),
+    )
+
+    summary = summarize_judge_agreement(report, {"quality": "human_quality"})
+
+    assert summary.agreement == 1
+    assert summary.decision_count == 2
+    assert summary.by_dimension["quality"].runs == 2
+    assert summary.by_source_case["case"]["quality"].agreements == 1

@@ -123,9 +123,104 @@ make test        # pytest (team-boot + input parsing; no network/LLM required)
 
 ## Evaluations
 
-The Pydantic Evals harness lives in `evals/`; its design and recorded pilot
-results are in [`evals-plan.md`](evals-plan.md). Contributor-oriented guides
-start at [`docs/help.md`](docs/help.md).
+The evaluation code is split between a reusable package and the
+Knowledge Akgents integration:
+
+- **`src/akgentic_evals/`** contains application-independent runtime,
+  case-authoring, evidence, completion, deterministic-evaluator, dataset
+  definition, judge-calibration, and report primitives.
+- **`evals/`** contains Knowledge Akgents fixtures, team construction,
+  datasets, accepted answer policy, live judges, and command-line runners.
+
+`akgentic_evals` is currently shipped in the same wheel as
+`knowledge_akgents`. It is an internal extraction, not yet a separately
+published package. Its design still needs to be validated against a second
+Akgentic application before that boundary should be considered stable.
+
+The original design and recorded pilot results are in
+[`evals-plan.md`](evals-plan.md). Contributor-oriented guides start at
+[`docs/help.md`](docs/help.md).
+
+### Where evaluation code lives
+
+| Location | Responsibility |
+|---|---|
+| `src/akgentic_evals/models.py` | Normalized output records, composite `(run_id, tool_call_id)` invocation identity, correlated tool invocations, and successful-evidence selection |
+| `src/akgentic_evals/events.py` | Transport-independent message, tool, evidence, usage, failure, and stop events |
+| `src/akgentic_evals/collector.py` | Thread-safe conversion of normalized events into `AkgenticCaseOutput` |
+| `src/akgentic_evals/completion.py` | Completion-policy protocol and sender/recipient-based response selection |
+| `src/akgentic_evals/runtime.py` | Single-turn and multi-turn case authoring, runtime/factory protocols, capabilities, and lifecycle execution |
+| `src/akgentic_evals/evaluators.py` | Generic completion, response-text, route, actor, tool, evidence, count, and usage evaluators |
+| `src/akgentic_evals/datasets.py` | Strict JSON definitions and builders for allow-listed generic evaluators |
+| `src/akgentic_evals/calibration.py` | Generic judge-calibration input and human-label agreement summaries |
+| `src/akgentic_evals/reporting.py` | Native Pydantic Evals report persistence |
+| `evals/harness/models.py` | `KnowledgeCaseInput` and its nested `KnowledgeEvaluationEnvironment` |
+| `evals/harness/tasks.py` | Thin Pydantic Evals task that delegates to the reusable runtime-factory lifecycle |
+| `evals/harness/runtime.py` | `KnowledgeRuntimeFactory`, Knowledge fixture composition, and the `KnowledgeTeam` runtime adapter |
+| `evals/harness/collector.py` | Adapter from raw Akgentic and Pydantic AI events to normalized `akgentic_evals` events |
+| `evals/harness/running_system.py` | WebSocket runtime for an already-running backend and its weaker capability declaration |
+| `evals/harness/catalog.py` | Production/evaluation catalog selection and strict tool replacement |
+| `evals/harness/dataset_loader.py` | Knowledge dataset schema, fixture selection, shared retrieval contract, and conversion to Pydantic Evals |
+| `evals/evaluators/live.py` | Knowledge-specific groundedness and answer-relevance judges |
+| `evals/scenarios/` | Python-defined stateful, multi-turn, and failure scenarios |
+| `evals/datasets/` | Declarative JSON retrieval cases and their schema |
+| `evals/examples/` | Copyable application-owned examples, including the RAG4j running-system dataset |
+| `evals/runners/` | CLI entry points, report metadata, and experiment execution |
+
+The two execution paths converge before evidence is evaluated:
+
+```text
+Local case
+  KnowledgeCaseInput -> KnowledgeRuntimeFactory -> KnowledgeTeamRuntime
+                -> AkgenticEventAdapter -> normalized events
+
+Running backend
+  KnowledgeCaseInput -> RunningSystemRuntimeFactory -> RunningSystemRuntime
+                -> WebSocket payload decoder
+                -> normalized events
+
+Both
+  normalized events -> EvaluationEventCollector -> AkgenticCaseOutput
+                    -> generic + application-specific evaluators
+                    -> Pydantic Evals report
+```
+
+Use these ownership rules when adding code:
+
+- Put transport-independent case authoring, evidence, lifecycle, completion,
+  evaluator definitions, calibration calculations, or report persistence in
+  `src/akgentic_evals/`.
+- Put Akgentic/Pydantic AI event decoding in `evals/harness/collector.py`.
+- Put Knowledge team construction, catalogs, fixture tools, and persistent
+  runtime access in `evals/harness/`.
+- Put Knowledge evaluation environments, expected routes, domain facts,
+  accepted terms, and judge rubrics in `evals/`, because those values define
+  this application's behavior.
+- Do not add Knowledge-specific actor names, tool names, or answer vocabulary
+  to `src/akgentic_evals/`.
+
+`KnowledgeCaseInput` extends the generic `AkgenticCaseInput` with one nested
+`KnowledgeEvaluationEnvironment`. The generic input owns `message`, `target`,
+ordered `turns`, timeout validation, and `ordered_turns()`. The environment
+owns fixture URLs, fixture files, simulated web failures, and fixture
+knowledge. The runtime factory receives the complete application input, while
+`akgentic_evals` treats the additional configuration as opaque.
+
+### Runtime guarantees
+
+Both runtimes implement `AkgenticEvalRuntime`, but they do not provide the
+same guarantees. The runner stores these capabilities in report metadata.
+
+| Capability | Isolated `KnowledgeTeamRuntime` | `RunningSystemRuntime` |
+|---|---:|---:|
+| Request correlation | Yes | No |
+| Isolated execution | Yes | No |
+| Trace context | Yes | No |
+| Actor quiescence detection | No | No |
+
+The running backend broadcasts WebSocket events and does not attach an
+evaluation case or turn ID. Run those datasets serially and avoid other active
+clients, but do not interpret that precaution as strong isolation.
 
 Run the deterministic harness tests without network or model calls:
 
@@ -164,12 +259,14 @@ collection, use a JSON dataset with
 
 ```bash
 make eval-live-dataset \
-  DATASET=evals/datasets/new_page.json \
-  EVAL_FLAGS="--save-report eval-reports/new-page.json"
+  DATASET=evals/examples/rag4j/dataset.json \
+  EVAL_FLAGS="--save-report eval-reports/rag4j-documentation.json"
 ```
 
 This sends cases through the already-running production application and its
 real `search_graph` tool. It does not ingest the page; populate Qdrant first.
+The example folder explains which parts to copy and replace for another
+application-owned source.
 
 Three additional targets load the exact production catalog team. They keep
 Qdrant and URL-ingestion state isolated, but use the production web tool and
@@ -233,9 +330,10 @@ The viewer reads selected files locally in the browser. See
 [`docs/evaluation-report-viewer/help.md`](docs/evaluation-report-viewer/help.md)
 for its available views and data-sensitivity notes.
 
-`eval-reports/` is gitignored because reports can contain prompts, answers, and
-tool arguments. Commit curated conclusions or thresholds instead of raw
-execution data.
+`eval-reports/` contains selected reports used as article evidence and
+regression references. Reports can include prompts, answers, and tool
+arguments, so inspect new reports before committing them rather than treating
+the directory as safe for arbitrary raw output.
 
 No GitHub Actions workflow is provided yet. The project currently resolves
 `akgentic-llm` from the editable sibling path `../akgentic-llm`, which a generic
@@ -249,13 +347,18 @@ scheduled, not run on every pull request.
 ```
 src/knowledge_akgents/   settings, catalog loading, events bridge, persistent team runtime,
                          FastAPI app, and team-scoped imported URL tracking
+src/akgentic_evals/      reusable case authoring, normalized evidence, runtime factories,
+                         completion, evaluators, dataset definitions, calibration, and reports
 config/catalog/          production and evaluation akgentic-catalog namespaces
-evals/harness/           reusable application-to-Pydantic-Evals execution plumbing
-evals/evaluators/        Knowledge Akgents correctness and quality checks
+evals/harness/           Knowledge runtime configuration, adapters, fixtures, catalog
+                         composition, and application dataset loading
+evals/evaluators/        Knowledge-specific live judges
 evals/datasets/          JSON case definitions, schema, and authoring README
+evals/examples/          copyable application-owned evaluation examples
 evals/fixtures/          controlled web-page content for specialized scenarios
 evals/scenarios/         Python orchestration for multi-turn and failure scenarios
 evals/runners/           command-line experiment entry points
+eval-reports/            reviewed native Pydantic Evals reports retained as evidence
 eval-viewer/             local static viewer for saved evaluation reports
 docs/                    contributor help organized by topic
 frontend/                static Human-Proxy UI + nginx config

@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.evaluators.events import (
+from akgentic_evals.evaluators import (
     CalledRequiredTools,
     CompletedSuccessfully,
     FollowedMessageRoute,
@@ -16,7 +16,11 @@ from evals.evaluators.events import (
     ToolCallCount,
     ToolCallsSucceeded,
 )
-from evals.harness.models import TeamCaseInput, TeamCaseOutput
+from akgentic_evals.models import AkgenticCaseOutput
+from evals.harness.models import (
+    KnowledgeCaseInput,
+    KnowledgeEvaluationEnvironment,
+)
 
 NO_USEFUL_CONTENT_URL = "https://eval.invalid/empty-content"
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "no_useful_content_page.txt"
@@ -24,17 +28,19 @@ FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "no_useful_content_page.
 
 def build_no_useful_content_scenario_dataset(
     timeout_seconds: float = 180.0,
-) -> Dataset[TeamCaseInput, TeamCaseOutput, dict[str, Any]]:
+) -> Dataset[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, Any]]:
     return Dataset(
         name="knowledge-akgents/no-useful-content-ingestion",
         cases=[
             Case(
                 name="skip-graph-update-for-boilerplate-only-page",
-                inputs=TeamCaseInput(
+                inputs=KnowledgeCaseInput(
                     message=f"Ingest {NO_USEFUL_CONTENT_URL}.",
                     timeout_seconds=timeout_seconds,
-                    fixture_source_url=NO_USEFUL_CONTENT_URL,
-                    fixture_path=str(FIXTURE_PATH),
+                    environment=KnowledgeEvaluationEnvironment(
+                        fixture_source_url=NO_USEFUL_CONTENT_URL,
+                        fixture_path=str(FIXTURE_PATH),
+                    ),
                 ),
                 metadata={
                     "source_url": NO_USEFUL_CONTENT_URL,

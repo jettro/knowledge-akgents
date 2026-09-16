@@ -4388,7 +4388,7 @@
     "live_judges": true,
     "execution_target": "running_system",
     "system_url": "http://localhost:8000",
-    "dataset_path": "evals/datasets/rag4j_documentation.json"
+    "dataset_path": "evals/examples/rag4j/dataset.json"
   },
   "trace_id": "01a09e7b7418417057545f893e2526e8",
   "span_id": "0f78c427bb5d60f0"

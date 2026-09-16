@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.evaluators.events import (
+from akgentic_evals.evaluators import (
     CalledRequiredTools,
     CompletedSuccessfully,
     FollowedMessageRoute,
@@ -17,7 +17,12 @@ from evals.evaluators.events import (
     ToolCallsInOrder,
     ToolCallsSucceeded,
 )
-from evals.harness.models import TeamCaseInput, TeamCaseOutput, TeamTurn
+from akgentic_evals.models import AkgenticCaseOutput
+from akgentic_evals.runtime import ConversationTurn
+from evals.harness.models import (
+    KnowledgeCaseInput,
+    KnowledgeEvaluationEnvironment,
+)
 
 CHANGE_AWARE_URL = "https://eval.invalid/project-beacon"
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "change_aware_page.txt"
@@ -36,20 +41,22 @@ TWO_INGESTION_ROUTES = (
 
 def build_change_aware_ingestion_dataset(
     timeout_seconds: float = 180.0,
-) -> Dataset[TeamCaseInput, TeamCaseOutput, dict[str, Any]]:
+) -> Dataset[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, Any]]:
     return Dataset(
         name="knowledge-akgents/change-aware-ingestion",
         cases=[
             Case(
                 name="skip-unchanged-page",
-                inputs=TeamCaseInput(
+                inputs=KnowledgeCaseInput(
                     turns=[
-                        TeamTurn(message=f"Ingest {CHANGE_AWARE_URL}."),
-                        TeamTurn(message=f"Ingest {CHANGE_AWARE_URL} again."),
+                        ConversationTurn(message=f"Ingest {CHANGE_AWARE_URL}."),
+                        ConversationTurn(message=f"Ingest {CHANGE_AWARE_URL} again."),
                     ],
                     timeout_seconds=timeout_seconds,
-                    fixture_source_url=CHANGE_AWARE_URL,
-                    fixture_path=str(FIXTURE_PATH),
+                    environment=KnowledgeEvaluationEnvironment(
+                        fixture_source_url=CHANGE_AWARE_URL,
+                        fixture_path=str(FIXTURE_PATH),
+                    ),
                 ),
                 metadata={
                     "source_url": CHANGE_AWARE_URL,
@@ -76,18 +83,20 @@ def build_change_aware_ingestion_dataset(
             ),
             Case(
                 name="force-unchanged-page",
-                inputs=TeamCaseInput(
+                inputs=KnowledgeCaseInput(
                     turns=[
-                        TeamTurn(message=f"Ingest {CHANGE_AWARE_URL}."),
-                        TeamTurn(
+                        ConversationTurn(message=f"Ingest {CHANGE_AWARE_URL}."),
+                        ConversationTurn(
                             message=(
                                 f"Force re-ingest {CHANGE_AWARE_URL}, even if it is unchanged."
                             )
                         ),
                     ],
                     timeout_seconds=timeout_seconds,
-                    fixture_source_url=CHANGE_AWARE_URL,
-                    fixture_path=str(FIXTURE_PATH),
+                    environment=KnowledgeEvaluationEnvironment(
+                        fixture_source_url=CHANGE_AWARE_URL,
+                        fixture_path=str(FIXTURE_PATH),
+                    ),
                 ),
                 metadata={
                     "source_url": CHANGE_AWARE_URL,
@@ -117,14 +126,18 @@ def build_change_aware_ingestion_dataset(
             ),
             Case(
                 name="replace-changed-source-facts",
-                inputs=TeamCaseInput(
+                inputs=KnowledgeCaseInput(
                     turns=[
-                        TeamTurn(message=f"Ingest {CHANGE_AWARE_URL}."),
-                        TeamTurn(message=f"Ingest the changed {CHANGE_AWARE_URL} again."),
+                        ConversationTurn(message=f"Ingest {CHANGE_AWARE_URL}."),
+                        ConversationTurn(
+                            message=f"Ingest the changed {CHANGE_AWARE_URL} again."
+                        ),
                     ],
                     timeout_seconds=timeout_seconds,
-                    fixture_source_url=CHANGE_AWARE_URL,
-                    fixture_paths=[str(FIXTURE_PATH), str(FIXTURE_V2_PATH)],
+                    environment=KnowledgeEvaluationEnvironment(
+                        fixture_source_url=CHANGE_AWARE_URL,
+                        fixture_paths=[str(FIXTURE_PATH), str(FIXTURE_V2_PATH)],
+                    ),
                 ),
                 metadata={
                     "source_url": CHANGE_AWARE_URL,

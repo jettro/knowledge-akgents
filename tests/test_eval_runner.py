@@ -12,8 +12,9 @@ from akgentic.core.messages.orchestrator import ErrorMessage, EventMessage, Sent
 from akgentic.llm import LlmMessageEvent, LlmUsageEvent, ToolCallEvent, ToolReturnEvent
 from pydantic_ai.messages import ModelRequest, ToolReturnPart
 
+from akgentic_evals.collector import EvaluationEventCollector
 from evals.harness.cli import positive_int
-from evals.harness.collector import EvaluationEventCollector
+from evals.harness.collector import AkgenticEventAdapter
 from evals.runners.evaluate import _select_case
 from evals.scenarios.retrieval_only import build_retrieval_only_dataset
 
@@ -33,11 +34,16 @@ def _address(name: str, *, is_user_proxy: bool = False) -> ActorAddressProxy:
     )
 
 
-def test_collector_correlates_tool_calls_and_returns() -> None:
+def _collector_and_adapter() -> tuple[EvaluationEventCollector, AkgenticEventAdapter]:
     collector = EvaluationEventCollector()
+    return collector, AkgenticEventAdapter(collector.on_event)
+
+
+def test_collector_correlates_tool_calls_and_returns() -> None:
+    collector, adapter = _collector_and_adapter()
     agent = _address("@WebIngest")
 
-    collector.on_message(
+    adapter.on_message(
         EventMessage(
             sender=agent,
             event=ToolCallEvent(
@@ -48,7 +54,7 @@ def test_collector_correlates_tool_calls_and_returns() -> None:
             ),
         )
     )
-    collector.on_message(
+    adapter.on_message(
         EventMessage(
             sender=agent,
             event=ToolReturnEvent(
@@ -60,7 +66,7 @@ def test_collector_correlates_tool_calls_and_returns() -> None:
         )
     )
 
-    output = collector.wait(0)
+    output = collector.wait_for_responses(1, 0)
 
     assert output.human_responses == []
     assert output.tool_calls[0].arguments == {"url": "https://coenradie.com/about"}
@@ -69,7 +75,7 @@ def test_collector_correlates_tool_calls_and_returns() -> None:
 
 
 def test_collector_completes_on_human_directed_message() -> None:
-    collector = EvaluationEventCollector()
+    collector, adapter = _collector_and_adapter()
     agent = _address("@Manager")
     human = _address("@Human", is_user_proxy=True)
     response = AgentMessage(
@@ -79,7 +85,7 @@ def test_collector_completes_on_human_directed_message() -> None:
         recipient=human,
     )
 
-    collector.on_message(
+    adapter.on_message(
         SentMessage(
             sender=agent,
             recipient=human,
@@ -87,7 +93,7 @@ def test_collector_completes_on_human_directed_message() -> None:
         )
     )
 
-    output = collector.wait(0)
+    output = collector.wait_for_responses(1, 0)
 
     assert output.completion_reason == "human_response"
     assert output.final_response == "The page was ingested."
@@ -97,10 +103,10 @@ def test_collector_completes_on_human_directed_message() -> None:
 
 
 def test_collector_captures_llm_usage() -> None:
-    collector = EvaluationEventCollector()
+    collector, adapter = _collector_and_adapter()
     agent = _address("@Knowledge")
 
-    collector.on_message(
+    adapter.on_message(
         EventMessage(
             sender=agent,
             event=LlmUsageEvent(
@@ -116,7 +122,7 @@ def test_collector_captures_llm_usage() -> None:
         )
     )
 
-    output = collector.wait(0)
+    output = collector.wait_for_responses(1, 0)
 
     assert output.llm_usage[0].model_name == "gpt-test"
     assert output.llm_usage[0].input_tokens == 120
@@ -125,10 +131,10 @@ def test_collector_captures_llm_usage() -> None:
 
 
 def test_collector_captures_tool_return_evidence() -> None:
-    collector = EvaluationEventCollector()
+    collector, adapter = _collector_and_adapter()
     agent = _address("@Knowledge")
 
-    collector.on_message(
+    adapter.on_message(
         EventMessage(
             sender=agent,
             event=LlmMessageEvent(
@@ -146,7 +152,7 @@ def test_collector_captures_tool_return_evidence() -> None:
         )
     )
 
-    output = collector.wait(0)
+    output = collector.wait_for_responses(1, 0)
 
     assert output.tool_evidence[0].run_id == "run-1"
     assert output.tool_evidence[0].tool_name == "search_graph"
@@ -156,10 +162,10 @@ def test_collector_captures_tool_return_evidence() -> None:
 
 
 def test_collector_completes_on_actor_error() -> None:
-    collector = EvaluationEventCollector()
+    collector, adapter = _collector_and_adapter()
     agent = _address("@WebIngest")
 
-    collector.on_message(
+    adapter.on_message(
         ErrorMessage(
             sender=agent,
             content_type="RuntimeError",
@@ -167,19 +173,19 @@ def test_collector_completes_on_actor_error() -> None:
         )
     )
 
-    output = collector.wait(0)
+    output = collector.wait_for_responses(1, 0)
 
     assert output.completion_reason == "error"
     assert output.errors == ["RuntimeError: tool failed"]
 
 
 def test_collector_waits_for_multiple_human_responses() -> None:
-    collector = EvaluationEventCollector()
+    collector, adapter = _collector_and_adapter()
     manager = _address("@Manager")
     human = _address("@Human", is_user_proxy=True)
 
     for content in ("First response", "Second response"):
-        collector.on_message(
+        adapter.on_message(
             SentMessage(
                 sender=manager,
                 recipient=human,
@@ -192,7 +198,7 @@ def test_collector_waits_for_multiple_human_responses() -> None:
             )
         )
 
-    output = collector.wait_for_human_responses(2, 0)
+    output = collector.wait_for_responses(2, 0)
 
     assert output.completion_reason == "human_response"
     assert output.human_responses == ["First response", "Second response"]

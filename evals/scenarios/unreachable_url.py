@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.evaluators.events import (
+from akgentic_evals.evaluators import (
     CalledRequiredTools,
     CompletedSuccessfully,
     FollowedMessageRoute,
@@ -16,7 +16,11 @@ from evals.evaluators.events import (
     ToolCallsSucceeded,
     ToolEvidenceContainsTerms,
 )
-from evals.harness.models import TeamCaseInput, TeamCaseOutput
+from akgentic_evals.models import AkgenticCaseOutput
+from evals.harness.models import (
+    KnowledgeCaseInput,
+    KnowledgeEvaluationEnvironment,
+)
 
 UNREACHABLE_URL = "https://eval.invalid/unreachable"
 FAILURE_MESSAGE = "Connection timed out while fetching the evaluation URL"
@@ -24,17 +28,19 @@ FAILURE_MESSAGE = "Connection timed out while fetching the evaluation URL"
 
 def build_unreachable_url_scenario_dataset(
     timeout_seconds: float = 180.0,
-) -> Dataset[TeamCaseInput, TeamCaseOutput, dict[str, Any]]:
+) -> Dataset[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, Any]]:
     return Dataset(
         name="knowledge-akgents/unreachable-url-ingestion",
         cases=[
             Case(
                 name="report-web-fetch-failure-without-graph-update",
-                inputs=TeamCaseInput(
+                inputs=KnowledgeCaseInput(
                     message=f"Ingest {UNREACHABLE_URL}.",
                     timeout_seconds=timeout_seconds,
-                    fixture_source_url=UNREACHABLE_URL,
-                    fixture_web_failure=FAILURE_MESSAGE,
+                    environment=KnowledgeEvaluationEnvironment(
+                        fixture_source_url=UNREACHABLE_URL,
+                        fixture_web_failure=FAILURE_MESSAGE,
+                    ),
                 ),
                 metadata={
                     "source_url": UNREACHABLE_URL,

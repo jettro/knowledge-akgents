@@ -4,9 +4,20 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel
 from pydantic_evals import Case, Dataset
 from pydantic_evals.evaluators import LLMJudge
+
+from akgentic_evals.calibration import (
+    JudgeCalibrationInput,
+    return_candidate_answer,
+)
+
+__all__ = [
+    "ANSWER_RELEVANCE_RUBRIC",
+    "GROUNDEDNESS_RUBRIC",
+    "build_judge_calibration_dataset",
+    "return_candidate_answer",
+]
 
 GROUNDEDNESS_RUBRIC = """
 Judge only whether every factual claim in the candidate answer is supported by
@@ -39,16 +50,6 @@ evidence is incomplete. However, if the candidate directly supplies the
 requested fact, judge that answer as relevant even when the fact is unsupported;
 groundedness judges factual support separately.
 """.strip()
-
-
-class JudgeCalibrationInput(BaseModel):
-    question: str
-    evidence: str
-    candidate_answer: str
-
-
-def return_candidate_answer(inputs: JudgeCalibrationInput) -> str:
-    return inputs.candidate_answer
 
 
 def build_judge_calibration_dataset(

@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic_evals import Case, Dataset
 
-from evals.evaluators.events import (
+from akgentic_evals.evaluators import (
     AnswerContainsTerms,
     CalledRequiredTools,
     CompletedSuccessfully,
@@ -15,7 +15,11 @@ from evals.evaluators.events import (
     ToolArgumentsContain,
     ToolCallsSucceeded,
 )
-from evals.harness.models import TeamCaseInput, TeamCaseOutput
+from akgentic_evals.models import AkgenticCaseOutput
+from evals.harness.models import (
+    KnowledgeCaseInput,
+    KnowledgeEvaluationEnvironment,
+)
 
 JETTRO_ABOUT_URL = "https://coenradie.com/about"
 FIXTURE_PATH = Path(__file__).resolve().parents[1] / "fixtures" / "jettro_about.txt"
@@ -23,20 +27,22 @@ FIXTURE_PATH = Path(__file__).resolve().parents[1] / "fixtures" / "jettro_about.
 
 def build_jettro_ingestion_dataset(
     timeout_seconds: float = 180.0,
-) -> Dataset[TeamCaseInput, TeamCaseOutput, dict[str, Any]]:
+) -> Dataset[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, Any]]:
     return Dataset(
         name="knowledge-akgents/jettro-ingestion",
         cases=[
             Case(
                 name="ingest-jettro-about",
-                inputs=TeamCaseInput(
+                inputs=KnowledgeCaseInput(
                     message=(
                         f"Ingest {JETTRO_ABOUT_URL} and focus on Jettro Coenradie's "
                         "profession and name."
                     ),
                     timeout_seconds=timeout_seconds,
-                    fixture_source_url=JETTRO_ABOUT_URL,
-                    fixture_path=str(FIXTURE_PATH),
+                    environment=KnowledgeEvaluationEnvironment(
+                        fixture_source_url=JETTRO_ABOUT_URL,
+                        fixture_path=str(FIXTURE_PATH),
+                    ),
                 ),
                 metadata={
                     "source_url": JETTRO_ABOUT_URL,

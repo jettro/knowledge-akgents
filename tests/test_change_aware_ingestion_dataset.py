@@ -18,7 +18,10 @@ def test_change_aware_dataset_defines_skip_force_and_replace_cases() -> None:
         "replace-changed-source-facts",
     ]
     assert all(case.inputs.timeout_seconds == 42 for case in dataset.cases)
-    assert all(case.inputs.fixture_source_url == CHANGE_AWARE_URL for case in dataset.cases)
+    assert all(
+        case.inputs.environment.fixture_source_url == CHANGE_AWARE_URL
+        for case in dataset.cases
+    )
     assert all(len(case.inputs.ordered_turns()) == 2 for case in dataset.cases)
 
 
@@ -34,5 +37,5 @@ def test_changed_case_uses_two_fixture_versions() -> None:
     dataset = build_change_aware_ingestion_dataset()
     changed_case = dataset.cases[2]
 
-    assert len(changed_case.inputs.fixture_paths) == 2
-    assert changed_case.inputs.fixture_path is None
+    assert len(changed_case.inputs.environment.fixture_paths) == 2
+    assert changed_case.inputs.environment.fixture_path is None

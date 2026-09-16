@@ -80,7 +80,9 @@ def test_loader_accepts_allow_listed_fixture_case_and_evaluator_fields(
     assert definition.cases[0].name == "example"
     assert definition.vocabularies["missing"] == ("unknown", "unavailable")
     assert loaded.execution_target == "local_evaluation_team"
-    assert loaded.dataset.cases[0].inputs.knowledge_fixture.records[0].name == "Jane Doe"
+    fixture = loaded.dataset.cases[0].inputs.environment.knowledge_fixture
+    assert fixture is not None
+    assert fixture.records[0].name == "Jane Doe"
     assert len(loaded.dataset.cases[0].evaluators) == 3
 
 
@@ -91,7 +93,7 @@ def test_loader_selects_running_system_for_real_knowledge(tmp_path: Path) -> Non
     loaded = build_json_dataset(_write_json(tmp_path, value), timeout_seconds=1)
 
     assert loaded.execution_target == "running_system"
-    assert loaded.dataset.cases[0].inputs.knowledge_fixture is None
+    assert loaded.dataset.cases[0].inputs.environment.knowledge_fixture is None
 
 
 def test_loader_rejects_unknown_fields(tmp_path: Path) -> None:
@@ -132,7 +134,11 @@ def test_published_schema_accepts_all_datasets() -> None:
     Draft202012Validator.check_schema(schema)
     validator = Draft202012Validator(schema)
 
-    for dataset_path in Path("evals/datasets").glob("*.json"):
+    dataset_paths = [
+        *Path("evals/datasets").glob("*.json"),
+        *Path("evals/examples").glob("*/dataset.json"),
+    ]
+    for dataset_path in dataset_paths:
         if dataset_path == schema_path:
             continue
         dataset = json.loads(dataset_path.read_text(encoding="utf-8"))

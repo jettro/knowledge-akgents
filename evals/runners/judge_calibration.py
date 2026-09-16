@@ -7,8 +7,9 @@ import json
 
 import logfire
 
+from akgentic_evals.calibration import summarize_judge_agreement
+from akgentic_evals.reporting import load_report, save_report
 from evals.harness.cli import positive_int
-from evals.harness.reporting import load_report, save_report
 from evals.scenarios.judge_calibration import (
     build_judge_calibration_dataset,
     return_candidate_answer,
@@ -76,57 +77,14 @@ def main() -> None:
     if args.save_report:
         save_report(report, args.save_report)
 
-    label_keys = {
-        "groundedness": "human_grounded",
-        "answer_relevance": "human_relevant",
-    }
-    comparisons = []
-    by_dimension = {dimension: {"agreements": 0, "runs": 0} for dimension in label_keys}
-    grouped: dict[str, dict[str, dict[str, int]]] = {}
-    for case in report.cases:
-        source_name = case.source_case_name or case.name
-        group = grouped.setdefault(
-            source_name,
-            {dimension: {"agreements": 0, "runs": 0} for dimension in label_keys},
-        )
-        dimensions = {}
-        for dimension, label_key in label_keys.items():
-            judge_result = case.assertions.get(dimension)
-            if judge_result is None:
-                raise RuntimeError(
-                    f"Missing {dimension} assertion for {case.name}; "
-                    f"observed {sorted(case.assertions)}"
-                )
-            human_pass = bool(case.metadata and case.metadata[label_key])
-            agrees = human_pass == judge_result.value
-            dimensions[dimension] = {
-                "human_pass": human_pass,
-                "judge_pass": judge_result.value,
-                "agrees": agrees,
-                "reason": judge_result.reason,
-            }
-            by_dimension[dimension]["runs"] += 1
-            by_dimension[dimension]["agreements"] += agrees
-            group[dimension]["runs"] += 1
-            group[dimension]["agreements"] += agrees
-        comparisons.append({"case": case.name, "dimensions": dimensions})
-
-    print(
-        json.dumps(
-            {
-                "agreement": sum(
-                    dimension["agrees"]
-                    for item in comparisons
-                    for dimension in item["dimensions"].values()
-                ),
-                "decision_count": len(comparisons) * len(label_keys),
-                "by_dimension": by_dimension,
-                "by_source_case": grouped,
-                "cases": comparisons,
-            },
-            indent=2,
-        )
+    summary = summarize_judge_agreement(
+        report,
+        {
+            "groundedness": "human_grounded",
+            "answer_relevance": "human_relevant",
+        },
     )
+    print(json.dumps(summary.model_dump(), indent=2))
 
 
 if __name__ == "__main__":
