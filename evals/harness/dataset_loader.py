@@ -30,12 +30,10 @@ from evals.harness.models import (
     KnowledgeCaseInput,
     KnowledgeEvaluationEnvironment,
 )
+from evals.routes import managed_route
 
-RETRIEVAL_ROUTE = (
-    ("@Human", "@Manager"),
-    ("@Manager", "@Knowledge"),
-    ("@Knowledge", "@Manager"),
-    ("@Manager", "@Human"),
+RETRIEVAL_DATASET_PATH = (
+    Path(__file__).parents[1] / "datasets" / "retrieval_only.json"
 )
 
 
@@ -177,7 +175,7 @@ def build_json_dataset(
             cases=cases,
             evaluators=[
                 CompletedSuccessfully(),
-                FollowedMessageRoute(expected_route=RETRIEVAL_ROUTE),
+                FollowedMessageRoute(expected_route=managed_route("@Knowledge")),
                 CalledRequiredTools(required_tools=("search_graph",)),
                 DidNotCallTools(forbidden_tools=("web_fetch_tool", "update_graph")),
                 ToolCallCount(tool_name="search_graph", minimum=1),

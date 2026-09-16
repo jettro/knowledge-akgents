@@ -1,4 +1,4 @@
-"""Adapt raw Akgentic events to the reusable evaluation collector."""
+"""Adapt framework-specific events to normalized evaluation events."""
 
 from __future__ import annotations
 

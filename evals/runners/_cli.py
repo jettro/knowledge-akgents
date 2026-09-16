@@ -1,4 +1,4 @@
-"""Shared command-line parsing helpers for evaluation runners."""
+"""Shared command-line parsing helpers for application evaluation runners."""
 
 from __future__ import annotations
 

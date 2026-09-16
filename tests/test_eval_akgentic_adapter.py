@@ -1,0 +1,199 @@
+"""Tests for adapting raw Akgentic events to normalized evaluation evidence."""
+
+from __future__ import annotations
+
+import uuid
+
+from akgentic.agent import AgentMessage
+from akgentic.core import ActorAddressProxy
+from akgentic.core.messages.orchestrator import ErrorMessage, EventMessage, SentMessage
+from akgentic.llm import LlmMessageEvent, LlmUsageEvent, ToolCallEvent, ToolReturnEvent
+from pydantic_ai.messages import ModelRequest, ToolReturnPart
+
+from akgentic_evals.adapters import AkgenticEventAdapter
+from akgentic_evals.collector import EvaluationEventCollector
+
+
+def test_adapter_correlates_tool_calls_and_returns() -> None:
+    collector, adapter = _collector_and_adapter()
+    agent = _address("@WebIngest")
+
+    adapter.on_message(
+        EventMessage(
+            sender=agent,
+            event=ToolCallEvent(
+                run_id="run-1",
+                tool_name="web_fetch",
+                tool_call_id="call-1",
+                arguments='{"url": "https://coenradie.com/about"}',
+            ),
+        )
+    )
+    adapter.on_message(
+        EventMessage(
+            sender=agent,
+            event=ToolReturnEvent(
+                run_id="run-1",
+                tool_name="web_fetch",
+                tool_call_id="call-1",
+                success=True,
+            ),
+        )
+    )
+
+    output = collector.wait_for_responses(1, 0)
+
+    assert output.human_responses == []
+    assert output.tool_calls[0].arguments == {"url": "https://coenradie.com/about"}
+    assert output.tool_calls[0].parse_error is None
+    assert output.tool_returns[0].invocation_id == output.tool_calls[0].invocation_id
+
+
+def test_adapter_completes_on_human_directed_message() -> None:
+    collector, adapter = _collector_and_adapter()
+    agent = _address("@Manager")
+    human = _address("@Human", is_user_proxy=True)
+
+    adapter.on_message(
+        SentMessage(
+            sender=agent,
+            recipient=human,
+            message=AgentMessage(
+                content="The page was ingested.",
+                type="notification",
+                sender=agent,
+                recipient=human,
+            ),
+        )
+    )
+
+    output = collector.wait_for_responses(1, 0)
+
+    assert output.completion_reason == "human_response"
+    assert output.final_response == "The page was ingested."
+    assert output.human_responses == ["The page was ingested."]
+    assert output.messages[0].sender == "@Manager"
+    assert output.messages[0].recipient == "@Human"
+
+
+def test_adapter_captures_llm_usage() -> None:
+    collector, adapter = _collector_and_adapter()
+    agent = _address("@Knowledge")
+
+    adapter.on_message(
+        EventMessage(
+            sender=agent,
+            event=LlmUsageEvent(
+                run_id="run-1",
+                model_name="gpt-test",
+                provider_name="openai",
+                input_tokens=120,
+                output_tokens=30,
+                cache_read_tokens=20,
+                cache_write_tokens=0,
+                requests=1,
+            ),
+        )
+    )
+
+    output = collector.wait_for_responses(1, 0)
+
+    assert output.llm_usage[0].model_name == "gpt-test"
+    assert output.llm_usage[0].input_tokens == 120
+    assert output.llm_usage[0].output_tokens == 30
+    assert output.llm_usage[0].requests == 1
+
+
+def test_adapter_captures_tool_return_evidence() -> None:
+    collector, adapter = _collector_and_adapter()
+    agent = _address("@Knowledge")
+
+    adapter.on_message(
+        EventMessage(
+            sender=agent,
+            event=LlmMessageEvent(
+                message=ModelRequest(
+                    run_id="run-1",
+                    parts=[
+                        ToolReturnPart(
+                            tool_name="search_graph",
+                            tool_call_id="call-1",
+                            content="Search Results: Jettro is a software architect.",
+                        )
+                    ],
+                )
+            ),
+        )
+    )
+
+    output = collector.wait_for_responses(1, 0)
+
+    assert output.tool_evidence[0].run_id == "run-1"
+    assert output.tool_evidence[0].tool_name == "search_graph"
+    assert output.tool_evidence[0].tool_call_id == "call-1"
+    assert "software architect" in output.tool_evidence[0].content
+    assert output.tool_evidence[0].outcome == "success"
+
+
+def test_adapter_completes_on_actor_error() -> None:
+    collector, adapter = _collector_and_adapter()
+    agent = _address("@WebIngest")
+
+    adapter.on_message(
+        ErrorMessage(
+            sender=agent,
+            content_type="RuntimeError",
+            content="tool failed",
+        )
+    )
+
+    output = collector.wait_for_responses(1, 0)
+
+    assert output.completion_reason == "error"
+    assert output.errors == ["RuntimeError: tool failed"]
+
+
+def test_adapter_waits_for_multiple_human_responses() -> None:
+    collector, adapter = _collector_and_adapter()
+    manager = _address("@Manager")
+    human = _address("@Human", is_user_proxy=True)
+
+    for content in ("First response", "Second response"):
+        adapter.on_message(
+            SentMessage(
+                sender=manager,
+                recipient=human,
+                message=AgentMessage(
+                    content=content,
+                    type="notification",
+                    sender=manager,
+                    recipient=human,
+                ),
+            )
+        )
+
+    output = collector.wait_for_responses(2, 0)
+
+    assert output.completion_reason == "human_response"
+    assert output.human_responses == ["First response", "Second response"]
+    assert output.final_response == "Second response"
+
+
+def _collector_and_adapter() -> tuple[EvaluationEventCollector, AkgenticEventAdapter]:
+    collector = EvaluationEventCollector()
+    return collector, AkgenticEventAdapter(collector.on_event)
+
+
+def _address(name: str, *, is_user_proxy: bool = False) -> ActorAddressProxy:
+    identifier = str(uuid.uuid4())
+    return ActorAddressProxy(
+        {
+            "__actor_address__": True,
+            "agent_id": identifier,
+            "name": name,
+            "role": name.removeprefix("@"),
+            "team_id": str(uuid.uuid4()),
+            "squad_id": None,
+            "is_user_proxy": is_user_proxy,
+        }
+    )

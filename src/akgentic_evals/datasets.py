@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic_evals import Case, Dataset
 from pydantic_evals.evaluators import Evaluator
 
 from akgentic_evals.evaluators import (
@@ -55,7 +57,7 @@ class ToolCallCountDefinition(StrictDefinitionModel):
 
 class ToolEvidenceContainsTermsDefinition(StrictDefinitionModel):
     type: Literal["tool_evidence_contains_terms"]
-    tool_name: str = Field(default="search_graph", min_length=1)
+    tool_name: str = Field(min_length=1)
     required_terms: tuple[str, ...] = Field(min_length=1)
 
 
@@ -99,3 +101,52 @@ def build_evaluator(
             required_terms=definition.required_terms,
         )
     raise TypeError(f"Unsupported evaluator definition: {type(definition).__name__}")
+
+
+def combine_datasets[InputsT, OutputT](
+    name: str,
+    datasets: Sequence[Dataset[InputsT, OutputT, dict[str, Any]]],
+    *,
+    metadata: Mapping[str, Any] | None = None,
+) -> Dataset[InputsT, OutputT, dict[str, Any]]:
+    """Flatten datasets while preserving their shared evaluators on each case."""
+    metadata_update = dict(metadata or {})
+    cases: list[Case[InputsT, OutputT, dict[str, Any]]] = []
+    report_evaluators = []
+    for dataset in datasets:
+        report_evaluators.extend(dataset.report_evaluators)
+        for case in dataset.cases:
+            cases.append(
+                Case(
+                    name=case.name,
+                    inputs=case.inputs,
+                    metadata={**(case.metadata or {}), **metadata_update},
+                    expected_output=case.expected_output,
+                    evaluators=tuple(dataset.evaluators) + tuple(case.evaluators),
+                )
+            )
+    return Dataset(
+        name=name,
+        cases=cases,
+        report_evaluators=report_evaluators,
+    )
+
+
+class UnknownCaseError(ValueError):
+    """Raised when a requested case does not exist in a dataset."""
+
+
+def select_case(
+    dataset: Dataset[Any, Any, Any],
+    case_name: str | None,
+) -> None:
+    """Restrict a dataset to one named case."""
+    if case_name is None:
+        return
+    selected = [case for case in dataset.cases if case.name == case_name]
+    if not selected:
+        available = ", ".join(case.name or "<unnamed>" for case in dataset.cases)
+        raise UnknownCaseError(
+            f"Unknown case {case_name!r}. Available cases: {available}"
+        )
+    dataset.cases[:] = selected

@@ -73,13 +73,12 @@
     "toolEvidenceContainsTerms": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "required_terms"],
+      "required": ["type", "tool_name", "required_terms"],
       "properties": {
         "type": {"const": "tool_evidence_contains_terms"},
         "tool_name": {
           "type": "string",
-          "minLength": 1,
-          "default": "search_graph"
+          "minLength": 1
         },
         "required_terms": {
           "type": "array",

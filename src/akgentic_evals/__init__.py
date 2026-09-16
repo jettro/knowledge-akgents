@@ -1,11 +1,14 @@
 """Reusable evaluation primitives for Akgentic applications."""
 
+from akgentic_evals.adapters import AkgenticEventAdapter
 from akgentic_evals.calibration import (
     AgreementCount,
+    EvidenceJudgeInput,
     JudgeCalibrationInput,
     JudgeCalibrationSummary,
     JudgeCaseComparison,
     JudgeDecisionComparison,
+    build_tool_evidence_judge_input,
     return_candidate_answer,
     summarize_judge_agreement,
 )
@@ -18,8 +21,12 @@ from akgentic_evals.datasets import (
     StrictDefinitionModel,
     ToolCallCountDefinition,
     ToolEvidenceContainsTermsDefinition,
+    UnknownCaseError,
     build_evaluator,
+    combine_datasets,
+    select_case,
 )
+from akgentic_evals.diagnostics import OutputInventory, SpanInventory
 from akgentic_evals.events import (
     AkgenticEvalEvent,
     MessageObserved,
@@ -54,6 +61,7 @@ from akgentic_evals.runtime import (
 
 __all__ = [
     "AgreementCount",
+    "AkgenticEventAdapter",
     "AkgenticCaseInput",
     "AkgenticCaseOutput",
     "AkgenticEvalRuntime",
@@ -63,6 +71,7 @@ __all__ = [
     "ConversationTurn",
     "EvaluationEventCollector",
     "EvaluatorDefinition",
+    "EvidenceJudgeInput",
     "EventHandler",
     "LlmUsageRecord",
     "load_report",
@@ -78,6 +87,8 @@ __all__ = [
     "RuntimeFailed",
     "RuntimeCapabilities",
     "RuntimeStopped",
+    "OutputInventory",
+    "SpanInventory",
     "StrictDefinitionModel",
     "ToolCallRecord",
     "ToolCallCountDefinition",
@@ -90,10 +101,14 @@ __all__ = [
     "ToolReturnRecord",
     "ToolReturned",
     "UsageObserved",
+    "UnknownCaseError",
+    "combine_datasets",
     "run_case",
     "run_case_with_factory",
     "save_report",
+    "select_case",
     "build_evaluator",
+    "build_tool_evidence_judge_input",
     "return_candidate_answer",
     "summarize_judge_agreement",
 ]

@@ -20,6 +20,7 @@ from evals.harness.models import (
     KnowledgeCaseInput,
     KnowledgeEvaluationEnvironment,
 )
+from evals.routes import managed_route
 
 JETTRO_ABOUT_URL = "https://coenradie.com/about"
 FIXTURE_PATH = Path(__file__).resolve().parents[1] / "fixtures" / "jettro_about.txt"
@@ -54,12 +55,7 @@ def build_jettro_ingestion_dataset(
         evaluators=[
             CompletedSuccessfully(),
             FollowedMessageRoute(
-                expected_route=(
-                    ("@Human", "@Manager"),
-                    ("@Manager", "@WebIngest"),
-                    ("@WebIngest", "@Manager"),
-                    ("@Manager", "@Human"),
-                )
+                expected_route=managed_route("@WebIngest")
             ),
             CalledRequiredTools(required_tools=("web_fetch_tool", "update_graph")),
             ToolArgumentsContain(

@@ -37,6 +37,7 @@
       "evaluators": [
         {
           "type": "tool_evidence_contains_terms",
+          "tool_name": "search_graph",
           "required_terms": ["retriever", "generator", "quality component"]
         },
         {
@@ -55,6 +56,7 @@
       "evaluators": [
         {
           "type": "tool_evidence_contains_terms",
+          "tool_name": "search_graph",
           "required_terms": ["Top-N", "window", "same document"]
         },
         {
@@ -73,6 +75,7 @@
       "evaluators": [
         {
           "type": "tool_evidence_contains_terms",
+          "tool_name": "search_graph",
           "required_terms": ["IndexingService", "ContentReader", "Splitter", "Embedder", "ContentStore"]
         },
         {
@@ -91,6 +94,7 @@
       "evaluators": [
         {
           "type": "tool_evidence_contains_terms",
+          "tool_name": "search_graph",
           "required_terms": ["InternalContentStore", "WeaviateContentStore"]
         },
         {
@@ -109,6 +113,7 @@
       "evaluators": [
         {
           "type": "tool_evidence_contains_terms",
+          "tool_name": "search_graph",
           "required_terms": ["AllMiniLmL6V2QEmbedder", "OnnxEmbedder", "OpenAIEmbedder"]
         },
         {
@@ -127,6 +132,7 @@
       "evaluators": [
         {
           "type": "tool_evidence_contains_terms",
+          "tool_name": "search_graph",
           "required_terms": ["precision", "Contextual Accuracy", "Answer Completeness"]
         },
         {
@@ -145,6 +151,7 @@
       "evaluators": [
         {
           "type": "tool_evidence_contains_terms",
+          "tool_name": "search_graph",
           "required_terms": ["RetrievalQualityService", "AnswerQualityService"]
         },
         {

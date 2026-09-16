@@ -7,13 +7,13 @@ from contextlib import contextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from akgentic_evals.adapters import AkgenticEventAdapter
 from akgentic_evals.runtime import (
     ConversationTurn,
     EventHandler,
     RuntimeCapabilities,
 )
 from evals.harness.catalog import TeamCatalog, load_case_team_card
-from evals.harness.collector import AkgenticEventAdapter
 from evals.harness.fixture_knowledge import FixtureKnowledgeTool, KnowledgeFixture
 from evals.harness.fixture_web import FixtureWebTool
 from evals.harness.models import KnowledgeCaseInput

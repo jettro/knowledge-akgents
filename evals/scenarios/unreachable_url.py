@@ -21,6 +21,7 @@ from evals.harness.models import (
     KnowledgeCaseInput,
     KnowledgeEvaluationEnvironment,
 )
+from evals.routes import managed_route
 
 UNREACHABLE_URL = "https://eval.invalid/unreachable"
 FAILURE_MESSAGE = "Connection timed out while fetching the evaluation URL"
@@ -52,12 +53,7 @@ def build_unreachable_url_scenario_dataset(
         evaluators=[
             CompletedSuccessfully(),
             FollowedMessageRoute(
-                expected_route=(
-                    ("@Human", "@Manager"),
-                    ("@Manager", "@WebIngest"),
-                    ("@WebIngest", "@Manager"),
-                    ("@Manager", "@Human"),
-                )
+                expected_route=managed_route("@WebIngest")
             ),
             CalledRequiredTools(required_tools=("web_fetch_tool",)),
             ToolArgumentsContain(

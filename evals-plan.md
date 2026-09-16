@@ -1471,13 +1471,13 @@ reason not to treat the judges as release-blocking yet.
 The calibrated judges can be attached to actual retrieval-only evaluations
 through the opt-in `--with-judges` flag. The event collector captures successful
 `ToolReturnPart` content from Akgentic `LlmMessageEvent` records and correlates
-it by tool name, run ID, and call ID. The live judges receive the final question,
+it by tool name, run ID, and call ID. The retrieval-answer judges receive the final question,
 the actual `search_graph` evidence seen by the agent, and the final answer. They
 do not fall back to fixture files when evidence is missing; both dimensions fail
 explicitly instead. Deterministic assertions remain the primary gate, and judge
 calls add two paid model evaluations per case.
 
-The first approved live-judge run used the Jettro profession case and passed
+The first approved retrieval-answer judge run used the Jettro profession case and passed
 100% in 13.5 seconds. The collector captured the actual successful
 `search_graph` result, the groundedness judge confirmed that both the software
 architect and search-enthusiast claims were supported, and the relevance judge
@@ -1527,7 +1527,7 @@ relevant source through `@WebIngest`. The agent run used six model requests,
 cache-write tokens; the two judge calls are additional and are not included in
 these event-derived usage totals.
 
-The first full nine-case retrieval run with both live judges passed all 18
+The first full nine-case retrieval run with both retrieval-answer judges passed all 18
 groundedness and answer-relevance decisions. Eight cases passed every
 deterministic assertion. The missing-fact case answered correctly and passed
 both judges, but made three successful searches instead of the contractual
@@ -2006,11 +2006,10 @@ records, metadata, vocabularies, and an allow-list of evaluator
 configurations. Unknown fields, evaluator types, fixture references, and
 vocabulary references are rejected.
 
-The generic JSON dataset loader owns shared retrieval policy: completion, routing,
-required/forbidden tools, search-call success, and conversion into Pydantic
-Evals cases. `evals/scenarios/retrieval_only.py` is now only a compatibility
-wrapper selecting the built-in definition. Adding another retrieval dataset
-requires only one JSON file and
+The Knowledge JSON dataset loader owns shared application retrieval policy:
+completion, routing, required/forbidden tools, search-call success, fixture
+selection, and conversion into Pydantic Evals cases. The runner loads the
+built-in definition directly. Adding another retrieval dataset requires only one JSON file and
 `make eval-dataset DATASET=evals/datasets/<name>.json`.
 
 The second priority is also complete, with a correction after reviewing the

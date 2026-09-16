@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+from akgentic_evals.calibration import (
+    EvidenceJudgeInput,
+    build_tool_evidence_judge_input,
+)
 from akgentic_evals.models import (
     AkgenticCaseOutput,
     ToolEvidenceRecord,
     ToolReturnRecord,
 )
-from evals.evaluators.live import build_live_judge_input
-from evals.harness.models import KnowledgeCaseInput
+from akgentic_evals.runtime import AkgenticCaseInput
 
 
 def test_live_judge_uses_only_successful_search_evidence() -> None:
@@ -58,20 +61,23 @@ def test_live_judge_uses_only_successful_search_evidence() -> None:
         ],
     )
 
-    judge_input = build_live_judge_input(
-        KnowledgeCaseInput(message="What is Jettro's profession?"),
+    judge_input = build_tool_evidence_judge_input(
+        AkgenticCaseInput(message="What is Jettro's profession?"),
         output,
+        tool_name="search_graph",
     )
 
     assert judge_input is not None
+    assert isinstance(judge_input, EvidenceJudgeInput)
     assert judge_input.question == "What is Jettro's profession?"
     assert judge_input.evidence == "Jettro is a software architect."
 
 
 def test_live_judge_requires_search_evidence() -> None:
-    judge_input = build_live_judge_input(
-        KnowledgeCaseInput(message="What is Jettro's profession?"),
+    judge_input = build_tool_evidence_judge_input(
+        AkgenticCaseInput(message="What is Jettro's profession?"),
         _output(evidence=[]),
+        tool_name="search_graph",
     )
 
     assert judge_input is None

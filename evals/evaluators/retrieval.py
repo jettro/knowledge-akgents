@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from pydantic import BaseModel
 from pydantic_evals.evaluators import (
     EvaluationReason,
     Evaluator,
@@ -13,34 +12,34 @@ from pydantic_evals.evaluators import (
 )
 from pydantic_evals.evaluators.llm_as_a_judge import judge_input_output
 
+from akgentic_evals.calibration import build_tool_evidence_judge_input
 from akgentic_evals.models import AkgenticCaseOutput
-from evals.harness.models import KnowledgeCaseInput
+from akgentic_evals.runtime import AkgenticCaseInput
 from evals.scenarios.judge_calibration import (
     ANSWER_RELEVANCE_RUBRIC,
     GROUNDEDNESS_RUBRIC,
 )
 
 
-class LiveJudgeInput(BaseModel):
-    question: str
-    evidence: str
-
-
 @dataclass
-class LiveRetrievalJudges(
-    Evaluator[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, object]]
+class RetrievalAnswerJudges(
+    Evaluator[AkgenticCaseInput, AkgenticCaseOutput, dict[str, object]]
 ):
     model: str
 
     async def evaluate(
         self,
         ctx: EvaluatorContext[
-            KnowledgeCaseInput,
+            AkgenticCaseInput,
             AkgenticCaseOutput,
             dict[str, object],
         ],
     ) -> EvaluatorOutput:
-        judge_input = build_live_judge_input(ctx.inputs, ctx.output)
+        judge_input = build_tool_evidence_judge_input(
+            ctx.inputs,
+            ctx.output,
+            tool_name="search_graph",
+        )
         if judge_input is None:
             reason = "No successful search_graph evidence was captured"
             return {
@@ -71,18 +70,3 @@ class LiveRetrievalJudges(
                 reason=relevance.reason,
             ),
         }
-
-
-def build_live_judge_input(
-    inputs: KnowledgeCaseInput,
-    output: AkgenticCaseOutput,
-) -> LiveJudgeInput | None:
-    evidence = [
-        record.content for record in output.successful_tool_evidence("search_graph")
-    ]
-    if not evidence:
-        return None
-    return LiveJudgeInput(
-        question=inputs.ordered_turns()[-1].message,
-        evidence="\n\n".join(evidence),
-    )

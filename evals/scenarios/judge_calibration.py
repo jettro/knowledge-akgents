@@ -9,14 +9,12 @@ from pydantic_evals.evaluators import LLMJudge
 
 from akgentic_evals.calibration import (
     JudgeCalibrationInput,
-    return_candidate_answer,
 )
 
 __all__ = [
     "ANSWER_RELEVANCE_RUBRIC",
     "GROUNDEDNESS_RUBRIC",
     "build_judge_calibration_dataset",
-    "return_candidate_answer",
 ]
 
 GROUNDEDNESS_RUBRIC = """

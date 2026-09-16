@@ -23,6 +23,7 @@ from evals.harness.models import (
     KnowledgeCaseInput,
     KnowledgeEvaluationEnvironment,
 )
+from evals.routes import managed_route
 
 YUMA_BACKGROUND_URL = "https://www.weareyuma.com/en/about/about-us/background"
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "yuma_background.txt"
@@ -63,19 +64,10 @@ def build_yuma_scenario_dataset(
         evaluators=[
             CompletedSuccessfully(expected_human_responses=3),
             FollowedMessageRoute(
-                expected_route=(
-                    ("@Human", "@Manager"),
-                    ("@Manager", "@WebIngest"),
-                    ("@WebIngest", "@Manager"),
-                    ("@Manager", "@Human"),
-                    ("@Human", "@Manager"),
-                    ("@Manager", "@Knowledge"),
-                    ("@Knowledge", "@Manager"),
-                    ("@Manager", "@Human"),
-                    ("@Human", "@Manager"),
-                    ("@Manager", "@Knowledge"),
-                    ("@Knowledge", "@Manager"),
-                    ("@Manager", "@Human"),
+                expected_route=managed_route(
+                    "@WebIngest",
+                    "@Knowledge",
+                    "@Knowledge",
                 )
             ),
             CalledRequiredTools(required_tools=("web_fetch_tool", "update_graph", "search_graph")),

@@ -109,7 +109,7 @@ The live evaluation runner refuses persistent Qdrant unless
 
 The relevant files are:
 
-- `evals/harness/tasks.py` — creates a fresh `KnowledgeTeam` for every case;
+- `evals/harness/runtime.py` — creates a fresh `KnowledgeTeam` for every local case;
 - `evals/runners/evaluate.py` — persistent-store safety check;
 - `src/knowledge_akgents/team.py` — team and tool wiring;
 - `src/knowledge_akgents/tools.py` — production vector and graph tool cards;

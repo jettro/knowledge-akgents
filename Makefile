@@ -48,7 +48,7 @@ test: ## Run the test suite
 test-evals: ## Run deterministic evaluation harness tests (no network/LLM)
 	uv run pytest tests/test_akgentic_evals.py tests/test_eval_*.py \
 		tests/test_fixture_*.py tests/test_jettro_*.py \
-		tests/test_yuma_*.py tests/test_live_*.py tests/test_retrieval_only_dataset.py \
+		tests/test_yuma_*.py tests/test_retrieval_*.py \
 		tests/test_judge_calibration.py \
 		tests/test_prompt_injection_scenario.py tests/test_no_useful_content_scenario.py \
 		tests/test_unreachable_url_scenario.py tests/test_routing_dataset.py \

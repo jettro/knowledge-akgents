@@ -6,10 +6,12 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 
 import pytest
+from pydantic_evals import Case, Dataset
 
 from akgentic_evals.collector import EvaluationEventCollector
 from akgentic_evals.completion import MessageResponseCompletion
-from akgentic_evals.evaluators import LlmUsageWithinLimits
+from akgentic_evals.datasets import combine_datasets
+from akgentic_evals.evaluators import CompletedSuccessfully, LlmUsageWithinLimits
 from akgentic_evals.events import (
     MessageObserved,
     ToolCalled,
@@ -215,6 +217,37 @@ def test_usage_evaluator_aggregates_normalized_usage_records() -> None:
     ).evaluate(type("Context", (), {"output": output})())
 
     assert result.value
+
+
+def test_combine_datasets_promotes_shared_evaluators_to_cases() -> None:
+    shared_evaluator = CompletedSuccessfully()
+    case_evaluator = LlmUsageWithinLimits(require_usage=False)
+    child = Dataset(
+        name="child",
+        cases=[
+            Case(
+                name="example",
+                inputs=AkgenticCaseInput(message="example"),
+                metadata={"source": "child"},
+                evaluators=(case_evaluator,),
+            )
+        ],
+        evaluators=[shared_evaluator],
+    )
+
+    combined = combine_datasets(
+        "combined",
+        [child],
+        metadata={"mode": "combined"},
+    )
+
+    assert combined.name == "combined"
+    assert combined.evaluators == []
+    assert combined.cases[0].metadata == {
+        "source": "child",
+        "mode": "combined",
+    }
+    assert combined.cases[0].evaluators == [shared_evaluator, case_evaluator]
 
 
 class FakeRuntime:

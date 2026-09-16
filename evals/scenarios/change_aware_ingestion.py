@@ -23,20 +23,12 @@ from evals.harness.models import (
     KnowledgeCaseInput,
     KnowledgeEvaluationEnvironment,
 )
+from evals.routes import managed_route
 
 CHANGE_AWARE_URL = "https://eval.invalid/project-beacon"
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "change_aware_page.txt"
 FIXTURE_V2_PATH = Path(__file__).parents[1] / "fixtures" / "change_aware_page_v2.txt"
-TWO_INGESTION_ROUTES = (
-    ("@Human", "@Manager"),
-    ("@Manager", "@WebIngest"),
-    ("@WebIngest", "@Manager"),
-    ("@Manager", "@Human"),
-    ("@Human", "@Manager"),
-    ("@Manager", "@WebIngest"),
-    ("@WebIngest", "@Manager"),
-    ("@Manager", "@Human"),
-)
+TWO_INGESTION_ROUTES = managed_route("@WebIngest", "@WebIngest")
 
 
 def build_change_aware_ingestion_dataset(

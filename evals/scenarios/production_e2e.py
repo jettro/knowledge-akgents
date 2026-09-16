@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic_evals import Case, Dataset
+from pydantic_evals import Dataset
 
+from akgentic_evals.datasets import combine_datasets
 from akgentic_evals.models import AkgenticCaseOutput
 from evals.harness.models import KnowledgeCaseInput
 from evals.scenarios.jettro_scenario import build_jettro_scenario_dataset
@@ -20,24 +21,8 @@ def build_production_e2e_dataset(
         build_jettro_scenario_dataset(timeout_seconds),
         build_yuma_scenario_dataset(timeout_seconds),
     )
-    cases: list[Case[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, Any]]] = []
-    for dataset in datasets:
-        for case in dataset.cases:
-            metadata = {
-                **(case.metadata or {}),
-                "mode": "production-live-multi-turn",
-            }
-            cases.append(
-                Case(
-                    name=case.name,
-                    inputs=case.inputs,
-                    metadata=metadata,
-                    expected_output=case.expected_output,
-                    evaluators=tuple(dataset.evaluators) + tuple(case.evaluators),
-                )
-            )
-
-    return Dataset(
+    return combine_datasets(
         name="knowledge-akgents/production-end-to-end",
-        cases=cases,
+        datasets=datasets,
+        metadata={"mode": "production-live-multi-turn"},
     )

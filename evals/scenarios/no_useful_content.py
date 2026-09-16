@@ -21,6 +21,7 @@ from evals.harness.models import (
     KnowledgeCaseInput,
     KnowledgeEvaluationEnvironment,
 )
+from evals.routes import managed_route
 
 NO_USEFUL_CONTENT_URL = "https://eval.invalid/empty-content"
 FIXTURE_PATH = Path(__file__).parents[1] / "fixtures" / "no_useful_content_page.txt"
@@ -52,12 +53,7 @@ def build_no_useful_content_scenario_dataset(
         evaluators=[
             CompletedSuccessfully(),
             FollowedMessageRoute(
-                expected_route=(
-                    ("@Human", "@Manager"),
-                    ("@Manager", "@WebIngest"),
-                    ("@WebIngest", "@Manager"),
-                    ("@Manager", "@Human"),
-                )
+                expected_route=managed_route("@WebIngest")
             ),
             CalledRequiredTools(required_tools=("web_fetch_tool",)),
             ToolArgumentsContain(

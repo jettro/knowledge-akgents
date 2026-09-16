@@ -1,6 +1,6 @@
 # Judge calibration
 
-The live judges assess two independent qualities:
+The retrieval-answer judges assess two independent qualities:
 
 - **groundedness**: factual claims are supported by captured retrieval
   evidence;
@@ -22,7 +22,7 @@ against the supplied evidence, while ignoring completeness and writing style.
 The answer-relevance rubric checks whether the question was answered directly
 and completely, without deciding whether the answer is factually supported.
 
-A rubric is reusable logic, not case data:
+A rubric is reusable application policy, not case data:
 
 - the **rubric** defines how to judge a quality;
 - the **case** supplies a question, evidence, and candidate answer;
@@ -31,8 +31,8 @@ A rubric is reusable logic, not case data:
   that human label.
 
 The current rubrics are the `GROUNDEDNESS_RUBRIC` and
-`ANSWER_RELEVANCE_RUBRIC` constants. `evals/evaluators/live.py` reuses those exact
-rubrics when evaluating real retrieval answers.
+`ANSWER_RELEVANCE_RUBRIC` constants. `evals/evaluators/retrieval.py` reuses
+those exact rubrics when evaluating actual retrieval answers.
 
 ## Why calibration is required
 

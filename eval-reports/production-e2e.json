@@ -1,5 +1,5 @@
 {
-  "name": "production-e2e-observability",
+  "name": "knowledge-akgents/production-end-to-end",
   "cases": [
     {
       "name": "ingest-and-query-jettro-about",
@@ -2126,9 +2126,9 @@
   "experiment_metadata": {
     "model": "gpt-5.6-luna",
     "logfire_export": false,
-    "purpose": "discover event and span contracts",
+    "purpose": "production end-to-end acceptance evaluation",
     "repeat": 1,
-    "live_judges": false,
+    "retrieval_answer_judges": false,
     "catalog_team": "production"
   },
   "trace_id": "01a09b58c936de9035ac2703872f19e4",

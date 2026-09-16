@@ -64,7 +64,7 @@ Repeat cases to inspect model variance:
 make eval-retrieval EVAL_FLAGS="--case jettro-profession --repeat 3"
 ```
 
-## Live judges
+## Retrieval-answer judges
 
 Add calibrated groundedness and answer-relevance judgments:
 

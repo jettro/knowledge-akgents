@@ -54,7 +54,7 @@ class RuntimeCapabilities(BaseModel):
 
 
 class AkgenticEvalRuntime(Protocol):
-    """Drive one isolated application runtime and emit normalized events."""
+    """Drive one evaluation runtime or session and emit normalized events."""
 
     @property
     def capabilities(self) -> RuntimeCapabilities: ...

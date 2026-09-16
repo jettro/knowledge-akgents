@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from akgentic_evals.runtime import run_case_with_factory
 from evals.harness import runtime as harness_runtime
-from evals.harness import tasks
 from evals.harness.models import KnowledgeCaseInput, KnowledgeEvaluationEnvironment
+from evals.harness.runtime import KnowledgeRuntimeFactory
 
 
 def test_each_task_run_uses_and_shuts_down_a_fresh_team(
@@ -41,9 +42,16 @@ def test_each_task_run_uses_and_shuts_down_a_fresh_team(
     monkeypatch.setattr(harness_runtime, "KnowledgeTeamRuntime", FakeRuntime)
     monkeypatch.setattr(harness_runtime, "load_case_team_card", record_composition)
 
-    first = tasks.run_team_case(KnowledgeCaseInput(message="first", timeout_seconds=1))
-    second = tasks.run_team_case(KnowledgeCaseInput(message="second", timeout_seconds=1))
-    failure = tasks.run_team_case(
+    factory = KnowledgeRuntimeFactory()
+    first = run_case_with_factory(
+        KnowledgeCaseInput(message="first", timeout_seconds=1),
+        factory,
+    )
+    second = run_case_with_factory(
+        KnowledgeCaseInput(message="second", timeout_seconds=1),
+        factory,
+    )
+    failure = run_case_with_factory(
         KnowledgeCaseInput(
             message="failure",
             timeout_seconds=1,
@@ -51,7 +59,8 @@ def test_each_task_run_uses_and_shuts_down_a_fresh_team(
                 fixture_source_url="https://eval.invalid/unreachable",
                 fixture_web_failure="Connection timed out",
             ),
-        )
+        ),
+        factory,
     )
 
     assert first.final_response == "first"
@@ -90,7 +99,7 @@ def test_production_task_does_not_construct_fixture_web_tool(monkeypatch: Any) -
     monkeypatch.setattr(harness_runtime, "KnowledgeTeamRuntime", FakeRuntime)
     monkeypatch.setattr(harness_runtime, "load_case_team_card", record_composition)
 
-    output = tasks.run_team_case(
+    output = run_case_with_factory(
         KnowledgeCaseInput(
             message="Ingest https://coenradie.com/about",
             timeout_seconds=1,
@@ -99,7 +108,7 @@ def test_production_task_does_not_construct_fixture_web_tool(monkeypatch: Any) -
                 fixture_path="not-read-in-production.txt",
             ),
         ),
-        catalog_team="production",
+        KnowledgeRuntimeFactory("production"),
     )
 
     assert output.final_response == "Ingest https://coenradie.com/about"

@@ -4,28 +4,28 @@ from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 
 import logfire
-from pydantic_evals import Dataset
-from pydantic_evals.evaluators import Evaluator, EvaluatorContext, EvaluatorOutput
 
-from akgentic_evals.models import AkgenticCaseOutput
+from akgentic_evals.datasets import UnknownCaseError, select_case
+from akgentic_evals.diagnostics import OutputInventory, SpanInventory
 from akgentic_evals.reporting import load_report, save_report
-from evals.evaluators.live import LiveRetrievalJudges
+from akgentic_evals.runtime import run_case_with_factory
+from evals.evaluators.retrieval import RetrievalAnswerJudges
 from evals.harness.catalog import TeamCatalog
-from evals.harness.cli import positive_int
-from evals.harness.dataset_loader import build_json_dataset
-from evals.harness.models import KnowledgeCaseInput
+from evals.harness.dataset_loader import (
+    RETRIEVAL_DATASET_PATH,
+    build_json_dataset,
+)
 from evals.harness.running_system import (
     RUNNING_SYSTEM_CAPABILITIES,
     require_running_system,
     run_running_system_case,
 )
-from evals.harness.runtime import KnowledgeTeamRuntime
-from evals.harness.tasks import run_team_case
+from evals.harness.runtime import KnowledgeRuntimeFactory, KnowledgeTeamRuntime
+from evals.runners._cli import positive_int
 from evals.scenarios.change_aware_ingestion import build_change_aware_ingestion_dataset
 from evals.scenarios.jettro_ingestion import build_jettro_ingestion_dataset
 from evals.scenarios.jettro_scenario import build_jettro_scenario_dataset
@@ -36,70 +36,12 @@ from evals.scenarios.production_e2e import build_production_e2e_dataset
 from evals.scenarios.prompt_injection import (
     build_prompt_injection_scenario_dataset,
 )
-from evals.scenarios.retrieval_only import build_retrieval_only_dataset
 from evals.scenarios.routing import build_routing_dataset
 from evals.scenarios.unreachable_url import (
     build_unreachable_url_scenario_dataset,
 )
 from evals.scenarios.yuma_scenario import build_yuma_scenario_dataset
 from knowledge_akgents.settings import settings
-
-
-@dataclass
-class EventInventory(Evaluator[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, str]]):
-    def evaluate(
-        self,
-        ctx: EvaluatorContext[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, str]],
-    ) -> EvaluatorOutput:
-        call_ids = {call.tool_call_id for call in ctx.output.tool_calls}
-        return_ids = {result.tool_call_id for result in ctx.output.tool_returns}
-        empty_hire_calls = sum(
-            call.tool_name == "hire_members"
-            and isinstance(call.arguments, dict)
-            and not call.arguments.get("roles")
-            for call in ctx.output.tool_calls
-        )
-        return {
-            "message_count": len(ctx.output.messages),
-            "human_response_count": len(ctx.output.human_responses),
-            "tool_call_count": len(ctx.output.tool_calls),
-            "tool_return_count": len(ctx.output.tool_returns),
-            "tool_evidence_count": len(ctx.output.tool_evidence),
-            "tool_argument_parse_error_count": sum(
-                call.parse_error is not None for call in ctx.output.tool_calls
-            ),
-            "uncorrelated_tool_call_count": len(call_ids - return_ids),
-            "failed_tool_return_count": sum(
-                not result.success for result in ctx.output.tool_returns
-            ),
-            "empty_hire_members_call_count": empty_hire_calls,
-            "actor_error_count": len(ctx.output.errors),
-            "llm_response_count": len(ctx.output.llm_usage),
-            "llm_request_count": sum(usage.requests for usage in ctx.output.llm_usage),
-            "input_token_count": sum(usage.input_tokens for usage in ctx.output.llm_usage),
-            "output_token_count": sum(usage.output_tokens for usage in ctx.output.llm_usage),
-            "cache_read_token_count": sum(
-                usage.cache_read_tokens for usage in ctx.output.llm_usage
-            ),
-            "cache_write_token_count": sum(
-                usage.cache_write_tokens for usage in ctx.output.llm_usage
-            ),
-        }
-
-
-@dataclass
-class SpanInventory(Evaluator[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, str]]):
-    def evaluate(
-        self,
-        ctx: EvaluatorContext[KnowledgeCaseInput, AkgenticCaseOutput, dict[str, str]],
-    ) -> EvaluatorOutput:
-        nodes = list(ctx.span_tree)
-        names = sorted({node.name for node in nodes})
-        return {
-            "span_count": len(nodes),
-            "tool_span_count": sum("tool" in node.name.lower() for node in nodes),
-            "span_names": " | ".join(names[:20]) if names else "<none>",
-        }
 
 
 def _parse_args() -> argparse.Namespace:
@@ -190,22 +132,8 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _select_case(dataset: Dataset, case_name: str | None) -> None:
-    if case_name is None:
-        return
-    selected = [case for case in dataset.cases if case.name == case_name]
-    if not selected:
-        available = ", ".join(case.name or "<unnamed>" for case in dataset.cases)
-        raise SystemExit(f"Unknown case {case_name!r}. Available cases: {available}")
-    dataset.cases[:] = selected
-
-
 def main() -> None:
     args = _parse_args()
-    missing = [name for name, value in (("OPENAI_API_KEY", settings.openai_api_key),) if not value]
-    if missing:
-        raise SystemExit(f"Missing required live-evaluation settings: {', '.join(missing)}")
-
     loaded_json = (
         build_json_dataset(args.dataset, args.timeout)
         if args.dataset is not None
@@ -221,6 +149,11 @@ def main() -> None:
         loaded_json is not None
         and loaded_json.execution_target == "running_system"
     )
+    if _requires_local_model(
+        uses_running_system=uses_running_system,
+        with_judges=args.with_judges,
+    ) and not settings.openai_api_key:
+        raise SystemExit("Missing required evaluation setting: OPENAI_API_KEY")
     if uses_running_system:
         try:
             require_running_system(args.system_url)
@@ -272,29 +205,36 @@ def main() -> None:
     elif args.scenario == "change-aware-ingestion":
         dataset = build_change_aware_ingestion_dataset(args.timeout)
     elif args.scenario == "retrieval-only":
-        dataset = build_retrieval_only_dataset(args.timeout)
+        dataset = build_json_dataset(
+            RETRIEVAL_DATASET_PATH,
+            args.timeout,
+        ).dataset
     else:
         dataset = build_jettro_ingestion_dataset(args.timeout)
-    _select_case(dataset, args.case)
+    try:
+        select_case(dataset, args.case)
+    except UnknownCaseError as exc:
+        raise SystemExit(str(exc)) from exc
     if args.with_judges:
         if args.scenario != "retrieval-only" and args.dataset is None:
             raise SystemExit(
                 "--with-judges currently supports only retrieval fixture datasets"
             )
         dataset.add_evaluator(
-            LiveRetrievalJudges(
+            RetrievalAnswerJudges(
                 model=f"{settings.llm_provider}:{settings.llm_model}",
             )
         )
-    dataset.add_evaluator(EventInventory())
+    dataset.add_evaluator(OutputInventory())
     dataset.add_evaluator(SpanInventory())
-    run_name = (
-        args.dataset.stem if args.dataset is not None else args.scenario
-    )
+    run_name = dataset.name
     task = (
         partial(run_running_system_case, system_url=args.system_url)
         if uses_running_system
-        else partial(run_team_case, catalog_team=catalog_team)
+        else partial(
+            run_case_with_factory,
+            runtime_factory=KnowledgeRuntimeFactory(catalog_team),
+        )
     )
     execution_target = (
         loaded_json.execution_target
@@ -303,15 +243,20 @@ def main() -> None:
     )
     report = dataset.evaluate_sync(
         task,
-        name=f"{run_name}-observability",
+        name=run_name,
         max_concurrency=1,
         repeat=args.repeat,
         metadata={
-            "model": settings.llm_model,
+            "agent_model": None if uses_running_system else settings.llm_model,
+            "judge_model": (
+                f"{settings.llm_provider}:{settings.llm_model}"
+                if args.with_judges
+                else None
+            ),
             "logfire_export": args.send_to_logfire,
-            "purpose": "discover event and span contracts",
+            "purpose": "application acceptance and regression evaluation",
             "repeat": args.repeat,
-            "live_judges": args.with_judges,
+            "retrieval_answer_judges": args.with_judges,
             "execution_target": execution_target,
             "runtime_capabilities": (
                 RUNNING_SYSTEM_CAPABILITIES.model_dump()
@@ -335,6 +280,9 @@ def main() -> None:
     summaries = []
     for case in report.cases:
         output = case.output
+        successful_invocation_ids = {
+            invocation.id for invocation in output.tool_invocations(successful=True)
+        }
         summaries.append(
             {
                 "case": case.name,
@@ -345,10 +293,7 @@ def main() -> None:
                     {
                         "name": call.tool_name,
                         "arguments": call.arguments,
-                        "succeeded": any(
-                            result.tool_call_id == call.tool_call_id and result.success
-                            for result in output.tool_returns
-                        ),
+                        "succeeded": call.invocation_id in successful_invocation_ids,
                     }
                     for call in output.tool_calls
                 ],
@@ -371,6 +316,14 @@ def main() -> None:
         )
     if summaries:
         print(json.dumps(summaries, indent=2))
+
+
+def _requires_local_model(
+    *,
+    uses_running_system: bool,
+    with_judges: bool,
+) -> bool:
+    return not uses_running_system or with_judges
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 {
-  "name": "retrieval-only-observability",
+  "name": "akgentic-catalog-verification",
   "cases": [
     {
       "name": "jettro-profession",
@@ -582,9 +582,9 @@
   "experiment_metadata": {
     "model": "gpt-5.6-luna",
     "logfire_export": false,
-    "purpose": "discover event and span contracts",
+    "purpose": "catalog integration verification",
     "repeat": 1,
-    "live_judges": false
+    "retrieval_answer_judges": false
   },
   "trace_id": "01a09b13a7071415499386c515274ed3",
   "span_id": "1ff1ae178f67bf8a"

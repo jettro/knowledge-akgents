@@ -8,15 +8,25 @@ from akgentic_evals.evaluators import (
     HumanResponseContainsTerms,
     ToolCallCount,
 )
-from evals.scenarios.retrieval_only import (
-    DATASET_PATH,
-    MISSING_KNOWLEDGE_TERMS,
-    build_retrieval_only_dataset,
+from evals.harness.dataset_loader import (
+    RETRIEVAL_DATASET_PATH,
+    build_json_dataset,
+    load_dataset_definition,
 )
+
+_DEFINITION = load_dataset_definition(RETRIEVAL_DATASET_PATH)
+MISSING_KNOWLEDGE_TERMS = _DEFINITION.vocabularies["missing_knowledge"]
+
+
+def _build_retrieval_only_dataset(timeout_seconds: float = 180.0):
+    return build_json_dataset(
+        RETRIEVAL_DATASET_PATH,
+        timeout_seconds=timeout_seconds,
+    ).dataset
 
 
 def test_retrieval_only_dataset_defines_canonical_and_paraphrased_cases() -> None:
-    dataset = build_retrieval_only_dataset(timeout_seconds=1)
+    dataset = _build_retrieval_only_dataset(timeout_seconds=1)
 
     assert [case.name for case in dataset.cases] == [
         "jettro-profession",
@@ -37,7 +47,7 @@ def test_retrieval_only_dataset_defines_canonical_and_paraphrased_cases() -> Non
     conflict_case = next(
         case for case in dataset.cases if case.name == "synthetic-conflicting-database-preference"
     )
-    assert DATASET_PATH.name == "retrieval_only.json"
+    assert RETRIEVAL_DATASET_PATH.name == "retrieval_only.json"
     assert all(
         len(case.inputs.environment.knowledge_fixture.records) == 8
         for case in standard_cases
@@ -71,7 +81,7 @@ def test_retrieval_only_dataset_defines_canonical_and_paraphrased_cases() -> Non
 
 
 def test_retrieval_only_cases_define_answer_specific_evaluators() -> None:
-    dataset = build_retrieval_only_dataset(timeout_seconds=1)
+    dataset = _build_retrieval_only_dataset(timeout_seconds=1)
 
     required_terms = {
         case.name: [
@@ -103,7 +113,7 @@ def test_retrieval_only_cases_define_answer_specific_evaluators() -> None:
 
 
 def test_negative_control_cases_limit_search_retries() -> None:
-    dataset = build_retrieval_only_dataset(timeout_seconds=1)
+    dataset = _build_retrieval_only_dataset(timeout_seconds=1)
     expected_limits = {
         "jettro-unknown-favorite-database": 2,
         "jettro-profession-and-unknown-favorite-database": 3,
@@ -120,7 +130,7 @@ def test_negative_control_cases_limit_search_retries() -> None:
 
 
 def test_negative_control_cases_share_missing_knowledge_vocabulary() -> None:
-    dataset = build_retrieval_only_dataset(timeout_seconds=1)
+    dataset = _build_retrieval_only_dataset(timeout_seconds=1)
     negative_cases = [
         case for case in dataset.cases if "negative-control" in case.metadata["prompt_variant"]
     ]

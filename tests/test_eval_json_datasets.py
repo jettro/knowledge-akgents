@@ -54,6 +54,7 @@ def _definition() -> dict:
                     },
                     {
                         "type": "tool_evidence_contains_terms",
+                        "tool_name": "search_graph",
                         "required_terms": ["software engineer"],
                     },
                 ],
@@ -109,6 +110,16 @@ def test_loader_rejects_unknown_evaluator_type(tmp_path: Path) -> None:
     value["cases"][0]["evaluators"] = [{"type": "execute_python"}]
 
     with pytest.raises(ValidationError, match="union_tag_invalid"):
+        load_dataset_definition(_write_json(tmp_path, value))
+
+
+def test_loader_requires_tool_name_for_tool_evidence_evaluator(
+    tmp_path: Path,
+) -> None:
+    value = _definition()
+    del value["cases"][0]["evaluators"][2]["tool_name"]
+
+    with pytest.raises(ValidationError, match="tool_name"):
         load_dataset_definition(_write_json(tmp_path, value))
 
 

@@ -21,6 +21,7 @@ from evals.harness.models import (
     KnowledgeCaseInput,
     KnowledgeEvaluationEnvironment,
 )
+from evals.routes import managed_route
 from evals.scenarios.jettro_ingestion import FIXTURE_PATH, JETTRO_ABOUT_URL
 
 
@@ -61,19 +62,10 @@ def build_jettro_scenario_dataset(
         evaluators=[
             CompletedSuccessfully(expected_human_responses=3),
             FollowedMessageRoute(
-                expected_route=(
-                    ("@Human", "@Manager"),
-                    ("@Manager", "@WebIngest"),
-                    ("@WebIngest", "@Manager"),
-                    ("@Manager", "@Human"),
-                    ("@Human", "@Manager"),
-                    ("@Manager", "@Knowledge"),
-                    ("@Knowledge", "@Manager"),
-                    ("@Manager", "@Human"),
-                    ("@Human", "@Manager"),
-                    ("@Manager", "@Knowledge"),
-                    ("@Knowledge", "@Manager"),
-                    ("@Manager", "@Human"),
+                expected_route=managed_route(
+                    "@WebIngest",
+                    "@Knowledge",
+                    "@Knowledge",
                 )
             ),
             CalledRequiredTools(required_tools=("web_fetch_tool", "update_graph", "search_graph")),

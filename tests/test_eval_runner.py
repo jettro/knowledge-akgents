@@ -1,208 +1,18 @@
-"""Tests for the main evaluation runner and event collection."""
+"""Tests for evaluation runner input handling."""
 
 from __future__ import annotations
 
 import argparse
-import uuid
 
 import pytest
-from akgentic.agent import AgentMessage
-from akgentic.core import ActorAddressProxy
-from akgentic.core.messages.orchestrator import ErrorMessage, EventMessage, SentMessage
-from akgentic.llm import LlmMessageEvent, LlmUsageEvent, ToolCallEvent, ToolReturnEvent
-from pydantic_ai.messages import ModelRequest, ToolReturnPart
 
-from akgentic_evals.collector import EvaluationEventCollector
-from evals.harness.cli import positive_int
-from evals.harness.collector import AkgenticEventAdapter
-from evals.runners.evaluate import _select_case
-from evals.scenarios.retrieval_only import build_retrieval_only_dataset
-
-
-def _address(name: str, *, is_user_proxy: bool = False) -> ActorAddressProxy:
-    identifier = str(uuid.uuid4())
-    return ActorAddressProxy(
-        {
-            "__actor_address__": True,
-            "agent_id": identifier,
-            "name": name,
-            "role": name.removeprefix("@"),
-            "team_id": str(uuid.uuid4()),
-            "squad_id": None,
-            "is_user_proxy": is_user_proxy,
-        }
-    )
-
-
-def _collector_and_adapter() -> tuple[EvaluationEventCollector, AkgenticEventAdapter]:
-    collector = EvaluationEventCollector()
-    return collector, AkgenticEventAdapter(collector.on_event)
-
-
-def test_collector_correlates_tool_calls_and_returns() -> None:
-    collector, adapter = _collector_and_adapter()
-    agent = _address("@WebIngest")
-
-    adapter.on_message(
-        EventMessage(
-            sender=agent,
-            event=ToolCallEvent(
-                run_id="run-1",
-                tool_name="web_fetch",
-                tool_call_id="call-1",
-                arguments='{"url": "https://coenradie.com/about"}',
-            ),
-        )
-    )
-    adapter.on_message(
-        EventMessage(
-            sender=agent,
-            event=ToolReturnEvent(
-                run_id="run-1",
-                tool_name="web_fetch",
-                tool_call_id="call-1",
-                success=True,
-            ),
-        )
-    )
-
-    output = collector.wait_for_responses(1, 0)
-
-    assert output.human_responses == []
-    assert output.tool_calls[0].arguments == {"url": "https://coenradie.com/about"}
-    assert output.tool_calls[0].parse_error is None
-    assert output.tool_returns[0].tool_call_id == output.tool_calls[0].tool_call_id
-
-
-def test_collector_completes_on_human_directed_message() -> None:
-    collector, adapter = _collector_and_adapter()
-    agent = _address("@Manager")
-    human = _address("@Human", is_user_proxy=True)
-    response = AgentMessage(
-        content="The page was ingested.",
-        type="notification",
-        sender=agent,
-        recipient=human,
-    )
-
-    adapter.on_message(
-        SentMessage(
-            sender=agent,
-            recipient=human,
-            message=response,
-        )
-    )
-
-    output = collector.wait_for_responses(1, 0)
-
-    assert output.completion_reason == "human_response"
-    assert output.final_response == "The page was ingested."
-    assert output.human_responses == ["The page was ingested."]
-    assert output.messages[0].sender == "@Manager"
-    assert output.messages[0].recipient == "@Human"
-
-
-def test_collector_captures_llm_usage() -> None:
-    collector, adapter = _collector_and_adapter()
-    agent = _address("@Knowledge")
-
-    adapter.on_message(
-        EventMessage(
-            sender=agent,
-            event=LlmUsageEvent(
-                run_id="run-1",
-                model_name="gpt-test",
-                provider_name="openai",
-                input_tokens=120,
-                output_tokens=30,
-                cache_read_tokens=20,
-                cache_write_tokens=0,
-                requests=1,
-            ),
-        )
-    )
-
-    output = collector.wait_for_responses(1, 0)
-
-    assert output.llm_usage[0].model_name == "gpt-test"
-    assert output.llm_usage[0].input_tokens == 120
-    assert output.llm_usage[0].output_tokens == 30
-    assert output.llm_usage[0].requests == 1
-
-
-def test_collector_captures_tool_return_evidence() -> None:
-    collector, adapter = _collector_and_adapter()
-    agent = _address("@Knowledge")
-
-    adapter.on_message(
-        EventMessage(
-            sender=agent,
-            event=LlmMessageEvent(
-                message=ModelRequest(
-                    run_id="run-1",
-                    parts=[
-                        ToolReturnPart(
-                            tool_name="search_graph",
-                            tool_call_id="call-1",
-                            content="Search Results: Jettro is a software architect.",
-                        )
-                    ],
-                )
-            ),
-        )
-    )
-
-    output = collector.wait_for_responses(1, 0)
-
-    assert output.tool_evidence[0].run_id == "run-1"
-    assert output.tool_evidence[0].tool_name == "search_graph"
-    assert output.tool_evidence[0].tool_call_id == "call-1"
-    assert "software architect" in output.tool_evidence[0].content
-    assert output.tool_evidence[0].outcome == "success"
-
-
-def test_collector_completes_on_actor_error() -> None:
-    collector, adapter = _collector_and_adapter()
-    agent = _address("@WebIngest")
-
-    adapter.on_message(
-        ErrorMessage(
-            sender=agent,
-            content_type="RuntimeError",
-            content="tool failed",
-        )
-    )
-
-    output = collector.wait_for_responses(1, 0)
-
-    assert output.completion_reason == "error"
-    assert output.errors == ["RuntimeError: tool failed"]
-
-
-def test_collector_waits_for_multiple_human_responses() -> None:
-    collector, adapter = _collector_and_adapter()
-    manager = _address("@Manager")
-    human = _address("@Human", is_user_proxy=True)
-
-    for content in ("First response", "Second response"):
-        adapter.on_message(
-            SentMessage(
-                sender=manager,
-                recipient=human,
-                message=AgentMessage(
-                    content=content,
-                    type="notification",
-                    sender=manager,
-                    recipient=human,
-                ),
-            )
-        )
-
-    output = collector.wait_for_responses(2, 0)
-
-    assert output.completion_reason == "human_response"
-    assert output.human_responses == ["First response", "Second response"]
-    assert output.final_response == "Second response"
+from akgentic_evals.datasets import UnknownCaseError, select_case
+from evals.harness.dataset_loader import (
+    RETRIEVAL_DATASET_PATH,
+    build_json_dataset,
+)
+from evals.runners._cli import positive_int
+from evals.runners.evaluate import _requires_local_model
 
 
 def test_repeat_count_must_be_positive() -> None:
@@ -212,16 +22,33 @@ def test_repeat_count_must_be_positive() -> None:
         positive_int("0")
 
 
+def test_running_system_without_local_judges_does_not_require_local_model() -> None:
+    assert not _requires_local_model(
+        uses_running_system=True,
+        with_judges=False,
+    )
+    assert _requires_local_model(
+        uses_running_system=True,
+        with_judges=True,
+    )
+    assert _requires_local_model(
+        uses_running_system=False,
+        with_judges=False,
+    )
+
+
 def test_select_case_filters_dataset() -> None:
-    dataset = build_retrieval_only_dataset(timeout_seconds=1)
+    dataset = build_json_dataset(RETRIEVAL_DATASET_PATH, timeout_seconds=1).dataset
 
-    _select_case(dataset, "jettro-unknown-favorite-database")
+    select_case(dataset, "jettro-unknown-favorite-database")
 
-    assert [case.name for case in dataset.cases] == ["jettro-unknown-favorite-database"]
+    assert [case.name for case in dataset.cases] == [
+        "jettro-unknown-favorite-database"
+    ]
 
 
 def test_select_case_rejects_unknown_name() -> None:
-    dataset = build_retrieval_only_dataset(timeout_seconds=1)
+    dataset = build_json_dataset(RETRIEVAL_DATASET_PATH, timeout_seconds=1).dataset
 
-    with pytest.raises(SystemExit, match="Unknown case"):
-        _select_case(dataset, "missing-case")
+    with pytest.raises(UnknownCaseError, match="Unknown case"):
+        select_case(dataset, "missing-case")

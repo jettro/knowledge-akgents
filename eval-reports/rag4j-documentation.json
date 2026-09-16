@@ -1,5 +1,5 @@
 {
-  "name": "rag4j_documentation-observability",
+  "name": "knowledge-akgents/rag4j-documentation",
   "cases": [
     {
       "name": "rag-system-components",
@@ -599,7 +599,7 @@
           "value": true,
           "reason": "The answer’s claims are directly supported by the evidence: the three parts are retrieval, generation, and quality evaluation, with the described flow and quality assessment matching the provided architecture and component descriptions.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -611,7 +611,7 @@
           "value": true,
           "reason": "The answer directly identifies all three required parts—retrieval, generation, and quality evaluation—and briefly explains their roles.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -1127,7 +1127,7 @@
           "value": true,
           "reason": "The answer accurately states that the provided evidence does not specify a distinction between Top-N and window strategies, while correctly summarizing the supported information about RetrievalStrategy and context construction. The request for a source URL is an operational suggestion and is not a factual claim requiring evidence.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -1139,7 +1139,7 @@
           "value": true,
           "reason": "The candidate directly addresses the question by explaining that the reviewed evidence does not specify a distinction between Top-N and window retrieval strategies, and it accurately connects this limitation to the available RetrievalStrategy information.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -1659,7 +1659,7 @@
           "value": true,
           "reason": "The evidence does not identify components for loading, splitting, embedding, or storing a corpus, and it does mention only Retriever and RetrievalStrategy among relevant RAG components. The request for a source URL is an operational suggestion and is not subject to the factual-evidence requirement.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -1671,7 +1671,7 @@
           "value": true,
           "reason": "The answer directly addresses the question by explaining that the reviewed evidence does not identify the components for loading, splitting, embedding, and storing a corpus, while noting the limited components it does identify.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -2185,7 +2185,7 @@
           "value": true,
           "reason": "The answer accurately states that the provided evidence does not identify any ContentStore implementations and correctly summarizes the relevant RAG4j/p entries. The request for a source URL is an operational suggestion and is not subject to the evidence-support requirement.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -2197,7 +2197,7 @@
           "value": true,
           "reason": "The response directly addresses the question by stating that the reviewed knowledge base does not document any ContentStore implementations and ties that conclusion to the listed RAG4j/p entries.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -2713,7 +2713,7 @@
           "value": true,
           "reason": "The answer accurately states that the reviewed evidence names RAG4J, RAG4P, and OpenaiAnswerGenerator but does not identify any local or OpenAI embedders. Its source-ingestion suggestion is an allowed operational next step.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -2725,7 +2725,7 @@
           "value": true,
           "reason": "The answer directly addresses the question by explaining that the reviewed evidence does not identify any local or OpenAI embedders, and it distinguishes the mentioned projects and answer generator from embedding components.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -3241,7 +3241,7 @@
           "value": true,
           "reason": "The answer accurately states that the Quality component uses three metrics to assess generated text and retrieved chunks in relation to the user’s question, which is supported by the evidence. It does not invent metric names, and the request for a source URL is an allowed operational suggestion.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -3253,7 +3253,7 @@
           "value": true,
           "reason": "The answer directly addresses the question by explaining that the reviewed evidence identifies three metrics but does not name or describe them, which is the relevant limitation in the provided evidence.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -3798,7 +3798,7 @@
           "value": true,
           "reason": "The answer accurately states that the evidence identifies only a Quality component, which evaluates generated text and retrieved chunks in relation to the user's question, and does not identify two services or their separate targets. The source-ingestion request is an operational suggestion, which the rubric does not require evidence to support.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -3810,7 +3810,7 @@
           "value": true,
           "reason": "The answer directly explains that the reviewed evidence does not identify two services or map each to an evaluation target, while accurately noting the only documented Quality component and its scope. This is an appropriate complete response when the requested fact is absent from the evidence.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -4349,7 +4349,7 @@
           "value": true,
           "reason": "The evidence does not identify any relational database required by RAG4j/p for its ContentStore, so the statement that the knowledge base does not specify one is supported. The request for a source URL is an allowed operational next-step suggestion.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -4361,7 +4361,7 @@
           "value": true,
           "reason": "The reviewed evidence does not identify any relational database required for the ContentStore, and the answer explicitly states that this requested fact is not specified.",
           "source": {
-            "name": "LiveRetrievalJudges",
+            "name": "RetrievalAnswerJudges",
             "arguments": [
               "openai:gpt-5.6-luna"
             ]
@@ -4383,9 +4383,9 @@
   "experiment_metadata": {
     "model": "gpt-5.6-luna",
     "logfire_export": false,
-    "purpose": "discover event and span contracts",
+    "purpose": "running-system retrieval acceptance evaluation",
     "repeat": 1,
-    "live_judges": true,
+    "retrieval_answer_judges": true,
     "execution_target": "running_system",
     "system_url": "http://localhost:8000",
     "dataset_path": "evals/examples/rag4j/dataset.json"

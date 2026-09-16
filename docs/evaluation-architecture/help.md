@@ -50,20 +50,25 @@ In this repository, the terms mean:
 This repository supplies the domain-specific behavior that Pydantic Evals does
 not know about:
 
-- `evals/harness/tasks.py` starts a `KnowledgeTeam` for a case;
+- `evals/runners/evaluate.py` binds the Knowledge runtime factory to the
+  reusable lifecycle;
 - `evals/harness/dataset_loader.py` validates JSON and selects fixture or real-store execution;
 - `evals/harness/catalog.py` selects the evaluation or production catalog team and
   applies deterministic fixture tools only to the evaluation team;
-- `evals/harness/collector.py` converts Akgentic events into a stable result;
-- `evals/evaluators/events.py` checks routes, tools, arguments, counts, and
-  responses;
-- `evals/evaluators/live.py` judges answers against captured `search_graph`
-  evidence;
+- `src/akgentic_evals/adapters.py` adapts Akgentic events to normalized
+  evaluation events;
+- `src/akgentic_evals/evaluators.py` checks routes, tools, arguments, counts,
+  and responses;
+- `src/akgentic_evals/diagnostics.py` summarizes normalized output and spans;
+- `evals/evaluators/retrieval.py` judges answers against captured
+  `search_graph` evidence;
 - fixture tools isolate agent behavior from Tavily and production Qdrant.
 
-Change `harness/` when execution or evidence collection changes. Change
-`evaluators/` when the definition of correct application behavior changes.
-Ordinary new retrieval cases should require changes only under `datasets/`.
+Change `harness/` when Knowledge runtime construction, fixtures, or transport
+integration changes. Change `evaluators/` when the definition of correct
+application behavior changes.
+Ordinary new retrieval cases should require changes only under `datasets/` or
+an application-owned folder under `examples/`.
 
 ## Pydantic Evals framework
 

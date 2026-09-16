@@ -8,10 +8,16 @@ from typing import Any
 from pydantic import BaseModel
 from pydantic_evals.reporting import EvaluationReport
 
+from akgentic_evals.models import AkgenticCaseOutput
+from akgentic_evals.runtime import AkgenticCaseInput
 
-class JudgeCalibrationInput(BaseModel):
+
+class EvidenceJudgeInput(BaseModel):
     question: str
     evidence: str
+
+
+class JudgeCalibrationInput(EvidenceJudgeInput):
     candidate_answer: str
 
 
@@ -42,6 +48,26 @@ class JudgeCalibrationSummary(BaseModel):
 
 def return_candidate_answer(inputs: JudgeCalibrationInput) -> str:
     return inputs.candidate_answer
+
+
+def build_tool_evidence_judge_input(
+    inputs: AkgenticCaseInput,
+    output: AkgenticCaseOutput,
+    *,
+    tool_name: str,
+    turn_index: int = -1,
+    separator: str = "\n\n",
+) -> EvidenceJudgeInput | None:
+    """Build judge input from one question and correlated successful tool evidence."""
+    evidence = [
+        record.content for record in output.successful_tool_evidence(tool_name)
+    ]
+    if not evidence:
+        return None
+    return EvidenceJudgeInput(
+        question=inputs.ordered_turns()[turn_index].message,
+        evidence=separator.join(evidence),
+    )
 
 
 def summarize_judge_agreement(

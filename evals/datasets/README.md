@@ -7,8 +7,10 @@ This directory is the authoring surface for evaluation data. It contains only:
 
 Python execution code does not belong here:
 
-- generic JSON validation and conversion lives in `evals/harness/dataset_loader.py`;
-- reusable correctness rules live in `evals/evaluators/`;
+- Knowledge-specific JSON validation, fixture selection, and conversion live
+  in `evals/harness/dataset_loader.py`;
+- reusable evaluator definitions and correctness rules live in
+  `src/akgentic_evals/`;
 - executable multi-step or failure simulations live in `evals/scenarios/`;
 - command-line entry points live in `evals/runners/`.
 
@@ -31,6 +33,11 @@ Use the already-running application and its real knowledge tool:
         {
           "type": "human_response_contains_terms",
           "required_terms": ["reviewed", "answer", "terms"]
+        },
+        {
+          "type": "tool_evidence_contains_terms",
+          "tool_name": "search_graph",
+          "required_terms": ["reviewed", "evidence"]
         }
       ]
     }

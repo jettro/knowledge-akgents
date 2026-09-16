@@ -19,6 +19,7 @@ from akgentic_evals.evaluators import (
 )
 from akgentic_evals.models import AkgenticCaseOutput
 from evals.harness.dataset_loader import (
+    RETRIEVAL_DATASET_PATH,
     FixtureKnowledgeDefinition,
     load_dataset_definition,
 )
@@ -26,11 +27,11 @@ from evals.harness.models import (
     KnowledgeCaseInput,
     KnowledgeEvaluationEnvironment,
 )
+from evals.routes import direct_route, managed_route
 from evals.scenarios.jettro_ingestion import FIXTURE_PATH as JETTRO_FIXTURE_PATH
 from evals.scenarios.jettro_ingestion import JETTRO_ABOUT_URL
-from evals.scenarios.retrieval_only import DATASET_PATH
 
-_RETRIEVAL_DEFINITION = load_dataset_definition(DATASET_PATH)
+_RETRIEVAL_DEFINITION = load_dataset_definition(RETRIEVAL_DATASET_PATH)
 if not isinstance(_RETRIEVAL_DEFINITION.knowledge, FixtureKnowledgeDefinition):
     raise ValueError("The routing scenario requires fixture knowledge")
 KNOWLEDGE_FIXTURE = _RETRIEVAL_DEFINITION.knowledge.fixtures["pilot"]
@@ -55,10 +56,7 @@ def build_routing_dataset(
                 metadata={"route_kind": "direct-knowledge"},
                 evaluators=(
                     FollowedMessageRoute(
-                        expected_route=(
-                            ("@Human", "@Knowledge"),
-                            ("@Knowledge", "@Human"),
-                        )
+                        expected_route=direct_route("@Knowledge")
                     ),
                     DidNotInvolveActors(actor_names=("@Manager", "@WebIngest")),
                     CalledRequiredTools(required_tools=("search_graph",)),
@@ -87,10 +85,7 @@ def build_routing_dataset(
                 metadata={"route_kind": "direct-web-ingest"},
                 evaluators=(
                     FollowedMessageRoute(
-                        expected_route=(
-                            ("@Human", "@WebIngest"),
-                            ("@WebIngest", "@Human"),
-                        )
+                        expected_route=direct_route("@WebIngest")
                     ),
                     DidNotInvolveActors(actor_names=("@Manager", "@Knowledge")),
                     CalledRequiredTools(required_tools=("web_fetch_tool", "update_graph")),
@@ -123,12 +118,7 @@ def build_routing_dataset(
                 metadata={"route_kind": "manager-read-only-url"},
                 evaluators=(
                     FollowedMessageRoute(
-                        expected_route=(
-                            ("@Human", "@Manager"),
-                            ("@Manager", "@Knowledge"),
-                            ("@Knowledge", "@Manager"),
-                            ("@Manager", "@Human"),
-                        )
+                        expected_route=managed_route("@Knowledge")
                     ),
                     DidNotInvolveActors(actor_names=("@WebIngest",)),
                     CalledRequiredTools(required_tools=("search_graph",)),

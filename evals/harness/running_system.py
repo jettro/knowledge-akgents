@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import json
 import threading
-from collections.abc import Iterator
-from contextlib import contextmanager
 from typing import Any
 from urllib.error import URLError
 from urllib.parse import urlsplit, urlunsplit
@@ -26,12 +24,12 @@ from akgentic_evals.events import (
 )
 from akgentic_evals.models import AkgenticCaseOutput
 from akgentic_evals.runtime import (
+    AkgenticCaseInput,
     ConversationTurn,
     EventHandler,
     RuntimeCapabilities,
-    run_case_with_factory,
+    run_case,
 )
-from evals.harness.models import KnowledgeCaseInput
 
 RUNNING_SYSTEM_CAPABILITIES = RuntimeCapabilities(
     request_correlation=False,
@@ -131,24 +129,15 @@ class RunningSystemRuntime:
             self._event_handler(event)
 
 
-class RunningSystemRuntimeFactory:
-    def __init__(self, system_url: str) -> None:
-        self._system_url = system_url
-
-    @contextmanager
-    def runtime(self, inputs: KnowledgeCaseInput) -> Iterator[RunningSystemRuntime]:
-        yield RunningSystemRuntime(self._system_url)
-
-
 def run_running_system_case(
-    inputs: KnowledgeCaseInput,
+    inputs: AkgenticCaseInput,
     *,
     system_url: str,
 ) -> AkgenticCaseOutput:
     """Execute a case through the running backend's public WebSocket boundary."""
-    return run_case_with_factory(
+    return run_case(
         inputs,
-        RunningSystemRuntimeFactory(system_url),
+        RunningSystemRuntime(system_url),
     )
 
 

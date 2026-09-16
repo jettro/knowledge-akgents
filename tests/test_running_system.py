@@ -13,7 +13,7 @@ from akgentic_evals.events import (
     ToolEvidenceObserved,
     ToolReturned,
 )
-from evals.harness.models import KnowledgeCaseInput
+from akgentic_evals.runtime import AkgenticCaseInput
 from evals.harness.running_system import (
     RUNNING_SYSTEM_CAPABILITIES,
     _normalize_event,
@@ -101,7 +101,7 @@ def test_running_system_case_uses_normalized_runtime(monkeypatch: Any) -> None:
     )
 
     output = run_running_system_case(
-        KnowledgeCaseInput(message="What is known?", timeout_seconds=1),
+        AkgenticCaseInput(message="What is known?", timeout_seconds=1),
         system_url="http://localhost:8000",
     )
 

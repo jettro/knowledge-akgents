@@ -7,12 +7,16 @@ from typing import Any, cast
 
 from pydantic_evals.evaluators import LLMJudge
 
-from akgentic_evals.calibration import summarize_judge_agreement
+from akgentic_evals.calibration import (
+    EvidenceJudgeInput,
+    JudgeCalibrationInput,
+    return_candidate_answer,
+    summarize_judge_agreement,
+)
 from evals.scenarios.judge_calibration import (
     ANSWER_RELEVANCE_RUBRIC,
     GROUNDEDNESS_RUBRIC,
     build_judge_calibration_dataset,
-    return_candidate_answer,
 )
 
 
@@ -76,6 +80,8 @@ def test_judge_uses_input_evidence_and_explicit_rubric() -> None:
 def test_static_calibration_task_returns_candidate_answer() -> None:
     case = build_judge_calibration_dataset("openai:test-model").cases[0]
 
+    assert isinstance(case.inputs, EvidenceJudgeInput)
+    assert isinstance(case.inputs, JudgeCalibrationInput)
     assert return_candidate_answer(case.inputs) == case.inputs.candidate_answer
 
 
