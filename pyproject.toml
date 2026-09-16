@@ -6,11 +6,11 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = "AGPL-3.0-only"
 dependencies = [
-    "akgentic-core",
+    "akgentic-core==1.5.15",
     "akgentic-llm",
-    "akgentic-agent",
-    "akgentic-team",
-    "akgentic-tool[qdrant,vector_search,docs]",
+    "akgentic-agent==1.7.0",
+    "akgentic-team==1.8.0",
+    "akgentic-tool[qdrant,vector_search,docs]==1.8.0",
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
     "websockets>=13",

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any, Literal
@@ -10,6 +11,8 @@ from akgentic.tool.core import ToolCard
 from pydantic import BaseModel, SerializeAsAny
 
 from knowledge_akgents.repository import UrlRepository
+
+logger = logging.getLogger(__name__)
 
 
 class SourceRelation(BaseModel):
@@ -103,17 +106,26 @@ class ContentChangeTracker:
     def commit(
         self,
         url: str,
-        content_hash: str,
+        content_hash: str | None = None,
         owned_entities: list[str] | None = None,
         owned_relations: list[SourceRelation] | None = None,
     ) -> dict[str, Any]:
-        """Persist a candidate hash after a successful graph update."""
+        """Persist the pending fetched-content hash after a successful graph update.
+
+        The pending hash captured at fetch time is authoritative. ``content_hash``
+        is accepted only for backward compatibility; a mismatch is logged and
+        ignored rather than raised, since the caller does not need to reproduce it.
+        """
         normalized_url = url.strip()
         expected_hash = self._pending.get(normalized_url)
         if expected_hash is None:
             raise ValueError(f"No pending fetched content for {normalized_url}")
-        if content_hash != expected_hash:
-            raise ValueError("Content hash does not match the pending fetched content")
+        if content_hash is not None and content_hash != expected_hash:
+            logger.warning(
+                "Ignoring mismatched content hash for %s on commit "
+                "(using pending fetched hash)",
+                normalized_url,
+            )
 
         relation_tuples = (
             [
@@ -125,7 +137,7 @@ class ContentChangeTracker:
         )
         record = self._repository.record_ingested(
             normalized_url,
-            content_hash,
+            expected_hash,
             owned_entities=owned_entities,
             owned_relations=relation_tuples,
         )
@@ -137,17 +149,26 @@ class ContentChangeTracker:
             "times_ingested": record.times_ingested,
         }
 
-    def fail(self, url: str, content_hash: str) -> dict[str, str]:
-        """Discard a pending candidate after a failed graph update."""
+    def fail(self, url: str, content_hash: str | None = None) -> dict[str, str]:
+        """Discard the pending fetched-content candidate after a failed graph update.
+
+        Only the URL is required. A failed graph update is cleanup, so a missing or
+        mismatched ``content_hash`` never raises: the pending candidate (if any) is
+        discarded and the URL is recorded as failed.
+        """
         normalized_url = url.strip()
         expected_hash = self._pending.get(normalized_url)
-        if expected_hash is None:
-            raise ValueError(f"No pending fetched content for {normalized_url}")
-        if content_hash != expected_hash:
-            raise ValueError("Content hash does not match the pending fetched content")
+        if expected_hash is not None and (
+            content_hash is not None and content_hash != expected_hash
+        ):
+            logger.warning(
+                "Ignoring mismatched content hash for %s on fail "
+                "(discarding pending fetched candidate anyway)",
+                normalized_url,
+            )
 
         self._repository.record_failed(normalized_url)
-        del self._pending[normalized_url]
+        self._pending.pop(normalized_url, None)
         return {"url": normalized_url, "status": "failed"}
 
     def _ensure_submitted(self, url: str) -> None:
@@ -182,9 +203,10 @@ class ChangeAwareWebTool(ToolCard):
         ) -> Any:
             """Fetch pages and return only new or changed extracted content.
 
-            Set force only when the user explicitly requests reprocessing. Results
-            include a content hash that must be committed after update_graph succeeds.
-            An unchanged page is returned under unchanged_results without raw content.
+            Set force only when the user explicitly requests reprocessing. After
+            update_graph succeeds, commit the result by URL (the content hash is
+            tracked internally). An unchanged page is returned under
+            unchanged_results without raw content.
             """
             result = original_fetch(
                 urls=urls,
@@ -197,16 +219,26 @@ class ChangeAwareWebTool(ToolCard):
 
         def commit_web_ingestion(
             url: str,
-            content_hash: str,
             owned_entities: list[str] | None = None,
             owned_relations: list[SourceRelation] | None = None,
         ) -> dict[str, Any]:
-            """Commit the content hash and current source-owned facts after update_graph."""
-            return tracker.commit(url, content_hash, owned_entities, owned_relations)
+            """Persist the fetched page for this URL after update_graph succeeds.
 
-        def fail_web_ingestion(url: str, content_hash: str) -> dict[str, str]:
-            """Discard a fetched content candidate after update_graph fails."""
-            return tracker.fail(url, content_hash)
+            Pass only the URL (plus the source-owned facts). The content hash from
+            the fetch is tracked internally and does not need to be supplied.
+            """
+            return tracker.commit(
+                url,
+                owned_entities=owned_entities,
+                owned_relations=owned_relations,
+            )
+
+        def fail_web_ingestion(url: str) -> dict[str, str]:
+            """Discard the fetched candidate for this URL after update_graph fails.
+
+            Only the URL is required; the pending candidate is discarded internally.
+            """
+            return tracker.fail(url)
 
         return [
             *(tool for tool in delegate_tools if tool is not original_fetch),

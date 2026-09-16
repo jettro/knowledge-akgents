@@ -59,7 +59,6 @@ def test_tool_card_exposes_fetch_and_guarded_completion_tools(tmp_path: Path) ->
     candidate = fetched["results"][0]
     committed = tools["commit_web_ingestion"](
         url=candidate["url"],
-        content_hash=candidate["content_hash"],
         owned_entities=["Fixture"],
         owned_relations=[],
     )
@@ -218,21 +217,39 @@ def test_graph_failure_discards_candidate_without_committing_hash(tmp_path: Path
 
     result = tracker.process_fetch_result([url], _fetch_result(url, "Candidate"), force=False)
     content_hash = result["results"][0]["content_hash"]
-    failed = tracker.fail(url, content_hash)
+    failed = tracker.fail(url)
 
     assert failed == {"url": url, "status": "failed"}
     assert repository.get(url).content_hash is None
 
     with pytest.raises(ValueError, match="No pending"):
-        tracker.commit(url, content_hash)
+        tracker.commit(url)
 
 
-def test_commit_rejects_a_hash_not_returned_by_fetch(tmp_path: Path) -> None:
+def test_commit_ignores_a_hash_not_returned_by_fetch(tmp_path: Path) -> None:
+    repository = UrlRepository(tmp_path / "urls.json")
+    tracker = ContentChangeTracker(repository)
+    url = "https://example.com/page"
+
+    result = tracker.process_fetch_result([url], _fetch_result(url, "Candidate"), force=False)
+    fetched_hash = result["results"][0]["content_hash"]
+
+    committed = tracker.commit(url, "not-the-returned-hash")
+
+    assert committed["status"] == "ingested"
+    assert committed["content_hash"] == fetched_hash
+    assert repository.get(url).content_hash == fetched_hash
+
+
+def test_fail_requires_only_the_url(tmp_path: Path) -> None:
     repository = UrlRepository(tmp_path / "urls.json")
     tracker = ContentChangeTracker(repository)
     url = "https://example.com/page"
 
     tracker.process_fetch_result([url], _fetch_result(url, "Candidate"), force=False)
+    failed = tracker.fail(url)
 
-    with pytest.raises(ValueError, match="does not match"):
-        tracker.commit(url, "not-the-returned-hash")
+    assert failed == {"url": url, "status": "failed"}
+    assert repository.get(url).content_hash is None
+    with pytest.raises(ValueError, match="No pending"):
+        tracker.commit(url)

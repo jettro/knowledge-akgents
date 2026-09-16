@@ -22,12 +22,13 @@ COPY akgentic-llm/ ./akgentic-llm/
 
 WORKDIR /workspace/app
 COPY knowledge-akgents/pyproject.toml ./pyproject.toml
+COPY knowledge-akgents/uv.lock ./uv.lock
 COPY knowledge-akgents/README.md ./README.md
 COPY knowledge-akgents/config ./config
 COPY knowledge-akgents/src ./src
 
-# Resolve + install into an in-project venv (no lockfile required).
-RUN uv sync --no-dev
+# Install into an in-project venv from the pinned lockfile for reproducible builds.
+RUN uv sync --locked --no-dev
 
 EXPOSE 8000
-CMD ["uv", "run", "--no-dev", "uvicorn", "knowledge_akgents.app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "--frozen", "--no-dev", "uvicorn", "knowledge_akgents.app:app", "--host", "0.0.0.0", "--port", "8000"]
