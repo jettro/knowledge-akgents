@@ -17,7 +17,7 @@ help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
-sync: ## Install/resolve dependencies (incl. local akgentic-tool & akgentic-llm)
+sync: ## Install/resolve dependencies
 	uv sync --all-groups
 
 upgrade: ## Check for and install updates to all dependencies

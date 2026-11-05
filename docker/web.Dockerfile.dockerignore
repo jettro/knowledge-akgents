@@ -1,0 +1,10 @@
+# Patterns are relative to the build context root (this project directory).
+.venv
+.git
+**/__pycache__
+.mypy_cache
+.ruff_cache
+.pytest_cache
+.idea
+data
+eval-reports

@@ -1,5 +1,5 @@
 # Compose the full stack: Qdrant (storage) + backend (Akgentic team) + web (nginx).
-# Build context is the parent dir so the local akgentic-tool / akgentic-llm are in scope.
+# Build context is this project directory; akgentic packages come from PyPI.
 #
 #   docker compose up --build
 #
@@ -17,8 +17,8 @@ services:
 
   backend:
     build:
-      context: ..
-      dockerfile: knowledge-akgents/docker/backend.Dockerfile
+      context: .
+      dockerfile: docker/backend.Dockerfile
     restart: unless-stopped
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
@@ -37,8 +37,8 @@ services:
 
   web:
     build:
-      context: ..
-      dockerfile: knowledge-akgents/docker/web.Dockerfile
+      context: .
+      dockerfile: docker/web.Dockerfile
     restart: unless-stopped
     depends_on:
       - backend

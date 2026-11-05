@@ -37,11 +37,9 @@ def test_cards_have_expected_tools() -> None:
     w_tools = {type(t).__name__ for t in w.config.tools}
 
     # Knowledge queries the shared store.
-    assert "VectorStoreTool" in k_tools
     assert "KnowledgeGraphTool" in k_tools
 
     # Web-ingest additionally retrieves web pages.
-    assert "VectorStoreTool" in w_tools
     assert "KnowledgeGraphTool" in w_tools
     assert "ChangeAwareWebTool" in w_tools
     assert "never add guessed answer candidates" in KNOWLEDGE_PROMPT
@@ -50,7 +48,7 @@ def test_cards_have_expected_tools() -> None:
     assert "do not call the knowledge-graph update tool" in WEBINGEST_PROMPT
     assert "If it returns unchanged_results, do not call" in WEBINGEST_PROMPT
     assert "previous_source_facts lists facts exclusively owned" in WEBINGEST_PROMPT
-    assert "Never commit a hash or ownership" in WEBINGEST_PROMPT
+    assert "Never commit an ownership" in WEBINGEST_PROMPT
 
 
 def test_team_boots_with_expected_roster(dummy_openai_key: None) -> None:

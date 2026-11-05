@@ -215,8 +215,7 @@ def test_graph_failure_discards_candidate_without_committing_hash(tmp_path: Path
     tracker = ContentChangeTracker(repository)
     url = "https://example.com/page"
 
-    result = tracker.process_fetch_result([url], _fetch_result(url, "Candidate"), force=False)
-    content_hash = result["results"][0]["content_hash"]
+    tracker.process_fetch_result([url], _fetch_result(url, "Candidate"), force=False)
     failed = tracker.fail(url)
 
     assert failed == {"url": url, "status": "failed"}

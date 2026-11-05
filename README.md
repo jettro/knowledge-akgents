@@ -8,7 +8,8 @@ a **web Human Proxy** talks to an **Akgentic team** that can
 
 with **Qdrant** as the vector store. Deployed with Docker; managed with `uv`; common tasks via `make`.
 
-> Uses released akgentic modules, plus **local editable** `../akgentic-tool` and `../akgentic-llm`.
+> Uses the released akgentic modules from PyPI, pinned as one release set through
+> `akgentic-framework` in `pyproject.toml`.
 > See `plan.md` for the full design and the decisions behind it.
 
 ## Architecture
@@ -28,7 +29,6 @@ Browser (Human Proxy UI)  ──ws──►  FastAPI backend  ──►  Akgenti
 ## Prerequisites
 
 - Python 3.12+, [`uv`](https://docs.astral.sh/uv/), Docker.
-- The sibling checkouts `../akgentic-tool` and `../akgentic-llm` next to this project.
 - A `.env` (copy `.env.example`) with:
   - `OPENAI_API_KEY` (and `OPENAI_BASE_URL` if `gpt-5.6-luna` is behind a gateway),
   - `TAVILY_API_KEY` (for web fetch/crawl),
@@ -47,7 +47,7 @@ make down
 ## Run locally (dev)
 
 ```bash
-make sync                                   # install deps (incl. local tool & llm)
+make sync                                   # install deps
 docker run -p 6333:6333 qdrant/qdrant       # or leave AKGENTIC_QDRANT_URL unset for in-memory
 make run                                     # backend on :8000
 make web                                     # static UI on :8080
@@ -338,11 +338,8 @@ regression references. Reports can include prompts, answers, and tool
 arguments, so inspect new reports before committing them rather than treating
 the directory as safe for arbitrary raw output.
 
-No GitHub Actions workflow is provided yet. The project currently resolves
-`akgentic-llm` from the editable sibling path `../akgentic-llm`, which a generic
-hosted runner does not have. CI should hard-gate `make test-evals` only after
-that dependency is available through a package registry or an explicit checkout
-step. Paid evaluations and subjective judge scores should remain manual or
+No GitHub Actions workflow is provided yet. All dependencies now resolve from
+PyPI, so a hosted runner can run `make test-evals` as a hard gate. Paid evaluations and subjective judge scores should remain manual or
 scheduled, not run on every pull request.
 
 ## Project layout

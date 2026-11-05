@@ -1,23 +1,19 @@
 """Tool cards shared by the team.
 
-All knowledge-base tools point at the same ``#VectorStore`` singleton and the same
-``knowledge_graph`` collection, so what the web-ingest agent writes is exactly what the
-knowledge agent can query. Exporting ``AKGENTIC_QDRANT_URL`` makes that store Qdrant-backed.
+Both knowledge-graph cards use the same ``knowledge_graph`` collection, so what the
+web-ingest agent writes is exactly what the knowledge agent can query. Each card owns its
+storage (akgentic-tool 1.12 removed the separate ``VectorStoreTool`` card): the default
+``vector_store=True`` picks the backend the environment provisions, so exporting
+``AKGENTIC_QDRANT_URL`` makes the store Qdrant-backed.
 """
 
 from __future__ import annotations
 
 from akgentic.tool.knowledge_graph import KnowledgeGraphTool
 from akgentic.tool.search import SearchTool, WebCrawl, WebFetch
-from akgentic.tool.vector_store import VectorStoreTool
 
 from knowledge_akgents.change_aware_web import ChangeAwareWebTool
 from knowledge_akgents.settings import settings
-
-
-def vector_store_card() -> VectorStoreTool:
-    """The config card that guarantees the shared ``#VectorStore`` actor exists."""
-    return VectorStoreTool()
 
 
 def knowledge_query_card() -> KnowledgeGraphTool:

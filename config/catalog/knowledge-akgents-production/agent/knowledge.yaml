@@ -19,7 +19,5 @@ payload:
       __ref__: default-model
       __type__: akgentic.llm.ModelConfig
     tools:
-      - __ref__: vector-store
-        __type__: akgentic.tool.vector_store.tool.VectorStoreTool
       - __ref__: knowledge-query
         __type__: akgentic.tool.knowledge_graph.kg_tool.KnowledgeGraphTool

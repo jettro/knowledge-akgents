@@ -12,3 +12,6 @@ uv.lock
 
 # Jetbrains files
 .idea
+
+# macOS Finder metadata
+.DS_Store

@@ -6,17 +6,16 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = "AGPL-3.0-only"
 dependencies = [
-    "akgentic-core==1.5.15",
-    "akgentic-llm",
-    "akgentic-agent==1.7.0",
-    "akgentic-team==1.8.0",
-    "akgentic-tool[qdrant,vector_search,docs]==1.8.0",
+    # One release set: akgentic-framework pins core, llm, tool, agent, team and catalog
+    # at the versions that were built and tested together. Bump this one number.
+    "akgentic-framework[agent,catalog]==2.19.1",
+    # Only adds the tool extras; its version comes from the release set above.
+    "akgentic-tool[qdrant,vector_search,docs]",
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
     "websockets>=13",
     "pydantic-settings>=2.4",
     "python-dotenv>=1.0",
-    "akgentic-catalog==2.2.6",
 ]
 
 [dependency-groups]
@@ -29,10 +28,6 @@ dev = [
 eval = [
     "pydantic-evals[logfire]>=2.43,<3",
 ]
-
-[tool.uv.sources]
-#akgentic-tool = { path = "../akgentic-tool", editable = true }
-akgentic-llm = { path = "../akgentic-llm", editable = true }
 
 [build-system]
 requires = ["hatchling"]

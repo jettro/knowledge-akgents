@@ -54,11 +54,9 @@ def test_production_namespace_loads_native_team_card_and_tools() -> None:
     assert knowledge.agent_class == "knowledge_akgents.trace_context.TraceContextBaseAgent"
     assert web_ingest.agent_class == "knowledge_akgents.trace_context.TraceContextBaseAgent"
     assert [type(tool).__name__ for tool in knowledge.config.tools] == [
-        "VectorStoreTool",
         "KnowledgeGraphTool",
     ]
     assert [type(tool).__name__ for tool in web_ingest.config.tools] == [
-        "VectorStoreTool",
         "ChangeAwareWebTool",
         "KnowledgeGraphTool",
     ]

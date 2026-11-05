@@ -19,8 +19,6 @@ payload:
       __ref__: default-model
       __type__: akgentic.llm.ModelConfig
     tools:
-      - __ref__: vector-store
-        __type__: akgentic.tool.vector_store.tool.VectorStoreTool
       - __ref__: web
         __type__: knowledge_akgents.change_aware_web.ChangeAwareWebTool
       - __ref__: knowledge-ingest
